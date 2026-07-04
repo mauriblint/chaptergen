@@ -1,0 +1,41 @@
+:root {
+  --bg: #0f0f13;
+  --surface: #1a1a22;
+  --border: #2a2a35;
+  --text: #e8e8ed;
+  --text-muted: #8888a0;
+  --accent: #6366f1;
+
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--text);
+  background-color: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+input {
+  font-family: inherit;
+}
+
+button {
+  font-family: inherit;
+}
