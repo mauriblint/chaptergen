@@ -23,7 +23,7 @@ chaptersRouter.post('/chapters', async (req: Request, res: Response) => {
     : Math.min(20, Math.max(3, Number(chapterCount) || 10))
 
   try {
-    const chapters = await generateChapters(segments, count)
+    const chapters = await generateChapters(segments, { chapterCount: count })
     const formatted = formatChapters(chapters)
     res.json({ chapters, formatted })
   } catch (err) {

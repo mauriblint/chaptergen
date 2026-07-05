@@ -1,25 +1,64 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { ProcessingStep } from '../types'
-import { STEP_LABELS } from '../types'
 
 const props = defineProps<{
   step: ProcessingStep
   fileName?: string
 }>()
 
-const progress = computed(() => {
-  const map: Record<ProcessingStep, number> = {
-    idle: 0,
-    uploading: 15,
-    extracting: 35,
-    transcribing: 65,
-    generating: 85,
-    regenerating: 50,
-    done: 100,
-    error: 0,
-  }
-  return map[props.step]
+type BadgeState = 'done' | 'active' | 'pending'
+
+interface Stage {
+  id: string
+  label: string
+  state: BadgeState
+}
+
+const HEADINGS: Partial<Record<ProcessingStep, string>> = {
+  uploading: 'Uploading file…',
+  extracting: 'Extracting audio…',
+  transcribing: 'Transcribing audio…',
+  generating: 'Generating chapters…',
+  regenerating: 'Refining chapters…',
+}
+
+const SUBTITLES: Partial<Record<ProcessingStep, string>> = {
+  uploading: 'Sending your file to the server',
+  extracting: 'Preparing audio for transcription',
+  transcribing: 'listening for topic shifts',
+  generating: 'Analyzing transcript structure',
+  regenerating: 'Applying your refinements',
+}
+
+const heading = computed(() => HEADINGS[props.step] ?? 'Processing…')
+
+const subtitle = computed(() => {
+  const detail = SUBTITLES[props.step]
+  if (props.fileName && detail) return `${props.fileName} · ${detail}`
+  if (props.fileName) return props.fileName
+  return detail ?? ''
+})
+
+const stages = computed((): Stage[] => {
+  const step = props.step
+
+  const uploaded: BadgeState =
+    step === 'uploading' ? 'active' : 'done'
+
+  let transcribing: BadgeState = 'pending'
+  if (step === 'extracting' || step === 'transcribing') transcribing = 'active'
+  else if (['generating', 'regenerating', 'done'].includes(step)) transcribing = 'done'
+
+  let generating: BadgeState = 'pending'
+  if (step === 'generating' || step === 'regenerating') generating = 'active'
+  else if (step === 'done') generating = 'done'
+
+  return [
+    { id: 'uploaded', label: 'Uploaded', state: uploaded },
+    { id: 'transcribing', label: 'Transcribing', state: transcribing },
+    { id: 'generating', label: 'Generating chapters', state: generating },
+  ]
 })
 
 const isActive = computed(
@@ -28,54 +67,177 @@ const isActive = computed(
 </script>
 
 <template>
-  <div v-if="isActive" class="status">
-    <div class="status-header">
-      <span class="status-label">{{ STEP_LABELS[step] }}</span>
-      <span v-if="fileName" class="status-file">{{ fileName }}</span>
+  <div v-if="isActive" class="processing" role="status" aria-live="polite">
+    <div class="equalizer" aria-hidden="true">
+      <span
+        v-for="i in 5"
+        :key="i"
+        class="equalizer-bar"
+        :class="`equalizer-bar--${i}`"
+      />
     </div>
-    <div class="progress-track">
-      <div class="progress-bar" :style="{ width: `${progress}%` }" />
+
+    <h2 class="processing-title">{{ heading }}</h2>
+    <p v-if="subtitle" class="processing-subtitle">{{ subtitle }}</p>
+
+    <div class="stage-badges">
+      <span
+        v-for="stage in stages"
+        :key="stage.id"
+        class="stage-badge"
+        :class="`stage-badge--${stage.state}`"
+      >
+        <svg
+          v-if="stage.state === 'done'"
+          class="stage-check"
+          viewBox="0 0 16 16"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M3.5 8.5 6.5 11.5 12.5 4.5"
+            stroke="currentColor"
+            stroke-width="1.75"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        {{ stage.label }}
+      </span>
     </div>
   </div>
 </template>
 
 <style scoped>
-.status {
-  margin: 1.5rem 0;
-}
-
-.status-header {
+.processing {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
+  text-align: center;
+  padding: 3rem 2rem;
+  gap: 0.75rem;
 }
 
-.status-label {
-  color: var(--accent);
+.equalizer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.45rem;
+  height: 2.75rem;
+  margin-bottom: 0.75rem;
 }
 
-.status-file {
+.equalizer-bar {
+  width: 0.45rem;
+  border-radius: 999px;
+  animation: equalize 1.1s ease-in-out infinite;
+}
+
+.equalizer-bar--1 {
+  height: 0.85rem;
+  background: #c4b5fd;
+  animation-delay: 0s;
+}
+
+.equalizer-bar--2 {
+  height: 1.25rem;
+  background: #a78bfa;
+  animation-delay: 0.15s;
+}
+
+.equalizer-bar--3 {
+  height: 1.65rem;
+  background: #8b5cf6;
+  animation-delay: 0.3s;
+}
+
+.equalizer-bar--4 {
+  height: 2.05rem;
+  background: #7c3aed;
+  animation-delay: 0.45s;
+}
+
+.equalizer-bar--5 {
+  height: 2.45rem;
+  background: #6d28d9;
+  animation-delay: 0.6s;
+}
+
+@keyframes equalize {
+  0%,
+  100% {
+    transform: scaleY(0.45);
+    opacity: 0.65;
+  }
+
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+.processing-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.processing-subtitle {
+  font-size: 0.95rem;
   color: var(--text-muted);
+  max-width: 28rem;
+  line-height: 1.5;
+}
+
+.stage-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.stage-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
   font-size: 0.8rem;
-  max-width: 50%;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-weight: 500;
   white-space: nowrap;
 }
 
-.progress-track {
-  height: 4px;
-  background: var(--border);
-  border-radius: 2px;
-  overflow: hidden;
+.stage-badge--done {
+  background: #ecfdf5;
+  color: #059669;
 }
 
-.progress-bar {
-  height: 100%;
-  background: var(--accent);
-  border-radius: 2px;
-  transition: width 0.4s ease;
+.stage-badge--active {
+  background: #eef2ff;
+  color: #6366f1;
+}
+
+.stage-badge--pending {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+
+.stage-check {
+  width: 0.85rem;
+  height: 0.85rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .processing {
+    padding: 2.5rem 1.25rem;
+  }
+
+  .stage-badges {
+    flex-direction: column;
+    align-items: center;
+  }
 }
 </style>

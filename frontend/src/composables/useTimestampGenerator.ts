@@ -8,6 +8,8 @@ import type {
 } from '../types'
 import { isAudioFile } from '../utils/media'
 
+const API_BASE = import.meta.env.VITE_API_BASE ?? '/api'
+
 export function useTimestampGenerator() {
   const step = ref<ProcessingStep>('idle')
   const error = ref<string | null>(null)
@@ -24,7 +26,7 @@ export function useTimestampGenerator() {
       body.chapterCount = chapterCount
     }
 
-    const response = await fetch('/api/chapters', {
+    const response = await fetch(`${API_BASE}/chapters`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -53,7 +55,7 @@ export function useTimestampGenerator() {
     try {
       step.value = isAudioFile(file.name) ? 'transcribing' : 'extracting'
 
-      const response = await fetch('/api/transcribe', {
+      const response = await fetch(`${API_BASE}/transcribe`, {
         method: 'POST',
         body: formData,
       })
@@ -74,7 +76,7 @@ export function useTimestampGenerator() {
       step.value = 'done'
     } catch (err) {
       step.value = 'error'
-      error.value = err instanceof Error ? err.message : 'Error desconocido'
+      error.value = err instanceof Error ? err.message : 'Unknown error'
     }
   }
 
@@ -89,7 +91,7 @@ export function useTimestampGenerator() {
       step.value = 'done'
     } catch (err) {
       step.value = 'done'
-      error.value = err instanceof Error ? err.message : 'Error desconocido'
+      error.value = err instanceof Error ? err.message : 'Unknown error'
     }
   }
 

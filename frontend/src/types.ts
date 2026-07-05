@@ -30,11 +30,11 @@ export type ProcessingStep =
 
 export const STEP_LABELS: Record<ProcessingStep, string> = {
   idle: '',
-  uploading: 'Subiendo video…',
-  extracting: 'Extrayendo audio…',
-  transcribing: 'Transcribiendo con Whisper…',
-  generating: 'Generando capítulos…',
-  regenerating: 'Regenerando capítulos…',
-  done: 'Listo',
+  uploading: 'Uploading file…',
+  extracting: 'Extracting audio…',
+  transcribing: 'Transcribing with Whisper…',
+  generating: 'Generating chapters…',
+  regenerating: 'Refining chapters…',
+  done: 'Done',
   error: 'Error',
 }

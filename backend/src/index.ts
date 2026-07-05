@@ -5,6 +5,7 @@ import fs from 'fs'
 import multer from 'multer'
 import path from 'path'
 import { chaptersRouter } from './routes/chapters.js'
+import { jobsRouter } from './routes/jobs.js'
 import { transcribeRouter } from './routes/transcribe.js'
 
 dotenv.config()
@@ -30,6 +31,7 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api', transcribeRouter)
 app.use('/api', chaptersRouter)
+app.use('/api', jobsRouter)
 
 app.use(
   (

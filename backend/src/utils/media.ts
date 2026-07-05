@@ -13,3 +13,9 @@ export function isVideoFile(filename: string): boolean {
   const ext = path.extname(filename).toLowerCase()
   return VIDEO_EXTENSIONS.includes(ext)
 }
+
+export type MediaType = 'audio' | 'video'
+
+export function getMediaType(filename: string): MediaType {
+  return isAudioFile(filename) ? 'audio' : 'video'
+}
