@@ -27,9 +27,9 @@ export const homeMeta = {
 
 export const homeHero = {
   badge: 'AI-Powered · Fast · Accurate',
-  title: 'AI YouTube Chapter Generator — Upload Your Video, Get Timestamps in Seconds',
+  title: 'AI YouTube Chapter Generator — Get Timestamps in Seconds',
   subtitle:
-    'No YouTube URL needed. Upload your video or audio file and get clean, SEO-ready chapters before you even publish. Works with private videos, unpublished drafts, and podcast audio.',
+    'No YouTube URL needed. Upload your video or audio and get clean, SEO-ready chapters before you even publish — works with private videos, drafts, and podcast audio.',
   microcopy: 'Free to use · No signup required · MP4, MOV, MP3, WAV and more · Files up to 500 MB',
 }
 

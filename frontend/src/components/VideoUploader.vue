@@ -62,7 +62,7 @@ function openPicker() {
       @change="onFileChange"
     />
     <div class="uploader-icon">
-      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+      <svg width="28" height="28" viewBox="0 0 40 40" fill="none" aria-hidden="true">
         <rect x="8" y="18" width="4" height="14" rx="1" fill="#6366F1" opacity="0.7" />
         <rect x="16" y="12" width="4" height="20" rx="1" fill="#818CF8" />
         <rect x="24" y="8" width="4" height="24" rx="1" fill="#6366F1" />
@@ -94,14 +94,19 @@ function openPicker() {
 }
 
 .uploader-icon {
-  margin-bottom: 1rem;
+  margin: 0 auto 1rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: rgba(99, 102, 241, 0.1);
   display: flex;
+  align-items: center;
   justify-content: center;
 }
 
 .uploader-title {
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 700;
   margin-bottom: 0.4rem;
   color: var(--text);
 }

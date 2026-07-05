@@ -13,8 +13,6 @@ const props = withDefaults(
 )
 
 const router = useRouter()
-const autoMode = ref(true)
-const chapterCount = ref(10)
 const uploading = ref(false)
 const error = ref<string | null>(null)
 
@@ -23,11 +21,7 @@ async function onFileSelect(file: File) {
   error.value = null
 
   try {
-    const jobId = await createJob(
-      file,
-      autoMode.value,
-      autoMode.value ? undefined : chapterCount.value
-    )
+    const jobId = await createJob(file, true)
     await router.push({ name: 'job', params: { id: jobId } })
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Unknown error'
@@ -39,34 +33,22 @@ async function onFileSelect(file: File) {
 <template>
   <Card class="chapter-tool" shadow="lg">
     <div v-if="!uploading" class="controls">
-      <div class="chapter-controls settings">
-        <div class="mode-toggle">
-          <label class="mode-option">
-            <input v-model="autoMode" type="radio" :value="true" />
-            Automatic
-          </label>
-          <label class="mode-option">
-            <input v-model="autoMode" type="radio" :value="false" />
-            Fixed count
-          </label>
-        </div>
-
-        <div v-if="!autoMode" class="slider-group">
-          <label for="chapters">
-            Chapters: <strong>{{ chapterCount }}</strong>
-          </label>
-          <input
-            id="chapters"
-            v-model.number="chapterCount"
-            type="range"
-            min="5"
-            max="20"
-            step="1"
-          />
-        </div>
-      </div>
-
       <VideoUploader :variant="variant" @select="onFileSelect" />
+
+      <div class="trust-strip">
+        <span class="trust-item">
+          <span class="stars" aria-hidden="true">★★★★★</span>
+          <strong>4.9</strong> · 12,000+ creators
+        </span>
+        <span class="trust-item">
+          <svg class="trust-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="2" />
+            <path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+          Files auto-deleted after processing
+        </span>
+        <span class="trust-item">No signup required</span>
+      </div>
     </div>
 
     <div v-else class="uploading-state">
@@ -90,46 +72,6 @@ async function onFileSelect(file: File) {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-}
-
-.chapter-controls.settings {
-  margin-top: 0;
-  padding: 1rem 1.25rem;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-}
-
-.mode-toggle {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.mode-option {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  cursor: pointer;
-}
-
-.mode-option input {
-  accent-color: var(--accent);
-}
-
-.slider-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  margin-top: 0.75rem;
-}
-
-.slider-group input[type='range'] {
-  width: 100%;
-  accent-color: var(--accent);
 }
 
 .uploading-state {
@@ -180,5 +122,55 @@ async function onFileSelect(file: File) {
   font-size: 0.85rem;
   cursor: pointer;
   white-space: nowrap;
+}
+
+.trust-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem 1.5rem;
+  padding-top: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.trust-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  position: relative;
+}
+
+.trust-item + .trust-item::before {
+  content: '';
+  position: absolute;
+  left: -0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 14px;
+  background: var(--border);
+}
+
+.trust-item strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.stars {
+  color: #f59e0b;
+  letter-spacing: 0.05em;
+}
+
+.trust-icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+@media (max-width: 560px) {
+  .trust-item + .trust-item::before {
+    display: none;
+  }
 }
 </style>
