@@ -9,6 +9,12 @@ import { jobsRouter } from './routes/jobs.js'
 import { transcribeRouter } from './routes/transcribe.js'
 
 dotenv.config()
+if (fs.existsSync(path.resolve('.env.production'))) {
+  dotenv.config({
+    path: '.env.production',
+    override: process.env.NODE_ENV === 'production',
+  })
+}
 
 const app = express()
 const port = Number(process.env.PORT ?? 3006)

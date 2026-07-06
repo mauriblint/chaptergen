@@ -52,18 +52,20 @@ check_ffmpeg() {
   require_cmd ffmpeg
 }
 
+has_env_file() {
+  local dir="$1"
+  [[ -f "$dir/.env" || -f "$dir/.env.production" || -f "$dir/.env.production.local" ]]
+}
+
 ensure_backend_env() {
-  if [[ ! -f "$ROOT_DIR/backend/.env" ]]; then
-    die "Create backend/.env from backend/.env.example before deploying"
+  if ! has_env_file "$ROOT_DIR/backend"; then
+    die "Create backend/.env or backend/.env.production before deploying"
   fi
 }
 
 ensure_frontend_env() {
-  if [[ ! -f "$ROOT_DIR/frontend/.env" ]]; then
-    if [[ -f "$ROOT_DIR/frontend/.env.example" ]]; then
-      die "Create frontend/.env from frontend/.env.example before deploying"
-    fi
-    log "Warning: frontend/.env not found, using build defaults"
+  if ! has_env_file "$ROOT_DIR/frontend"; then
+    log "Warning: no frontend env file found, using build defaults"
   fi
 }
 
