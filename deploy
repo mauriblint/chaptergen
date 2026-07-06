@@ -3,18 +3,23 @@ set -e
 
 cd "$(dirname "$0")"
 
-echo "==> git pull"
-git pull
+BRANCH=main
+
+echo "==> sync con origin/$BRANCH (descartando cambios locales)"
+git fetch origin
+git checkout "$BRANCH"
+git reset --hard "origin/$BRANCH"
+git clean -fd
 
 echo "==> backend build"
-npm install --prefix backend
+npm ci --prefix backend
 npm run build --prefix backend
 
 echo "==> restart backend (pm2)"
 pm2 restart chaptergen-api
 
 echo "==> frontend build"
-npm install --prefix frontend
+npm ci --prefix frontend
 npm run build --prefix frontend
 
 echo "==> done"
