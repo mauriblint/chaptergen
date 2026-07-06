@@ -69,9 +69,29 @@ ensure_frontend_env() {
   fi
 }
 
+install_npm_deps() {
+  local dir="$1"
+  local label="$2"
+
+  log "Installing $label dependencies..."
+
+  if [[ "${USE_NPM_INSTALL:-false}" == "true" ]]; then
+    npm install --prefix "$dir"
+    return
+  fi
+
+  if [[ -f "$dir/package-lock.json" ]]; then
+    if npm ci --prefix "$dir"; then
+      return
+    fi
+    log "npm ci failed, falling back to npm install..."
+  fi
+
+  npm install --prefix "$dir"
+}
+
 install_backend_deps() {
-  log "Installing backend dependencies..."
-  npm ci --prefix "$ROOT_DIR/backend"
+  install_npm_deps "$ROOT_DIR/backend" "backend"
 }
 
 build_backend() {
@@ -115,8 +135,7 @@ deploy_backend() {
 }
 
 install_frontend_deps() {
-  log "Installing frontend dependencies..."
-  npm ci --prefix "$ROOT_DIR/frontend"
+  install_npm_deps "$ROOT_DIR/frontend" "frontend"
 }
 
 build_frontend() {
