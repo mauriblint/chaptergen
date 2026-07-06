@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -e
+
+cd "$(dirname "$0")"
+
+echo "==> git pull"
+git pull
+
+echo "==> backend build"
+npm install --prefix backend
+npm run build --prefix backend
+
+echo "==> frontend build"
+npm install --prefix frontend
+npm run build --prefix frontend
+
+echo "==> done"
+echo "backend build: backend/dist"
+echo "frontend build: frontend/dist"
