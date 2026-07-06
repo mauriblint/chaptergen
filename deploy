@@ -10,6 +10,9 @@ echo "==> backend build"
 npm install --prefix backend
 npm run build --prefix backend
 
+echo "==> restart backend (pm2)"
+pm2 restart chaptergen-api
+
 echo "==> frontend build"
 npm install --prefix frontend
 npm run build --prefix frontend
