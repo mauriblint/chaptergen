@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { computed, reactive } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { RefineOptions } from '../types/refine'
 
 const props = defineProps<{
   initialAutoMode?: boolean
   initialChapterCount?: number
 }>()
+
+const { t } = useI18n()
 
 const emit = defineEmits<{
   close: []
@@ -31,33 +34,38 @@ const showCount = computed(() => form.mode !== 'titles')
     <div class="refine-overlay" @click.self="emit('close')">
       <div class="refine-modal" role="dialog" aria-labelledby="refine-title">
         <div class="refine-header">
-          <h2 id="refine-title">Refine chapters</h2>
-          <button type="button" class="refine-close" aria-label="Close" @click="emit('close')">
+          <h2 id="refine-title">{{ t('tool.refine.title') }}</h2>
+          <button
+            type="button"
+            class="refine-close"
+            :aria-label="t('tool.refine.close')"
+            @click="emit('close')"
+          >
             ×
           </button>
         </div>
 
         <div class="refine-body">
           <section class="refine-field">
-            <h3>What to change</h3>
+            <h3>{{ t('tool.refine.whatToChange') }}</h3>
             <div class="segment-group">
               <label class="segment-option" :class="{ active: form.mode === 'both' }">
                 <input v-model="form.mode" type="radio" value="both" class="segment-input" />
-                <span>Titles and cuts</span>
+                <span>{{ t('tool.refine.titlesAndCuts') }}</span>
               </label>
               <label class="segment-option" :class="{ active: form.mode === 'titles' }">
                 <input v-model="form.mode" type="radio" value="titles" class="segment-input" />
-                <span>Titles only</span>
+                <span>{{ t('tool.refine.titlesOnly') }}</span>
               </label>
               <label class="segment-option" :class="{ active: form.mode === 'segments' }">
                 <input v-model="form.mode" type="radio" value="segments" class="segment-input" />
-                <span>Cuts only</span>
+                <span>{{ t('tool.refine.cutsOnly') }}</span>
               </label>
             </div>
           </section>
 
           <section v-if="showGranularity" class="refine-field">
-            <h3>Granularity</h3>
+            <h3>{{ t('tool.refine.granularity') }}</h3>
             <div class="segment-group">
               <label class="segment-option" :class="{ active: form.granularity === 'detailed' }">
                 <input
@@ -70,7 +78,7 @@ const showCount = computed(() => form.mode !== 'titles')
                   <rect x="2" y="4" width="12" height="2" rx="1" />
                   <rect x="2" y="10" width="12" height="2" rx="1" />
                 </svg>
-                <span>More detailed</span>
+                <span>{{ t('tool.refine.moreDetailed') }}</span>
               </label>
               <label class="segment-option" :class="{ active: form.granularity === 'balanced' }">
                 <input
@@ -84,7 +92,7 @@ const showCount = computed(() => form.mode !== 'titles')
                   <rect x="2" y="7.25" width="12" height="1.5" rx="0.75" />
                   <rect x="2" y="11.5" width="12" height="1.5" rx="0.75" />
                 </svg>
-                <span>Balanced</span>
+                <span>{{ t('tool.refine.balanced') }}</span>
               </label>
               <label class="segment-option" :class="{ active: form.granularity === 'grouped' }">
                 <input
@@ -98,21 +106,21 @@ const showCount = computed(() => form.mode !== 'titles')
                   <rect x="2.5" y="5.5" width="11" height="2.5" rx="0.75" opacity="0.7" />
                   <rect x="4" y="2" width="8" height="2.5" rx="0.75" />
                 </svg>
-                <span>More grouped</span>
+                <span>{{ t('tool.refine.moreGrouped') }}</span>
               </label>
             </div>
           </section>
 
           <div class="refine-row">
             <section class="refine-field">
-              <label for="content-type">Content type</label>
+              <label for="content-type">{{ t('tool.refine.contentType') }}</label>
               <div class="select-wrap">
                 <select id="content-type" v-model="form.contentType" class="refine-select">
-                  <option value="auto">Automatic</option>
-                  <option value="tutorial">Tutorial / how-to</option>
-                  <option value="podcast">Podcast / interview</option>
-                  <option value="webinar">Webinar / course</option>
-                  <option value="review">Review / vlog</option>
+                  <option value="auto">{{ t('tool.refine.ctAuto') }}</option>
+                  <option value="tutorial">{{ t('tool.refine.ctTutorial') }}</option>
+                  <option value="podcast">{{ t('tool.refine.ctPodcast') }}</option>
+                  <option value="webinar">{{ t('tool.refine.ctWebinar') }}</option>
+                  <option value="review">{{ t('tool.refine.ctReview') }}</option>
                 </select>
                 <svg class="select-chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                   <path
@@ -127,13 +135,13 @@ const showCount = computed(() => form.mode !== 'titles')
             </section>
 
             <section class="refine-field">
-              <label for="title-style">Title style</label>
+              <label for="title-style">{{ t('tool.refine.titleStyle') }}</label>
               <div class="select-wrap">
                 <select id="title-style" v-model="form.titleStyle" class="refine-select">
-                  <option value="descriptive">Descriptive</option>
-                  <option value="short">Short (≤40 chars)</option>
-                  <option value="seo">SEO / keywords</option>
-                  <option value="question">Question format</option>
+                  <option value="descriptive">{{ t('tool.refine.tsDescriptive') }}</option>
+                  <option value="short">{{ t('tool.refine.tsShort') }}</option>
+                  <option value="seo">{{ t('tool.refine.tsSeo') }}</option>
+                  <option value="question">{{ t('tool.refine.tsQuestion') }}</option>
                 </select>
                 <svg class="select-chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                   <path
@@ -149,20 +157,20 @@ const showCount = computed(() => form.mode !== 'titles')
           </div>
 
           <section v-if="showCount" class="refine-field">
-            <h3>Chapter count</h3>
+            <h3>{{ t('tool.refine.chapterCount') }}</h3>
             <div class="segment-group segment-group--two">
               <label class="segment-option" :class="{ active: form.autoMode }">
                 <input v-model="form.autoMode" type="radio" :value="true" class="segment-input" />
-                <span>Automatic</span>
+                <span>{{ t('tool.refine.automatic') }}</span>
               </label>
               <label class="segment-option" :class="{ active: !form.autoMode }">
                 <input v-model="form.autoMode" type="radio" :value="false" class="segment-input" />
-                <span>Fixed count</span>
+                <span>{{ t('tool.refine.fixedCount') }}</span>
               </label>
             </div>
             <div v-if="!form.autoMode" class="slider-group">
               <label for="refine-chapters">
-                Chapters: <strong>{{ form.chapterCount }}</strong>
+                {{ t('tool.refine.chaptersLabel') }} <strong>{{ form.chapterCount }}</strong>
               </label>
               <input
                 id="refine-chapters"
@@ -177,9 +185,11 @@ const showCount = computed(() => form.mode !== 'titles')
         </div>
 
         <div class="refine-footer">
-          <button type="button" class="btn-cancel" @click="emit('close')">Cancel</button>
+          <button type="button" class="btn-cancel" @click="emit('close')">
+            {{ t('tool.refine.cancel') }}
+          </button>
           <button type="button" class="btn-submit" @click="emit('submit', { ...form })">
-            Refine
+            {{ t('tool.refine.submit') }}
           </button>
         </div>
       </div>

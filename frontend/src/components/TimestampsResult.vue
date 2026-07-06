@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { Chapter } from '../types'
 
 const props = defineProps<{
@@ -8,6 +9,8 @@ const props = defineProps<{
   loading?: boolean
   hasTranscript?: boolean
 }>()
+
+const { t } = useI18n()
 
 const emit = defineEmits<{
   update: [index: number, field: 'time' | 'title', value: string]
@@ -31,10 +34,9 @@ async function copyToClipboard() {
   <div class="result" :class="{ loading }">
     <div class="result-header">
       <div class="result-heading">
-        <h2>Generated timestamps</h2>
+        <h2>{{ t('tool.result.heading') }}</h2>
         <p class="result-sub">
-          {{ chapterCount }} {{ chapterCount === 1 ? 'chapter' : 'chapters' }} · tap any field to
-          edit
+          {{ t('tool.result.chapters', chapterCount) }} · {{ t('tool.result.editHint') }}
         </p>
       </div>
 
@@ -62,7 +64,7 @@ async function copyToClipboard() {
               stroke-linejoin="round"
             />
           </svg>
-          {{ copied ? 'Copied' : 'Copy' }}
+          {{ copied ? t('tool.result.copied') : t('tool.result.copy') }}
         </button>
 
         <button class="action action-ghost" :disabled="loading" @click="emit('refine')">
@@ -72,7 +74,7 @@ async function copyToClipboard() {
               fill="currentColor"
             />
           </svg>
-          Refine
+          {{ t('tool.result.refine') }}
         </button>
 
         <span class="action-divider" aria-hidden="true" />
@@ -80,7 +82,7 @@ async function copyToClipboard() {
         <button
           class="action action-ghost"
           :disabled="!hasChapters"
-          title="Download chapters"
+          :title="t('tool.result.downloadChaptersTitle')"
           @click="emit('download', 'chapters')"
         >
           <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -92,13 +94,13 @@ async function copyToClipboard() {
               stroke-linejoin="round"
             />
           </svg>
-          Chapters
+          {{ t('tool.result.downloadChapters') }}
         </button>
 
         <button
           class="action action-ghost"
           :disabled="!hasTranscript"
-          title="Download transcript"
+          :title="t('tool.result.downloadTranscriptTitle')"
           @click="emit('download', 'transcript')"
         >
           <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -110,7 +112,7 @@ async function copyToClipboard() {
               stroke-linejoin="round"
             />
           </svg>
-          Transcript
+          {{ t('tool.result.downloadTranscript') }}
         </button>
       </div>
     </div>
@@ -120,20 +122,20 @@ async function copyToClipboard() {
         <input
           class="chapter-time"
           :value="chapter.time"
-          :aria-label="`Chapter ${i + 1} timestamp`"
+          :aria-label="t('tool.result.chapterTimeAria', { n: i + 1 })"
           @input="emit('update', i, 'time', ($event.target as HTMLInputElement).value)"
         />
         <input
           class="chapter-title"
           :value="chapter.title"
-          :aria-label="`Chapter ${i + 1} title`"
+          :aria-label="t('tool.result.chapterTitleAria', { n: i + 1 })"
           @input="emit('update', i, 'title', ($event.target as HTMLInputElement).value)"
         />
       </div>
     </div>
 
     <details class="preview-wrap">
-      <summary>Preview raw text</summary>
+      <summary>{{ t('tool.result.preview') }}</summary>
       <pre class="preview">{{ formatted }}</pre>
     </details>
   </div>

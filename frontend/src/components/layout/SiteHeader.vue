@@ -1,27 +1,36 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import Logo from '../ui/Logo.vue'
+import { localizedPath, type Locale } from '../../i18n/routing'
 
 const route = useRoute()
+const { t, locale } = useI18n()
 const menuOpen = ref(false)
 
-const navLinks = [
-  { label: 'Features', hash: '#features' },
-  { label: 'Use Cases', hash: '#use-cases' },
-  { label: 'FAQ', hash: '#faq' },
-]
+const navLinks = computed(() => [
+  { label: t('common.nav.features'), hash: '#features' },
+  { label: t('common.nav.useCases'), hash: '#use-cases' },
+  { label: t('common.nav.faq'), hash: '#faq' },
+])
+
+const homePath = computed(() => localizedPath('/', locale.value as Locale))
+const podcastPath = computed(() => localizedPath('/podcast-chapters', locale.value as Locale))
 
 function navHref(hash: string) {
-  if (route.path === '/') return hash
-  return `/${hash}`
+  if (route.path === homePath.value) return hash
+  return `${homePath.value}${hash}`
 }
+
+const otherLocale = computed<Locale>(() => (locale.value === 'es' ? 'en' : 'es'))
+const switchPath = computed(() => localizedPath(route.path, otherLocale.value))
 </script>
 
 <template>
   <header class="site-header">
     <div class="header-inner">
-      <RouterLink to="/" class="logo-link" aria-label="ChapterGen home">
+      <RouterLink :to="homePath" class="logo-link" aria-label="ChapterGen home">
         <Logo />
       </RouterLink>
 
@@ -29,7 +38,10 @@ function navHref(hash: string) {
         <a v-for="link in navLinks" :key="link.hash" :href="navHref(link.hash)" class="nav-link">
           {{ link.label }}
         </a>
-        <RouterLink to="/podcast-chapters" class="nav-link">Podcast</RouterLink>
+        <RouterLink :to="podcastPath" class="nav-link">{{ t('common.nav.podcast') }}</RouterLink>
+        <RouterLink :to="switchPath" class="nav-link lang-switch">
+          {{ t(`common.language.${otherLocale}`) }}
+        </RouterLink>
       </nav>
 
       <button
@@ -54,8 +66,11 @@ function navHref(hash: string) {
       >
         {{ link.label }}
       </a>
-      <RouterLink to="/podcast-chapters" class="nav-link" @click="menuOpen = false">
-        Podcast
+      <RouterLink :to="podcastPath" class="nav-link" @click="menuOpen = false">
+        {{ t('common.nav.podcast') }}
+      </RouterLink>
+      <RouterLink :to="switchPath" class="nav-link lang-switch" @click="menuOpen = false">
+        {{ t(`common.language.${otherLocale}`) }}
       </RouterLink>
     </nav>
   </header>
@@ -100,6 +115,16 @@ function navHref(hash: string) {
 .nav-link:hover,
 .nav-link.router-link-active {
   color: var(--text);
+}
+
+.lang-switch {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.lang-switch:hover {
+  opacity: 0.8;
+  color: var(--accent);
 }
 
 .menu-toggle {

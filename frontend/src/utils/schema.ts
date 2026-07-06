@@ -15,15 +15,14 @@ export function faqSchema(faqs: FAQItem[]) {
   }
 }
 
-export function softwareApplicationSchema() {
+export function softwareApplicationSchema(description: string) {
   return {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
     name: 'ChapterGen',
     applicationCategory: 'MultimediaApplication',
     operatingSystem: 'Web',
-    description:
-      'AI-powered YouTube chapter generator. Upload video or audio and get SEO-ready timestamps instantly.',
+    description,
     offers: {
       '@type': 'Offer',
       price: '0',
@@ -32,11 +31,11 @@ export function softwareApplicationSchema() {
   }
 }
 
-export function howToSchema(steps: { title: string; description: string }[]) {
+export function howToSchema(name: string, steps: { title: string; description: string }[]) {
   return {
     '@context': 'https://schema.org',
     '@type': 'HowTo',
-    name: 'How to Generate YouTube Chapters with AI',
+    name,
     step: steps.map((step, i) => ({
       '@type': 'HowToStep',
       position: i + 1,

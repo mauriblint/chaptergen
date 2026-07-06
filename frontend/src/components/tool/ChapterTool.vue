@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import Card from '../ui/Card.vue'
 import VideoUploader from '../VideoUploader.vue'
 import { createJob } from '../../composables/useJob'
@@ -12,6 +13,7 @@ const props = withDefaults(
   { variant: 'video' }
 )
 
+const { t } = useI18n()
 const router = useRouter()
 const uploading = ref(false)
 const error = ref<string | null>(null)
@@ -24,7 +26,7 @@ async function onFileSelect(file: File) {
     const jobId = await createJob(file, true)
     await router.push({ name: 'job', params: { id: jobId } })
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Unknown error'
+    error.value = err instanceof Error ? err.message : t('tool.chapterTool.unknownError')
     uploading.value = false
   }
 }
@@ -38,27 +40,29 @@ async function onFileSelect(file: File) {
       <div class="trust-strip">
         <span class="trust-item">
           <span class="stars" aria-hidden="true">★★★★★</span>
-          <strong>4.9</strong> · 12,000+ creators
+          <strong>{{ t('tool.chapterTool.rating') }}</strong> · {{ t('tool.chapterTool.ratingSuffix') }}
         </span>
         <span class="trust-item">
           <svg class="trust-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="2" />
             <path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
           </svg>
-          Files auto-deleted after processing
+          {{ t('tool.chapterTool.filesDeleted') }}
         </span>
-        <span class="trust-item">No signup required</span>
+        <span class="trust-item">{{ t('tool.chapterTool.noSignup') }}</span>
       </div>
     </div>
 
     <div v-else class="uploading-state">
       <div class="spinner" aria-hidden="true" />
-      <p>Uploading file and starting processing…</p>
+      <p>{{ t('tool.chapterTool.uploading') }}</p>
     </div>
 
     <div v-if="error" class="error-box">
       <p>{{ error }}</p>
-      <button class="btn-secondary" @click="error = null; uploading = false">Try again</button>
+      <button class="btn-secondary" @click="error = null; uploading = false">
+        {{ t('tool.chapterTool.tryAgain') }}
+      </button>
     </div>
   </Card>
 </template>

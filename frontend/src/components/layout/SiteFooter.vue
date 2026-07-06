@@ -1,38 +1,61 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
+import { computed } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { LOCALES, localizedPath, type Locale } from '../../i18n/routing'
+
+const route = useRoute()
+const { t, locale } = useI18n()
+
+const homePath = computed(() => localizedPath('/', locale.value as Locale))
+const podcastPath = computed(() => localizedPath('/podcast-chapters', locale.value as Locale))
+
+function localeLinkPath(target: Locale) {
+  return localizedPath(route.path, target)
+}
 </script>
 
 <template>
   <footer class="site-footer">
     <div class="footer-inner">
       <div class="footer-brand">
-        <p class="footer-tagline">AI chapters for every story.</p>
+        <p class="footer-tagline">{{ t('common.footer.tagline') }}</p>
       </div>
 
       <div class="footer-links">
         <div class="footer-col">
-          <h3 class="footer-heading">Product</h3>
-          <RouterLink to="/" class="footer-link">YouTube Chapters</RouterLink>
-          <RouterLink to="/podcast-chapters" class="footer-link">Podcast Chapters</RouterLink>
+          <h3 class="footer-heading">{{ t('common.footer.productHeading') }}</h3>
+          <RouterLink :to="homePath" class="footer-link">
+            {{ t('common.footer.youtubeChapters') }}
+          </RouterLink>
+          <RouterLink :to="podcastPath" class="footer-link">
+            {{ t('common.footer.podcastChapters') }}
+          </RouterLink>
         </div>
 
         <div class="footer-col">
-          <h3 class="footer-heading">Legal</h3>
-          <a href="#" class="footer-link">Privacy</a>
-          <a href="#" class="footer-link">Terms</a>
-          <a href="#" class="footer-link">Contact</a>
+          <h3 class="footer-heading">{{ t('common.footer.legalHeading') }}</h3>
+          <a href="#" class="footer-link">{{ t('common.footer.privacy') }}</a>
+          <a href="#" class="footer-link">{{ t('common.footer.terms') }}</a>
+          <a href="#" class="footer-link">{{ t('common.footer.contact') }}</a>
         </div>
 
         <div class="footer-col">
-          <h3 class="footer-heading">Language</h3>
-          <span class="footer-link active">English</span>
-          <a href="#" class="footer-link muted">Español (coming soon)</a>
+          <h3 class="footer-heading">{{ t('common.footer.languageHeading') }}</h3>
+          <template v-for="loc in LOCALES" :key="loc">
+            <span v-if="loc === locale" class="footer-link active">
+              {{ t(`common.language.${loc}`) }}
+            </span>
+            <RouterLink v-else :to="localeLinkPath(loc)" class="footer-link">
+              {{ t(`common.language.${loc}`) }}
+            </RouterLink>
+          </template>
         </div>
       </div>
     </div>
 
     <div class="footer-bottom">
-      <p>&copy; {{ new Date().getFullYear() }} ChapterGen. All rights reserved.</p>
+      <p>&copy; {{ new Date().getFullYear() }} ChapterGen. {{ t('common.footer.rights') }}</p>
     </div>
   </footer>
 </template>

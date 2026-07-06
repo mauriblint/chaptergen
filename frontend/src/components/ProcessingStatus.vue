@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { ProcessingStep } from '../types'
 
 const props = defineProps<{
   step: ProcessingStep
   fileName?: string
 }>()
+
+const { t } = useI18n()
 
 type BadgeState = 'done' | 'active' | 'pending'
 
@@ -15,29 +18,33 @@ interface Stage {
   state: BadgeState
 }
 
-const HEADINGS: Partial<Record<ProcessingStep, string>> = {
-  uploading: 'Uploading file…',
-  extracting: 'Extracting audio…',
-  transcribing: 'Transcribing audio…',
-  generating: 'Generating chapters…',
-  regenerating: 'Refining chapters…',
+const HEADING_KEYS: Partial<Record<ProcessingStep, string>> = {
+  uploading: 'tool.processing.headingUploading',
+  extracting: 'tool.processing.headingExtracting',
+  transcribing: 'tool.processing.headingTranscribing',
+  generating: 'tool.processing.headingGenerating',
+  regenerating: 'tool.processing.headingRegenerating',
 }
 
-const SUBTITLES: Partial<Record<ProcessingStep, string>> = {
-  uploading: 'Sending your file to the server',
-  extracting: 'Preparing audio for transcription',
-  transcribing: 'listening for topic shifts',
-  generating: 'Analyzing transcript structure',
-  regenerating: 'Applying your refinements',
+const SUBTITLE_KEYS: Partial<Record<ProcessingStep, string>> = {
+  uploading: 'tool.processing.subtitleUploading',
+  extracting: 'tool.processing.subtitleExtracting',
+  transcribing: 'tool.processing.subtitleTranscribing',
+  generating: 'tool.processing.subtitleGenerating',
+  regenerating: 'tool.processing.subtitleRegenerating',
 }
 
-const heading = computed(() => HEADINGS[props.step] ?? 'Processing…')
+const heading = computed(() => {
+  const key = HEADING_KEYS[props.step]
+  return key ? t(key) : t('tool.processing.headingFallback')
+})
 
 const subtitle = computed(() => {
-  const detail = SUBTITLES[props.step]
+  const key = SUBTITLE_KEYS[props.step]
+  const detail = key ? t(key) : ''
   if (props.fileName && detail) return `${props.fileName} · ${detail}`
   if (props.fileName) return props.fileName
-  return detail ?? ''
+  return detail
 })
 
 const stages = computed((): Stage[] => {
@@ -55,9 +62,9 @@ const stages = computed((): Stage[] => {
   else if (step === 'done') generating = 'done'
 
   return [
-    { id: 'uploaded', label: 'Uploaded', state: uploaded },
-    { id: 'transcribing', label: 'Transcribing', state: transcribing },
-    { id: 'generating', label: 'Generating chapters', state: generating },
+    { id: 'uploaded', label: t('tool.processing.stageUploaded'), state: uploaded },
+    { id: 'transcribing', label: t('tool.processing.stageTranscribing'), state: transcribing },
+    { id: 'generating', label: t('tool.processing.stageGenerating'), state: generating },
   ]
 })
 

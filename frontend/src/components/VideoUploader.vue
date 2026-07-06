@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = withDefaults(
   defineProps<{
@@ -12,21 +13,19 @@ const emit = defineEmits<{
   select: [file: File]
 }>()
 
+const { t } = useI18n()
+
 const isDragging = ref(false)
 const inputRef = ref<HTMLInputElement | null>(null)
 
 const ACCEPTED = '.mp4,.mov,.webm,.mkv,.avi,.m4v,.mp3,.wav,.m4a,.aac,.ogg,.flac,.opus'
 
 const title = computed(() =>
-  props.variant === 'audio'
-    ? 'Drag and drop your audio file, or click to browse'
-    : 'Drag and drop a video or audio file, or click to browse'
+  props.variant === 'audio' ? t('tool.uploader.titleAudio') : t('tool.uploader.titleVideo')
 )
 
 const hint = computed(() =>
-  props.variant === 'audio'
-    ? 'MP3, WAV, M4A, AAC, OGG, FLAC — up to 500 MB'
-    : 'MP4, MOV, WebM, MP3, WAV, M4A — up to 500 MB'
+  props.variant === 'audio' ? t('tool.uploader.hintAudio') : t('tool.uploader.hintVideo')
 )
 
 function onDrop(e: DragEvent) {
@@ -71,7 +70,7 @@ function openPicker() {
     <p class="uploader-title">{{ title }}</p>
     <p class="uploader-hint">{{ hint }}</p>
     <button type="button" class="uploader-btn" @click.stop="openPicker">
-      Generate Chapters
+      {{ t('tool.uploader.button') }}
     </button>
   </div>
 </template>

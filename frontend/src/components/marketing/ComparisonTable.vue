@@ -5,22 +5,24 @@ defineProps<{
   title: string
   intro: string
   outro: string
+  colYoutube: string
+  colChaptergen: string
   rows: {
     feature: string
-    youtube: string | boolean
-    chaptergen: string | boolean
+    youtube: string
+    chaptergen: string
   }[]
 }>()
 
-function formatCell(value: string | boolean) {
-  if (typeof value === 'boolean') return value ? '✓' : '✗'
+function formatCell(value: string) {
+  if (value === 'yes') return '✓'
+  if (value === 'no') return '✗'
   return value
 }
 
-function cellClass(value: string | boolean, positive?: boolean) {
-  if (typeof value === 'boolean') {
-    return value ? 'cell-yes' : 'cell-no'
-  }
+function cellClass(value: string, positive?: boolean) {
+  if (value === 'yes') return 'cell-yes'
+  if (value === 'no') return 'cell-no'
   return positive ? 'cell-yes' : 'cell-no'
 }
 </script>
@@ -35,8 +37,8 @@ function cellClass(value: string | boolean, positive?: boolean) {
         <thead>
           <tr>
             <th scope="col" />
-            <th scope="col">YouTube auto-chapters</th>
-            <th scope="col">ChapterGen</th>
+            <th scope="col">{{ colYoutube }}</th>
+            <th scope="col">{{ colChaptergen }}</th>
           </tr>
         </thead>
         <tbody>

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { useHead } from '@unhead/vue'
 import MarketingLayout from '../layouts/MarketingLayout.vue'
 import Card from '../components/ui/Card.vue'
 import ProcessingStatus from '../components/ProcessingStatus.vue'
@@ -15,9 +17,14 @@ import {
 import type { Chapter } from '../types'
 import type { RefineOptions } from '../types/refine'
 import { trackChapterGenerated } from '../utils/analytics'
+import { localizedPath, type Locale } from '../i18n/routing'
 
 const route = useRoute()
+const { t, locale } = useI18n()
 const jobId = computed(() => route.params.id as string)
+const homeLink = computed(() => localizedPath('/', locale.value as Locale))
+
+useHead({ htmlAttrs: { lang: locale } })
 
 const { job, error: fetchError, loading, startPolling } = useJobPoller(jobId.value)
 
@@ -108,12 +115,12 @@ watch(
   <MarketingLayout>
     <section :key="jobId" class="job-page" :class="{ 'job-page--processing': isProcessing }">
       <div class="job-inner">
-        <RouterLink to="/" class="back-link">← Back to generator</RouterLink>
+        <RouterLink :to="homeLink" class="back-link">{{ t('tool.job.back') }}</RouterLink>
 
         <div v-if="!isProcessing" class="job-header">
           <template v-if="isDone">
             <div class="job-title-row">
-              <h1 class="job-title">Your chapters are ready</h1>
+              <h1 class="job-title">{{ t('tool.job.ready') }}</h1>
               <span class="done-badge">
                 <svg class="done-badge-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                   <path
@@ -124,14 +131,14 @@ watch(
                     stroke-linejoin="round"
                   />
                 </svg>
-                Done
+                {{ t('tool.job.done') }}
               </span>
             </div>
             <p v-if="job?.fileName" class="job-meta">{{ job.fileName }}</p>
           </template>
 
           <template v-else-if="isFailed">
-            <h1 class="job-title">Something went wrong</h1>
+            <h1 class="job-title">{{ t('tool.job.wentWrong') }}</h1>
             <p v-if="job?.fileName" class="job-meta">{{ job.fileName }}</p>
           </template>
         </div>
@@ -139,7 +146,7 @@ watch(
         <Card v-if="fetchError && !job" class="job-card" shadow="lg">
           <div class="error-box">
             <p>{{ fetchError }}</p>
-            <RouterLink to="/" class="btn-secondary">Try again</RouterLink>
+            <RouterLink :to="homeLink" class="btn-secondary">{{ t('tool.job.tryAgain') }}</RouterLink>
           </div>
         </Card>
 
@@ -150,7 +157,7 @@ watch(
         <Card v-else class="job-card" shadow="lg">
           <div v-if="displayError && isFailed" class="error-box">
             <p>{{ displayError }}</p>
-            <RouterLink to="/" class="btn-secondary">Try again</RouterLink>
+            <RouterLink :to="homeLink" class="btn-secondary">{{ t('tool.job.tryAgain') }}</RouterLink>
           </div>
 
           <TimestampsResult
