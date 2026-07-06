@@ -4,7 +4,8 @@
   "scripts": {
     "dev:backend": "npm run dev --prefix backend",
     "dev:frontend": "npm run dev --prefix frontend",
-    "dev": "npm run dev:backend & npm run dev:frontend",
+    "dev:admin": "npm run dev --prefix admin",
+    "dev": "npm run dev:backend & npm run dev:frontend & npm run dev:admin",
     "typecheck": "npm run typecheck --prefix backend"
   }
 }

@@ -4,6 +4,7 @@ import express from 'express'
 import fs from 'fs'
 import multer from 'multer'
 import path from 'path'
+import { adminRouter } from './routes/admin.js'
 import { chaptersRouter } from './routes/chapters.js'
 import { jobsRouter } from './routes/jobs.js'
 import { transcribeRouter } from './routes/transcribe.js'
@@ -38,6 +39,7 @@ app.get('/api/health', (_req, res) => {
 app.use('/api', transcribeRouter)
 app.use('/api', chaptersRouter)
 app.use('/api', jobsRouter)
+app.use('/api', adminRouter)
 
 app.use(
   (

@@ -205,6 +205,114 @@ export function getJob(id: string): JobRecord | null {
   return row ? rowToJob(row) : null
 }
 
+export interface JobSummary {
+  id: string
+  status: JobStatus
+  fileName: string
+  autoMode: boolean
+  chapterCount: number | null
+  chaptersGenerated: number | null
+  fileSizeBytes: number | null
+  fileType: string | null
+  fileExtension: string | null
+  mediaType: MediaType | null
+  clientIp: string | null
+  country: string | null
+  userAgent: string | null
+  acceptLanguage: string | null
+  referer: string | null
+  clientId: string | null
+  errorMessage: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+interface JobSummaryRow {
+  id: string
+  status: JobStatus
+  file_name: string
+  auto_mode: number
+  chapter_count: number | null
+  chapters_generated: number | null
+  file_size_bytes: number | null
+  file_type: string | null
+  file_extension: string | null
+  media_type: string | null
+  client_ip: string | null
+  country: string | null
+  user_agent: string | null
+  accept_language: string | null
+  referer: string | null
+  client_id: string | null
+  error_message: string | null
+  created_at: string
+  updated_at: string
+}
+
+function rowToJobSummary(row: JobSummaryRow): JobSummary {
+  return {
+    id: row.id,
+    status: row.status,
+    fileName: row.file_name,
+    autoMode: row.auto_mode === 1,
+    chapterCount: row.chapter_count,
+    chaptersGenerated: row.chapters_generated,
+    fileSizeBytes: row.file_size_bytes,
+    fileType: row.file_type,
+    fileExtension: row.file_extension,
+    mediaType:
+      row.media_type === 'audio' || row.media_type === 'video' ? row.media_type : null,
+    clientIp: row.client_ip,
+    country: row.country,
+    userAgent: row.user_agent,
+    acceptLanguage: row.accept_language,
+    referer: row.referer,
+    clientId: row.client_id,
+    errorMessage: row.error_message,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }
+}
+
+const jobSummaryColumns = `
+  id, status, file_name, auto_mode, chapter_count, chapters_generated,
+  file_size_bytes, file_type, file_extension, media_type,
+  client_ip, country, user_agent, accept_language, referer, client_id,
+  error_message, created_at, updated_at
+`
+
+export function listJobs(input: {
+  limit: number
+  offset: number
+  status?: JobStatus
+}): { jobs: JobSummary[]; total: number } {
+  const { limit, offset, status } = input
+  const where = status ? 'WHERE status = ?' : ''
+  const params = status ? [status] : []
+
+  const countRow = db
+    .prepare(`SELECT COUNT(*) AS count FROM jobs ${where}`)
+    .get(...params) as { count: number }
+
+  const rows = db
+    .prepare(
+      `SELECT ${jobSummaryColumns} FROM jobs ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`
+    )
+    .all(...params, limit, offset) as JobSummaryRow[]
+
+  return {
+    jobs: rows.map(rowToJobSummary),
+    total: countRow.count,
+  }
+}
+
+export function getJobSummary(id: string): JobSummary | null {
+  const row = db
+    .prepare(`SELECT ${jobSummaryColumns} FROM jobs WHERE id = ?`)
+    .get(id) as JobSummaryRow | undefined
+  return row ? rowToJobSummary(row) : null
+}
+
 export function countJobsByClientId(clientId: string, status?: JobStatus): number {
   if (status) {
     const row = db

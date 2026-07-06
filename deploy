@@ -22,6 +22,11 @@ echo "==> frontend build"
 npm ci --prefix frontend
 npm run build --prefix frontend
 
+echo "==> admin build"
+npm ci --prefix admin
+npm run build --prefix admin
+
 echo "==> done"
 echo "backend build: backend/dist"
 echo "frontend build: frontend/dist"
+echo "admin build: admin/dist"
