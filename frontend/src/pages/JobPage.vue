@@ -14,6 +14,7 @@ import {
 } from '../composables/useJob'
 import type { Chapter } from '../types'
 import type { RefineOptions } from '../types/refine'
+import { trackChapterGenerated } from '../utils/analytics'
 
 const route = useRoute()
 const jobId = computed(() => route.params.id as string)
@@ -85,7 +86,17 @@ async function onRefine(options: RefineOptions) {
 
 watch(
   () => job.value?.status,
-  (status) => {
+  (status, oldStatus) => {
+    if (status === 'completed' && oldStatus && oldStatus !== 'completed' && job.value) {
+      const j = job.value
+      trackChapterGenerated({
+        fileName: j.fileName,
+        chapterCount: j.chaptersGenerated ?? j.chapters?.length ?? 0,
+        autoMode: j.autoMode,
+        isRefine: oldStatus === 'regenerating',
+      })
+    }
+
     if (status === 'completed' || status === 'failed') {
       refining.value = false
     }
