@@ -1,18 +1,11 @@
 import { Router, type Request, type Response } from 'express'
-import path from 'path'
 import { mediaUpload } from '../middleware/upload.js'
-import {
-  createJob,
-  generateJobId,
-  getJob,
-  updateJobStatus,
-  type JobRecord,
-} from '../db/jobs.js'
-import { processJob, refineJobChapters } from '../services/processJob.js'
+import { getJob, type JobRecord } from '../db/jobs.js'
+import { refineJobChapters } from '../services/processJob.js'
+import { startJobFromFile } from '../services/startJobFromFile.js'
 import type { RefineOptions } from '../types/refine.js'
 import type { Chapter } from '../types.js'
 import { formatSecondsToTimestamp } from '../types.js'
-import { getMediaType } from '../utils/media.js'
 import { extractRequestMeta } from '../utils/requestMeta.js'
 
 export const jobsRouter = Router()
@@ -52,28 +45,16 @@ jobsRouter.post(
         ? Number(chapterCountRaw)
         : null
 
-    const id = generateJobId()
     const meta = extractRequestMeta(req)
-    const job = createJob({
-      id,
-      fileName: req.file.originalname,
+    const job = startJobFromFile({
       filePath: req.file.path,
-      autoMode,
-      chapterCount: autoMode ? null : chapterCount,
+      fileName: req.file.originalname,
       fileSizeBytes: req.file.size,
       fileType: req.file.mimetype,
-      fileExtension: path.extname(req.file.originalname).toLowerCase(),
-      mediaType: getMediaType(req.file.originalname),
-      clientIp: meta.clientIp,
-      country: meta.country,
-      userAgent: meta.userAgent,
-      acceptLanguage: meta.acceptLanguage,
-      referer: meta.referer,
-      clientId: meta.clientId,
+      autoMode,
+      chapterCount: autoMode ? null : chapterCount,
+      meta,
     })
-
-    updateJobStatus(id, 'pending')
-    void processJob(id)
 
     res.status(201).json({ id: job.id })
   }

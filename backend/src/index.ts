@@ -8,6 +8,8 @@ import { adminRouter } from './routes/admin.js'
 import { chaptersRouter } from './routes/chapters.js'
 import { jobsRouter } from './routes/jobs.js'
 import { transcribeRouter } from './routes/transcribe.js'
+import { uploadsRouter } from './routes/uploads.js'
+import { cleanupExpiredSessions } from './services/chunkedUpload.js'
 
 dotenv.config()
 if (fs.existsSync(path.resolve('.env.production'))) {
@@ -39,6 +41,7 @@ app.get('/api/health', (_req, res) => {
 app.use('/api', transcribeRouter)
 app.use('/api', chaptersRouter)
 app.use('/api', jobsRouter)
+app.use('/api', uploadsRouter)
 app.use('/api', adminRouter)
 
 app.use(
@@ -50,7 +53,7 @@ app.use(
   ) => {
     if (err instanceof multer.MulterError) {
       if (err.code === 'LIMIT_FILE_SIZE') {
-        res.status(413).json({ error: 'El archivo es demasiado grande' })
+        res.status(413).json({ error: 'Chunk or file exceeds maximum allowed size' })
         return
       }
     }
@@ -60,4 +63,6 @@ app.use(
 
 app.listen(port, () => {
   console.log(`Backend running on http://localhost:${port}`)
+  cleanupExpiredSessions()
+  setInterval(cleanupExpiredSessions, 6 * 60 * 60 * 1000)
 })

@@ -2,7 +2,7 @@ import { onUnmounted, ref } from 'vue'
 import type { ProcessingStep } from '../types'
 import type { RefineRequest } from '../types/refine'
 import type { Job, JobStatus } from '../types/job'
-import { getClientId } from '../utils/clientId'
+import { uploadFileAndCreateJob } from './useChunkedUpload'
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? '/api'
 
@@ -28,26 +28,7 @@ export async function createJob(
   autoMode: boolean,
   chapterCount?: number
 ): Promise<string> {
-  const formData = new FormData()
-  formData.append('video', file)
-  formData.append('auto', String(autoMode))
-  if (!autoMode && chapterCount != null) {
-    formData.append('chapterCount', String(chapterCount))
-  }
-
-  const response = await fetch(`${API_BASE}/jobs`, {
-    method: 'POST',
-    headers: { 'X-Client-Id': getClientId() },
-    body: formData,
-  })
-
-  if (!response.ok) {
-    const data = await response.json().catch(() => ({}))
-    throw new Error(data.error ?? `Error ${response.status}`)
-  }
-
-  const data = await response.json()
-  return data.id as string
+  return uploadFileAndCreateJob(file, autoMode, chapterCount)
 }
 
 export async function fetchJob(id: string): Promise<Job> {

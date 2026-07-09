@@ -4,7 +4,8 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import Card from '../ui/Card.vue'
 import VideoUploader from '../VideoUploader.vue'
-import { createJob } from '../../composables/useJob'
+import UploadProgress from '../UploadProgress.vue'
+import { useChunkedUpload } from '../../composables/useChunkedUpload'
 
 const props = withDefaults(
   defineProps<{
@@ -17,16 +18,18 @@ const { t } = useI18n()
 const router = useRouter()
 const uploading = ref(false)
 const error = ref<string | null>(null)
+const { progress, retryingChunk, uploadAndCreateJob } = useChunkedUpload()
 
 async function onFileSelect(file: File) {
   uploading.value = true
   error.value = null
 
   try {
-    const jobId = await createJob(file, true)
+    const jobId = await uploadAndCreateJob(file, true)
     await router.push({ name: 'job', params: { id: jobId } })
   } catch (err) {
-    error.value = err instanceof Error ? err.message : t('tool.chapterTool.unknownError')
+    error.value =
+      err instanceof Error ? err.message : t('tool.chapterTool.uploadFailed')
     uploading.value = false
   }
 }
@@ -52,6 +55,12 @@ async function onFileSelect(file: File) {
         <span class="trust-item">{{ t('tool.chapterTool.noSignup') }}</span>
       </div>
     </div>
+
+    <UploadProgress
+      v-else-if="progress"
+      :progress="progress"
+      :retrying-chunk="retryingChunk"
+    />
 
     <div v-else class="uploading-state">
       <div class="spinner" aria-hidden="true" />
