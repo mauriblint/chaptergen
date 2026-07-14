@@ -15,6 +15,7 @@ export interface JobSummary {
   chapterCount: number | null
   chaptersGenerated: number | null
   fileSizeBytes: number | null
+  durationSeconds: number | null
   fileType: string | null
   fileExtension: string | null
   mediaType: 'audio' | 'video' | null

@@ -23,6 +23,7 @@ export interface JobRecord {
   chapterCount: number | null
   chaptersGenerated: number | null
   fileSizeBytes: number | null
+  durationSeconds: number | null
   fileType: string | null
   fileExtension: string | null
   mediaType: MediaType | null
@@ -50,6 +51,7 @@ interface JobRow {
   chapter_count: number | null
   chapters_generated: number | null
   file_size_bytes: number | null
+  duration_seconds: number | null
   file_type: string | null
   file_extension: string | null
   media_type: string | null
@@ -107,6 +109,7 @@ const columnMigrations = [
   'ALTER TABLE jobs ADD COLUMN referer TEXT',
   'ALTER TABLE jobs ADD COLUMN client_id TEXT',
   'ALTER TABLE jobs ADD COLUMN failure_reason TEXT',
+  'ALTER TABLE jobs ADD COLUMN duration_seconds REAL',
 ]
 
 for (const sql of columnMigrations) {
@@ -133,6 +136,7 @@ function rowToJob(row: JobRow): JobRecord {
     chapterCount: row.chapter_count,
     chaptersGenerated: row.chapters_generated,
     fileSizeBytes: row.file_size_bytes,
+    durationSeconds: row.duration_seconds,
     fileType: row.file_type,
     fileExtension: row.file_extension,
     mediaType: row.media_type === 'audio' || row.media_type === 'video' ? row.media_type : null,
@@ -217,6 +221,7 @@ export interface JobSummary {
   chapterCount: number | null
   chaptersGenerated: number | null
   fileSizeBytes: number | null
+  durationSeconds: number | null
   fileType: string | null
   fileExtension: string | null
   mediaType: MediaType | null
@@ -240,6 +245,7 @@ interface JobSummaryRow {
   chapter_count: number | null
   chapters_generated: number | null
   file_size_bytes: number | null
+  duration_seconds: number | null
   file_type: string | null
   file_extension: string | null
   media_type: string | null
@@ -264,6 +270,7 @@ function rowToJobSummary(row: JobSummaryRow): JobSummary {
     chapterCount: row.chapter_count,
     chaptersGenerated: row.chapters_generated,
     fileSizeBytes: row.file_size_bytes,
+    durationSeconds: row.duration_seconds,
     fileType: row.file_type,
     fileExtension: row.file_extension,
     mediaType:
@@ -283,7 +290,7 @@ function rowToJobSummary(row: JobSummaryRow): JobSummary {
 
 const jobSummaryColumns = `
   id, status, file_name, auto_mode, chapter_count, chapters_generated,
-  file_size_bytes, file_type, file_extension, media_type,
+  file_size_bytes, duration_seconds, file_type, file_extension, media_type,
   client_ip, country, user_agent, accept_language, referer, client_id,
   error_message, failure_reason, created_at, updated_at
 `
@@ -404,6 +411,10 @@ export function updateJobError(
       updated_at = ?, file_path = NULL
     WHERE id = ?
   `).run(message, failureReason, now, id)
+}
+
+export function updateJobDuration(id: string, durationSeconds: number): void {
+  db.prepare('UPDATE jobs SET duration_seconds = ? WHERE id = ?').run(durationSeconds, id)
 }
 
 export function clearJobFilePath(id: string): void {

@@ -46,6 +46,16 @@ function formatSize(bytes: number | null): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
+function formatDuration(seconds: number | null): string {
+  if (seconds == null || !Number.isFinite(seconds)) return '—'
+  const total = Math.round(seconds)
+  const h = Math.floor(total / 3600)
+  const m = Math.floor((total % 3600) / 60)
+  const s = total % 60
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`
+}
+
 const hasJobs = computed(() => props.jobs.length > 0)
 </script>
 
@@ -61,15 +71,16 @@ const hasJobs = computed(() => props.jobs.length > 0)
           <th class="px-4 py-3 font-medium">IP</th>
           <th class="px-4 py-3 font-medium">Capítulos</th>
           <th class="px-4 py-3 font-medium">Tamaño</th>
+          <th class="px-4 py-3 font-medium">Duración</th>
           <th class="px-4 py-3 font-medium">ID</th>
         </tr>
       </thead>
       <tbody>
         <tr v-if="loading && !hasJobs">
-          <td colspan="8" class="px-4 py-8 text-center text-muted">Cargando jobs…</td>
+          <td colspan="9" class="px-4 py-8 text-center text-muted">Cargando jobs…</td>
         </tr>
         <tr v-else-if="!hasJobs">
-          <td colspan="8" class="px-4 py-8 text-center text-muted">No hay jobs</td>
+          <td colspan="9" class="px-4 py-8 text-center text-muted">No hay jobs</td>
         </tr>
         <tr
           v-for="job in jobs"
@@ -105,6 +116,7 @@ const hasJobs = computed(() => props.jobs.length > 0)
             {{ job.chaptersGenerated ?? '—' }}
           </td>
           <td class="px-4 py-3 text-muted">{{ formatSize(job.fileSizeBytes) }}</td>
+          <td class="whitespace-nowrap px-4 py-3 text-muted">{{ formatDuration(job.durationSeconds) }}</td>
           <td class="px-4 py-3">
             <a
               :href="`${SITE_URL}/jobs/${job.id}`"

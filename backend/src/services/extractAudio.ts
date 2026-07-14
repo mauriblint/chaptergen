@@ -42,3 +42,18 @@ export async function prepareAudioForTranscription(
 export async function cleanupFiles(...paths: string[]): Promise<void> {
   await Promise.all(paths.map((p) => fs.unlink(p).catch(() => {})))
 }
+
+// Returns the media duration in seconds via ffprobe, or null if it can't be
+// determined (e.g. unreadable/corrupt file).
+export function getMediaDurationSeconds(filePath: string): Promise<number | null> {
+  return new Promise((resolve) => {
+    ffmpeg.ffprobe(filePath, (err, data) => {
+      if (err) {
+        resolve(null)
+        return
+      }
+      const duration = data?.format?.duration
+      resolve(typeof duration === 'number' && Number.isFinite(duration) ? duration : null)
+    })
+  })
+}

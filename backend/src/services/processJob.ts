@@ -3,6 +3,7 @@ import path from 'path'
 import {
   AUDIO_MAX_UPLOAD_BYTES,
   cleanupFiles,
+  getMediaDurationSeconds,
   prepareAudioForTranscription,
 } from './extractAudio.js'
 import { generateChapters } from './generateChapters.js'
@@ -12,6 +13,7 @@ import { transcribe } from './transcribe.js'
 import {
   clearJobFilePath,
   getJob,
+  updateJobDuration,
   updateJobError,
   updateJobResult,
   updateJobSegments,
@@ -36,6 +38,11 @@ export async function processJob(jobId: string): Promise<void> {
   try {
     updateJobStatus(jobId, isAudio ? 'transcribing' : 'extracting')
     audioPath = await prepareAudioForTranscription(filePath, uploadsDir)
+
+    const durationSeconds = await getMediaDurationSeconds(audioPath)
+    if (durationSeconds != null) {
+      updateJobDuration(jobId, durationSeconds)
+    }
 
     const audioSizeBytes = statSync(audioPath).size
     if (audioSizeBytes > AUDIO_MAX_UPLOAD_BYTES) {
