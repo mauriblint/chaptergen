@@ -20,6 +20,7 @@ export interface Job {
   chapters: Chapter[] | null
   formatted: string | null
   error: string | null
+  failureReason: string | null
   createdAt: string
   updatedAt: string
 }

@@ -25,6 +25,7 @@ export interface JobSummary {
   referer: string | null
   clientId: string | null
   errorMessage: string | null
+  failureReason: string | null
   createdAt: string
   updatedAt: string
 }

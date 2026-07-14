@@ -36,6 +36,7 @@ export interface JobRecord {
   chapters: Chapter[] | null
   formatted: string | null
   errorMessage: string | null
+  failureReason: string | null
   createdAt: string
   updatedAt: string
 }
@@ -62,6 +63,7 @@ interface JobRow {
   chapters_json: string | null
   formatted_text: string | null
   error_message: string | null
+  failure_reason: string | null
   created_at: string
   updated_at: string
 }
@@ -104,6 +106,7 @@ const columnMigrations = [
   'ALTER TABLE jobs ADD COLUMN accept_language TEXT',
   'ALTER TABLE jobs ADD COLUMN referer TEXT',
   'ALTER TABLE jobs ADD COLUMN client_id TEXT',
+  'ALTER TABLE jobs ADD COLUMN failure_reason TEXT',
 ]
 
 for (const sql of columnMigrations) {
@@ -143,6 +146,7 @@ function rowToJob(row: JobRow): JobRecord {
     chapters: row.chapters_json ? JSON.parse(row.chapters_json) : null,
     formatted: row.formatted_text,
     errorMessage: row.error_message,
+    failureReason: row.failure_reason,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
@@ -223,6 +227,7 @@ export interface JobSummary {
   referer: string | null
   clientId: string | null
   errorMessage: string | null
+  failureReason: string | null
   createdAt: string
   updatedAt: string
 }
@@ -245,6 +250,7 @@ interface JobSummaryRow {
   referer: string | null
   client_id: string | null
   error_message: string | null
+  failure_reason: string | null
   created_at: string
   updated_at: string
 }
@@ -269,6 +275,7 @@ function rowToJobSummary(row: JobSummaryRow): JobSummary {
     referer: row.referer,
     clientId: row.client_id,
     errorMessage: row.error_message,
+    failureReason: row.failure_reason,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
@@ -278,7 +285,7 @@ const jobSummaryColumns = `
   id, status, file_name, auto_mode, chapter_count, chapters_generated,
   file_size_bytes, file_type, file_extension, media_type,
   client_ip, country, user_agent, accept_language, referer, client_id,
-  error_message, created_at, updated_at
+  error_message, failure_reason, created_at, updated_at
 `
 
 export function listJobs(input: {
@@ -341,17 +348,16 @@ export function countJobsByClientIp(clientIp: string, status?: JobStatus): numbe
 
 export function updateJobStatus(id: string, status: JobStatus): void {
   const now = new Date().toISOString()
-  db.prepare('UPDATE jobs SET status = ?, updated_at = ?, error_message = NULL WHERE id = ?').run(
-    status,
-    now,
-    id
-  )
+  db.prepare(
+    'UPDATE jobs SET status = ?, updated_at = ?, error_message = NULL, failure_reason = NULL WHERE id = ?'
+  ).run(status, now, id)
 }
 
 export function updateJobSegments(id: string, segments: TranscriptSegment[]): void {
   const now = new Date().toISOString()
   db.prepare(`
-    UPDATE jobs SET segments_json = ?, status = 'generating', updated_at = ?, error_message = NULL
+    UPDATE jobs SET segments_json = ?, status = 'generating', updated_at = ?,
+      error_message = NULL, failure_reason = NULL
     WHERE id = ?
   `).run(JSON.stringify(segments), now, id)
 }
@@ -368,7 +374,7 @@ export function updateJobResult(
     db.prepare(`
       UPDATE jobs SET chapters_json = ?, formatted_text = ?, segments_json = ?,
         chapters_generated = ?, status = 'completed', updated_at = ?, error_message = NULL,
-        file_path = NULL
+        failure_reason = NULL, file_path = NULL
       WHERE id = ?
     `).run(
       JSON.stringify(chapters),
@@ -381,18 +387,23 @@ export function updateJobResult(
   } else {
     db.prepare(`
       UPDATE jobs SET chapters_json = ?, formatted_text = ?, chapters_generated = ?,
-        status = 'completed', updated_at = ?, error_message = NULL
+        status = 'completed', updated_at = ?, error_message = NULL, failure_reason = NULL
       WHERE id = ?
     `).run(JSON.stringify(chapters), formatted, chaptersGenerated, now, id)
   }
 }
 
-export function updateJobError(id: string, message: string): void {
+export function updateJobError(
+  id: string,
+  message: string,
+  failureReason: string | null = null
+): void {
   const now = new Date().toISOString()
   db.prepare(`
-    UPDATE jobs SET status = 'failed', error_message = ?, updated_at = ?, file_path = NULL
+    UPDATE jobs SET status = 'failed', error_message = ?, failure_reason = ?,
+      updated_at = ?, file_path = NULL
     WHERE id = ?
-  `).run(message, now, id)
+  `).run(message, failureReason, now, id)
 }
 
 export function clearJobFilePath(id: string): void {

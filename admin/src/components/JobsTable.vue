@@ -89,6 +89,12 @@ const hasJobs = computed(() => props.jobs.length > 0)
             >
               {{ statusLabels[job.status] }}
             </span>
+            <span
+              v-if="job.failureReason === 'audio_too_large'"
+              class="mt-1 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700"
+            >
+              Audio &gt;25MB
+            </span>
             <p v-if="job.errorMessage" class="mt-1 max-w-[180px] truncate text-xs text-red-600" :title="job.errorMessage">
               {{ job.errorMessage }}
             </p>

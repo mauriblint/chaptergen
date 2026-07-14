@@ -1,5 +1,10 @@
+import { statSync } from 'fs'
 import path from 'path'
-import { cleanupFiles, extractAudio } from './extractAudio.js'
+import {
+  AUDIO_MAX_UPLOAD_BYTES,
+  cleanupFiles,
+  prepareAudioForTranscription,
+} from './extractAudio.js'
 import { generateChapters } from './generateChapters.js'
 import type { RefineOptions } from '../types/refine.js'
 import type { Chapter } from '../types.js'
@@ -25,17 +30,25 @@ export async function processJob(jobId: string): Promise<void> {
   }
 
   const filePath = job.filePath
+  const isAudio = isAudioFile(job.fileName)
   let audioPath: string | null = null
-  let tempAudioPath: string | null = null
 
   try {
-    if (isAudioFile(job.fileName)) {
-      updateJobStatus(jobId, 'transcribing')
-      audioPath = filePath
-    } else {
-      updateJobStatus(jobId, 'extracting')
-      tempAudioPath = await extractAudio(filePath, uploadsDir)
-      audioPath = tempAudioPath
+    updateJobStatus(jobId, isAudio ? 'transcribing' : 'extracting')
+    audioPath = await prepareAudioForTranscription(filePath, uploadsDir)
+
+    const audioSizeBytes = statSync(audioPath).size
+    if (audioSizeBytes > AUDIO_MAX_UPLOAD_BYTES) {
+      const sizeMb = (audioSizeBytes / (1024 * 1024)).toFixed(1)
+      updateJobError(
+        jobId,
+        `El audio es demasiado largo para transcribir: ${sizeMb} MB tras comprimir (límite ~25 MB de OpenAI Whisper).`,
+        'audio_too_large'
+      )
+      return
+    }
+
+    if (!isAudio) {
       updateJobStatus(jobId, 'transcribing')
     }
 
@@ -53,11 +66,7 @@ export async function processJob(jobId: string): Promise<void> {
     const message = err instanceof Error ? err.message : 'Unknown error'
     updateJobError(jobId, message)
   } finally {
-    if (isAudioFile(job.fileName)) {
-      await cleanupFiles(filePath)
-    } else {
-      await cleanupFiles(filePath, ...(tempAudioPath ? [tempAudioPath] : []))
-    }
+    await cleanupFiles(filePath, ...(audioPath ? [audioPath] : []))
     clearJobFilePath(jobId)
   }
 }

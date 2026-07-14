@@ -381,6 +381,8 @@ export default {
       done: 'Done',
       wentWrong: 'Something went wrong',
       tryAgain: 'Try again',
+      errorAudioTooLarge:
+        'This file is too long to transcribe (over ~25 MB of audio even after compression). Try a shorter file or split it into parts.',
     },
   },
 }

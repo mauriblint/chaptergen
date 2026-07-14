@@ -41,7 +41,12 @@ const step = computed(() => {
   return jobStatusToStep(job.value.status)
 })
 
-const displayError = computed(() => fetchError.value ?? job.value?.error ?? null)
+const displayError = computed(() => {
+  if (job.value?.failureReason === 'audio_too_large') {
+    return t('tool.job.errorAudioTooLarge')
+  }
+  return fetchError.value ?? job.value?.error ?? null
+})
 
 const isDone = computed(() => job.value?.status === 'completed')
 const isFailed = computed(() => job.value?.status === 'failed')

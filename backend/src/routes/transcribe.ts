@@ -1,9 +1,13 @@
 import { Router, type Request, type Response } from 'express'
+import { statSync } from 'fs'
 import path from 'path'
 import { mediaUpload } from '../middleware/upload.js'
-import { cleanupFiles, extractAudio } from '../services/extractAudio.js'
+import {
+  AUDIO_MAX_UPLOAD_BYTES,
+  cleanupFiles,
+  prepareAudioForTranscription,
+} from '../services/extractAudio.js'
 import { transcribe } from '../services/transcribe.js'
-import { isAudioFile } from '../utils/media.js'
 
 const uploadsDir = path.resolve('uploads')
 
@@ -20,14 +24,17 @@ transcribeRouter.post(
 
     const filePath = req.file.path
     let audioPath: string | null = null
-    let tempAudioPath: string | null = null
 
     try {
-      if (isAudioFile(req.file.originalname)) {
-        audioPath = filePath
-      } else {
-        tempAudioPath = await extractAudio(filePath, uploadsDir)
-        audioPath = tempAudioPath
+      audioPath = await prepareAudioForTranscription(filePath, uploadsDir)
+
+      const audioSizeBytes = statSync(audioPath).size
+      if (audioSizeBytes > AUDIO_MAX_UPLOAD_BYTES) {
+        const sizeMb = (audioSizeBytes / (1024 * 1024)).toFixed(1)
+        res.status(413).json({
+          error: `El audio es demasiado largo para transcribir: ${sizeMb} MB tras comprimir (límite ~25 MB de OpenAI Whisper).`,
+        })
+        return
       }
 
       const segments = await transcribe(audioPath)
@@ -36,11 +43,7 @@ transcribeRouter.post(
       const message = err instanceof Error ? err.message : 'Error desconocido'
       res.status(500).json({ error: message })
     } finally {
-      if (isAudioFile(req.file.originalname)) {
-        await cleanupFiles(filePath)
-      } else {
-        await cleanupFiles(filePath, ...(tempAudioPath ? [tempAudioPath] : []))
-      }
+      await cleanupFiles(filePath, ...(audioPath ? [audioPath] : []))
     }
   }
 )

@@ -23,6 +23,7 @@ function jobToResponse(job: JobRecord) {
     chapters: job.chapters,
     formatted: job.formatted,
     error: job.errorMessage,
+    failureReason: job.failureReason,
     createdAt: job.createdAt,
     updatedAt: job.updatedAt,
   }
