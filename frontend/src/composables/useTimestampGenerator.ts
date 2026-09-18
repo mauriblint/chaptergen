@@ -14,6 +14,7 @@ export function useTimestampGenerator() {
   const step = ref<ProcessingStep>('idle')
   const error = ref<string | null>(null)
   const segments = ref<TranscriptSegment[]>([])
+  const transcriptLanguage = ref<string | null>(null)
   const chapters = ref<Chapter[]>([])
   const formatted = ref('')
 
@@ -21,6 +22,7 @@ export function useTimestampGenerator() {
     const body: Record<string, unknown> = {
       segments: segments.value,
       auto,
+      language: transcriptLanguage.value,
     }
     if (!auto && chapterCount != null) {
       body.chapterCount = chapterCount
@@ -46,6 +48,7 @@ export function useTimestampGenerator() {
     step.value = 'uploading'
     error.value = null
     segments.value = []
+    transcriptLanguage.value = null
     chapters.value = []
     formatted.value = ''
 
@@ -69,6 +72,7 @@ export function useTimestampGenerator() {
 
       const data: TranscribeResult = await response.json()
       segments.value = data.segments
+      transcriptLanguage.value = data.language ?? null
 
       step.value = 'generating'
       await generateChapters(auto, chapterCount)
@@ -107,6 +111,7 @@ export function useTimestampGenerator() {
     step.value = 'idle'
     error.value = null
     segments.value = []
+    transcriptLanguage.value = null
     chapters.value = []
     formatted.value = ''
   }

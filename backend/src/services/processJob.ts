@@ -59,14 +59,17 @@ export async function processJob(jobId: string): Promise<void> {
       updateJobStatus(jobId, 'transcribing')
     }
 
-    const segments = await transcribe(audioPath)
-    updateJobSegments(jobId, segments)
+    const { segments, language } = await transcribe(audioPath)
+    updateJobSegments(jobId, segments, language)
 
     const count = job.autoMode
       ? null
       : Math.min(20, Math.max(3, job.chapterCount ?? 10))
 
-    const chapters = await generateChapters(segments, { chapterCount: count })
+    const chapters = await generateChapters(segments, {
+      chapterCount: count,
+      language,
+    })
     const formatted = formatChapters(chapters)
     updateJobResult(jobId, chapters, formatted, segments)
   } catch (err) {
@@ -97,6 +100,7 @@ export async function refineJobChapters(
     const chapters = await generateChapters(job.segments, {
       chapterCount: count,
       refine: options,
+      language: job.transcriptLanguage,
       existingChapters:
         options.mode === 'titles'
           ? (existingChapters ?? job.chapters ?? undefined)

@@ -16,6 +16,7 @@ export interface ChaptersResult {
 
 export interface TranscribeResult {
   segments: TranscriptSegment[]
+  language?: string | null
 }
 
 export type ProcessingStep =

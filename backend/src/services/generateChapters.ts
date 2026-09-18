@@ -10,6 +10,7 @@ export interface ChapterGenerationOptions {
   chapterCount: number | null
   refine?: RefineOptions
   existingChapters?: Chapter[]
+  language?: string | null
 }
 
 function getOpenAI(): OpenAI {
@@ -31,14 +32,38 @@ function buildSegmentList(segments: TranscriptSegment[]): string {
 
 function chapterCountInstruction(chapterCount: number | null): string {
   if (chapterCount == null) {
-    return `Generá la cantidad de capítulos que tenga sentido según los cambios de tema del video.
-Típicamente entre 5 y 15 capítulos, según la duración y densidad del contenido.
-No fuerces capítulos innecesarios ni agrupes temas distintos.`
+    return `Generate as many chapters as make sense given topic changes in the video.
+Typically 5 to 15 chapters, depending on duration and content density.
+Do not force unnecessary chapters or group distinct topics together.`
   }
 
   const minChapters = Math.max(3, chapterCount - 3)
   const maxChapters = chapterCount + 3
-  return `Generá entre ${minChapters} y ${maxChapters} capítulos.`
+  return `Generate between ${minChapters} and ${maxChapters} chapters.`
+}
+
+function sanitizeLanguage(language?: string | null): string | null {
+  const trimmed = language?.trim()
+  if (!trimmed || trimmed.length > 64) return null
+  return trimmed
+}
+
+function languageInstruction(language?: string | null): string {
+  const detected = sanitizeLanguage(language)
+  if (detected) {
+    return `The transcript language is ${detected}. Write every chapter title in ${detected}. Do not translate into another language.`
+  }
+  return 'Write every chapter title in the same language as the transcript. Do not translate.'
+}
+
+function fallbackStartTitle(language?: string | null): string {
+  const lang = (sanitizeLanguage(language) ?? '').toLowerCase()
+  if (lang.startsWith('es') || lang.includes('spanish')) return 'Inicio'
+  if (lang.startsWith('pt') || lang.includes('portuguese')) return 'Início'
+  if (lang.startsWith('fr') || lang.includes('french')) return 'Début'
+  if (lang.startsWith('de') || lang.includes('german')) return 'Beginn'
+  if (lang.startsWith('it') || lang.includes('italian')) return 'Inizio'
+  return 'Start'
 }
 
 function buildRefineInstructions(
@@ -48,24 +73,24 @@ function buildRefineInstructions(
   const parts: string[] = []
 
   if (opts.mode === 'titles' && existing?.length) {
-    parts.push(`Mantené EXACTAMENTE estos timestamps, solo reescribí los títulos:
+    parts.push(`Keep these timestamps EXACTLY. Only rewrite the titles:
 ${existing.map((c) => `[${c.time}] ${c.title}`).join('\n')}`)
   } else if (opts.mode === 'segments') {
     parts.push(
-      'Reorganizá los cortes/capítulos. Los títulos pueden ajustarse pero el foco está en dónde cortar.'
+      'Reorganize the chapter cuts. Titles may be adjusted, but the focus is where to cut.'
     )
   } else if (opts.mode === 'both') {
-    parts.push('Podés ajustar tanto los cortes como los títulos según las instrucciones siguientes.')
+    parts.push('You may adjust both cuts and titles according to the instructions below.')
   }
 
   if (opts.mode !== 'titles') {
     const granularityMap: Record<RefineOptions['granularity'], string> = {
       detailed:
-        'Creá más capítulos, con cortes más finos en cada cambio de tema.',
+        'Create more chapters, with finer cuts at each topic change.',
       balanced:
-        'Equilibrá cantidad y longitud de capítulos según el contenido.',
+        'Balance chapter count and length according to the content.',
       grouped:
-        'Agrupá en menos capítulos más largos; solo cortá en cambios de tema importantes.',
+        'Group into fewer, longer chapters; only cut at major topic changes.',
     }
     parts.push(granularityMap[opts.granularity])
   }
@@ -73,28 +98,28 @@ ${existing.map((c) => `[${c.time}] ${c.title}`).join('\n')}`)
   const contentMap: Record<RefineOptions['contentType'], string> = {
     auto: '',
     tutorial:
-      'Es un tutorial: un capítulo por paso o sección práctica.',
+      'This is a tutorial: one chapter per step or practical section.',
     podcast:
-      'Es un podcast/entrevista: un capítulo por pregunta, invitado o tema de conversación.',
+      'This is a podcast/interview: one chapter per question, guest, or conversation topic.',
     webinar:
-      'Es un webinar/curso: un capítulo por módulo, bloque o tema de la clase.',
+      'This is a webinar/course: one chapter per module, block, or lesson topic.',
     review:
-      'Es un review/vlog: un capítulo por producto, sección o momento destacado.',
+      'This is a review/vlog: one chapter per product, section, or highlight.',
   }
   if (opts.contentType !== 'auto') {
     parts.push(contentMap[opts.contentType])
   }
 
   const styleMap: Record<RefineOptions['titleStyle'], string> = {
-    descriptive: 'Títulos descriptivos y claros en español.',
-    short: 'Títulos cortos, máximo 40 caracteres, directos al punto.',
-    seo: 'Títulos optimizados para búsqueda, con palabras clave relevantes del contenido.',
-    question: 'Títulos en forma de pregunta que invite a hacer clic.',
+    descriptive: 'Clear, descriptive titles.',
+    short: 'Short titles, 40 characters max, straight to the point.',
+    seo: 'Search-optimized titles using relevant keywords from the content.',
+    question: 'Titles phrased as questions that invite a click.',
   }
   parts.push(styleMap[opts.titleStyle])
 
   if (opts.instructions?.trim()) {
-    parts.push(`Instrucciones adicionales del usuario: ${opts.instructions.trim()}`)
+    parts.push(`Additional user instructions: ${opts.instructions.trim()}`)
   }
 
   return parts.filter(Boolean).join('\n')
@@ -105,7 +130,7 @@ export async function generateChapters(
   options: ChapterGenerationOptions = { chapterCount: null }
 ): Promise<Chapter[]> {
   if (segments.length === 0) {
-    return [{ time: '00:00:00', title: 'Inicio' }]
+    return [{ time: '00:00:00', title: fallbackStartTitle(options.language) }]
   }
 
   const openai = getOpenAI()
@@ -120,18 +145,19 @@ export async function generateChapters(
     messages: [
       {
         role: 'system',
-        content: `Sos un asistente que genera capítulos para videos de YouTube.
-Analizá la transcripción con timestamps y agrupá los segmentos en capítulos lógicos.
+        content: `You are an assistant that generates YouTube video chapters.
+Analyze the timestamped transcript and group segments into logical chapters.
 ${chapterCountInstruction(options.chapterCount)}
-${refineBlock ? `${refineBlock}\n` : ''}Usá timestamps reales de los segmentos (el inicio del primer segmento de cada capítulo).
-Los títulos deben ser descriptivos y en español.
-Respondé SOLO con JSON válido en este formato:
-{"chapters": [{"time": "00:01:29", "title": "Título del capítulo"}]}
-El campo "time" debe estar en formato HH:MM:SS.`,
+${languageInstruction(options.language)}
+${refineBlock ? `${refineBlock}\n` : ''}Use real timestamps from the segments (the start of the first segment in each chapter).
+Titles must be descriptive.
+Respond ONLY with valid JSON in this format:
+{"chapters": [{"time": "00:01:29", "title": "Chapter title"}]}
+The "time" field must be HH:MM:SS.`,
       },
       {
         role: 'user',
-        content: `Transcripción con timestamps:\n\n${buildSegmentList(segments)}`,
+        content: `Timestamped transcript:\n\n${buildSegmentList(segments)}`,
       },
     ],
     temperature,

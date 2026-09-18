@@ -5,10 +5,11 @@ import { formatChapters, type TranscriptSegment } from '../types.js'
 export const chaptersRouter = Router()
 
 chaptersRouter.post('/chapters', async (req: Request, res: Response) => {
-  const { segments, chapterCount, auto } = req.body as {
+  const { segments, chapterCount, auto, language } = req.body as {
     segments?: TranscriptSegment[]
     chapterCount?: number
     auto?: boolean
+    language?: string | null
   }
 
   if (!segments || !Array.isArray(segments) || segments.length === 0) {
@@ -23,7 +24,10 @@ chaptersRouter.post('/chapters', async (req: Request, res: Response) => {
     : Math.min(20, Math.max(3, Number(chapterCount) || 10))
 
   try {
-    const chapters = await generateChapters(segments, { chapterCount: count })
+    const chapters = await generateChapters(segments, {
+      chapterCount: count,
+      language,
+    })
     const formatted = formatChapters(chapters)
     res.json({ chapters, formatted })
   } catch (err) {

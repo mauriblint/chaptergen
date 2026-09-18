@@ -2,6 +2,11 @@ import fs from 'fs'
 import OpenAI from 'openai'
 import type { TranscriptSegment } from '../types.js'
 
+export interface TranscriptionResult {
+  segments: TranscriptSegment[]
+  language: string | null
+}
+
 function getOpenAI(): OpenAI {
   const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey) {
@@ -10,7 +15,14 @@ function getOpenAI(): OpenAI {
   return new OpenAI({ apiKey })
 }
 
-export async function transcribe(audioPath: string): Promise<TranscriptSegment[]> {
+function normalizeLanguage(language: unknown): string | null {
+  if (typeof language !== 'string') return null
+  const trimmed = language.trim()
+  if (!trimmed || trimmed.length > 64) return null
+  return trimmed
+}
+
+export async function transcribe(audioPath: string): Promise<TranscriptionResult> {
   const openai = getOpenAI()
 
   const transcription = await openai.audio.transcriptions.create({
@@ -22,9 +34,12 @@ export async function transcribe(audioPath: string): Promise<TranscriptSegment[]
 
   const segments = (transcription as { segments?: TranscriptSegment[] }).segments ?? []
 
-  return segments.map((seg) => ({
-    start: seg.start,
-    end: seg.end,
-    text: seg.text.trim(),
-  }))
+  return {
+    segments: segments.map((seg) => ({
+      start: seg.start,
+      end: seg.end,
+      text: seg.text.trim(),
+    })),
+    language: normalizeLanguage((transcription as { language?: unknown }).language),
+  }
 }

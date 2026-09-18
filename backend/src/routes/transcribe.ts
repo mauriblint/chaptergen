@@ -37,8 +37,8 @@ transcribeRouter.post(
         return
       }
 
-      const segments = await transcribe(audioPath)
-      res.json({ segments })
+      const { segments, language } = await transcribe(audioPath)
+      res.json({ segments, language })
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error desconocido'
       res.status(500).json({ error: message })

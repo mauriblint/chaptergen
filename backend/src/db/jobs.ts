@@ -33,6 +33,7 @@ export interface JobRecord {
   acceptLanguage: string | null
   referer: string | null
   clientId: string | null
+  transcriptLanguage: string | null
   segments: TranscriptSegment[] | null
   chapters: Chapter[] | null
   formatted: string | null
@@ -61,6 +62,7 @@ interface JobRow {
   accept_language: string | null
   referer: string | null
   client_id: string | null
+  transcript_language: string | null
   segments_json: string | null
   chapters_json: string | null
   formatted_text: string | null
@@ -110,6 +112,7 @@ const columnMigrations = [
   'ALTER TABLE jobs ADD COLUMN client_id TEXT',
   'ALTER TABLE jobs ADD COLUMN failure_reason TEXT',
   'ALTER TABLE jobs ADD COLUMN duration_seconds REAL',
+  'ALTER TABLE jobs ADD COLUMN transcript_language TEXT',
 ]
 
 for (const sql of columnMigrations) {
@@ -146,6 +149,7 @@ function rowToJob(row: JobRow): JobRecord {
     acceptLanguage: row.accept_language,
     referer: row.referer,
     clientId: row.client_id,
+    transcriptLanguage: row.transcript_language,
     segments: row.segments_json ? JSON.parse(row.segments_json) : null,
     chapters: row.chapters_json ? JSON.parse(row.chapters_json) : null,
     formatted: row.formatted_text,
@@ -360,13 +364,17 @@ export function updateJobStatus(id: string, status: JobStatus): void {
   ).run(status, now, id)
 }
 
-export function updateJobSegments(id: string, segments: TranscriptSegment[]): void {
+export function updateJobSegments(
+  id: string,
+  segments: TranscriptSegment[],
+  transcriptLanguage?: string | null
+): void {
   const now = new Date().toISOString()
   db.prepare(`
-    UPDATE jobs SET segments_json = ?, status = 'generating', updated_at = ?,
-      error_message = NULL, failure_reason = NULL
+    UPDATE jobs SET segments_json = ?, transcript_language = ?, status = 'generating',
+      updated_at = ?, error_message = NULL, failure_reason = NULL
     WHERE id = ?
-  `).run(JSON.stringify(segments), now, id)
+  `).run(JSON.stringify(segments), transcriptLanguage ?? null, now, id)
 }
 
 export function updateJobResult(
