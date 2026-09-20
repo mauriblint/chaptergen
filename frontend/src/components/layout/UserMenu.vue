@@ -4,11 +4,13 @@ import { RouterLink, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuth } from '../../composables/useAuth'
 import { userAvatarUrl } from '../../utils/avatar'
+import SupportModal from '../SupportModal.vue'
 
 const { t } = useI18n()
 const router = useRouter()
 const { user, logout } = useAuth()
 const open = ref(false)
+const showSupport = ref(false)
 const root = ref<HTMLElement | null>(null)
 
 function close() {
@@ -24,7 +26,13 @@ function onDocumentClick(event: MouseEvent) {
 }
 
 function onKeydown(event: KeyboardEvent) {
-  if (event.key === 'Escape') close()
+  if (event.key === 'Escape') {
+    if (showSupport.value) {
+      showSupport.value = false
+      return
+    }
+    close()
+  }
 }
 
 onMounted(() => {
@@ -36,6 +44,11 @@ onUnmounted(() => {
   document.removeEventListener('click', onDocumentClick)
   document.removeEventListener('keydown', onKeydown)
 })
+
+function onSupport() {
+  close()
+  showSupport.value = true
+}
 
 async function onLogout() {
   close()
@@ -71,11 +84,17 @@ async function onLogout() {
       <RouterLink to="/billing" role="menuitem" class="item" @click="close">
         {{ t('common.nav.billing') }}
       </RouterLink>
+      <button type="button" role="menuitem" class="item" @click="onSupport">
+        {{ t('common.nav.support') }}
+      </button>
       <div class="sep" role="separator" />
       <button type="button" role="menuitem" class="item logout" @click="onLogout">
         {{ t('common.nav.logout') }}
       </button>
     </div>
+    <Teleport to="body">
+      <SupportModal v-if="showSupport" @close="showSupport = false" />
+    </Teleport>
   </div>
 </template>
 

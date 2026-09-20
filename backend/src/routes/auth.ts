@@ -5,7 +5,7 @@ import { listJobsByUserId } from '../db/jobs.js'
 import { signMagicToken, verifyToken } from '../auth/jwt.js'
 import { clearSessionCookie } from '../auth/cookies.js'
 import { establishSession, requireUser } from '../auth/session.js'
-import { sendMagicLinkEmail } from '../services/email.js'
+import { sendMagicLinkEmail, sendSupportEmail } from '../services/email.js'
 import { extractRequestMeta } from '../utils/requestMeta.js'
 import { FREE_JOB_LIMIT, FREE_MAX_MINUTES } from '../billing/packs.js'
 import { getFreeUsage } from '../billing/quota.js'
@@ -116,4 +116,34 @@ authRouter.get('/account', requireUser, (req: Request, res: Response) => {
     })),
     jobs,
   })
+})
+
+authRouter.post('/support', requireUser, async (req: Request, res: Response) => {
+  const subject = typeof req.body?.subject === 'string' ? req.body.subject.trim() : ''
+  const message = typeof req.body?.message === 'string' ? req.body.message.trim() : ''
+  if (!subject || !message) {
+    res.status(400).json({ error: 'Subject and message are required' })
+    return
+  }
+  if (subject.length > 200 || message.length > 5000) {
+    res.status(400).json({ error: 'Subject or message is too long' })
+    return
+  }
+  if (!process.env.SUPPORT_EMAIL?.trim()) {
+    res.status(503).json({ error: 'Support is not configured' })
+    return
+  }
+
+  try {
+    await sendSupportEmail({
+      fromEmail: req.user!.email,
+      userId: req.user!.id,
+      subject,
+      message,
+    })
+    res.json({ ok: true })
+  } catch (err) {
+    console.error('support email error:', err)
+    res.status(500).json({ error: 'Could not send the message' })
+  }
 })

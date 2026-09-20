@@ -94,13 +94,13 @@ onMounted(async () => {
         </section>
 
         <section>
-          <h2>{{ t('dashboard.newJob') }}</h2>
+          <h2>{{ t('dashboard.newChapters') }}</h2>
           <ChapterTool compact />
         </section>
 
         <section>
-          <h2>{{ t('dashboard.jobs') }}</h2>
-          <p v-if="!jobs.length" class="muted">{{ t('dashboard.noJobs') }}</p>
+          <h2>{{ t('dashboard.history') }}</h2>
+          <p v-if="!jobs.length" class="muted">{{ t('dashboard.noHistory') }}</p>
           <ul v-else class="list">
             <li v-for="job in jobs" :key="job.id">
               <RouterLink :to="{ name: 'job', params: { id: job.id } }">{{ job.fileName }}</RouterLink>

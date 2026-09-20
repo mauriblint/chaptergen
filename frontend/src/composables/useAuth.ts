@@ -140,6 +140,13 @@ export function useAuth() {
     return data.packs
   }
 
+  async function sendSupport(subject: string, message: string): Promise<void> {
+    await apiFetch('/support', {
+      method: 'POST',
+      body: JSON.stringify({ subject, message }),
+    })
+  }
+
   return {
     me,
     user,
@@ -158,5 +165,6 @@ export function useAuth() {
     startCheckout,
     fetchAccount,
     fetchPacks,
+    sendSupport,
   }
 }

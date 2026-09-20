@@ -12,6 +12,19 @@ function fromAddress(): string {
   return process.env.RESEND_FROM ?? 'ChapterGen <noreply@chaptergen.com>'
 }
 
+function supportAddress(): string | null {
+  const value = process.env.SUPPORT_EMAIL?.trim()
+  return value || null
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
 const copy = {
   en: {
     purchaseSubject: (credits: number) => `Your ${credits} ChapterGen credits are ready`,
@@ -55,24 +68,25 @@ function button(href: string, label: string): string {
   return `<p style="margin:24px 0"><a href="${href}" style="background:#6366f1;color:#fff;text-decoration:none;padding:10px 16px;border-radius:8px;display:inline-block">${label}</a></p>`
 }
 
-async function send(to: string, subject: string, html: string): Promise<void> {
+async function send(input: {
+  to: string
+  subject: string
+  html: string
+  replyTo?: string
+}): Promise<void> {
   const resend = getResend()
   if (!resend) {
-    console.warn('RESEND_API_KEY is not set; skipping email')
-    return
+    throw new Error('Email is not configured')
   }
-  try {
-    const { error } = await resend.emails.send({
-      from: fromAddress(),
-      to,
-      subject,
-      html,
-    })
-    if (error) {
-      console.error('Resend error:', error)
-    }
-  } catch (err) {
-    console.error('Resend error:', err)
+  const { error } = await resend.emails.send({
+    from: fromAddress(),
+    to: input.to,
+    subject: input.subject,
+    html: input.html,
+    replyTo: input.replyTo,
+  })
+  if (error) {
+    throw new Error(error.message)
   }
 }
 
@@ -90,7 +104,15 @@ export async function sendPurchaseEmail(input: {
      ${button(dashboard, t.dashboardCta)}
      <p>${t.loginHint}</p>`
   )
-  await send(input.email, t.purchaseSubject(input.creditsGranted), html)
+  try {
+    await send({
+      to: input.email,
+      subject: t.purchaseSubject(input.creditsGranted),
+      html,
+    })
+  } catch (err) {
+    console.error('Resend error:', err)
+  }
 }
 
 export async function sendMagicLinkEmail(input: {
@@ -104,5 +126,36 @@ export async function sendMagicLinkEmail(input: {
     t.magicHeading,
     `<p>${t.magicBody}</p>${button(href, t.magicCta)}<p style="color:#64748b;font-size:13px">${t.ignore}</p>`
   )
-  await send(input.email, t.magicSubject, html)
+  try {
+    await send({ to: input.email, subject: t.magicSubject, html })
+  } catch (err) {
+    console.error('Resend error:', err)
+  }
+}
+
+export async function sendSupportEmail(input: {
+  fromEmail: string
+  userId: string
+  subject: string
+  message: string
+}): Promise<void> {
+  const to = supportAddress()
+  if (!to) {
+    throw new Error('Support email is not configured')
+  }
+  const subject = input.subject.trim().slice(0, 200)
+  const body = escapeHtml(input.message.trim()).replace(/\n/g, '<br>')
+  const html = layout(
+    'Support request',
+    `<p><strong>From:</strong> ${escapeHtml(input.fromEmail)}</p>
+     <p><strong>User ID:</strong> ${escapeHtml(input.userId)}</p>
+     <p><strong>Subject:</strong> ${escapeHtml(subject)}</p>
+     <p>${body}</p>`
+  )
+  await send({
+    to,
+    subject: `[ChapterGen] ${subject}`,
+    html,
+    replyTo: input.fromEmail,
+  })
 }

@@ -20,11 +20,15 @@ import type { Chapter } from '../types'
 import type { RefineOptions } from '../types/refine'
 import { trackChapterGenerated } from '../utils/analytics'
 import { localizedPath, type Locale } from '../i18n/routing'
+import { useAuth } from '../composables/useAuth'
 
 const route = useRoute()
 const { t, locale } = useI18n()
+const { user } = useAuth()
 const jobId = computed(() => route.params.id as string)
-const homeLink = computed(() => localizedPath('/', locale.value as Locale))
+const homeLink = computed(() =>
+  user.value ? '/dashboard' : localizedPath('/', locale.value as Locale)
+)
 
 useHead({ htmlAttrs: { lang: locale } })
 
@@ -132,7 +136,9 @@ watch(
   <MarketingLayout>
     <section :key="jobId" class="job-page" :class="{ 'job-page--processing': isProcessing }">
       <div class="job-inner">
-        <RouterLink :to="homeLink" class="back-link">{{ t('tool.job.back') }}</RouterLink>
+        <RouterLink :to="homeLink" class="back-link">{{
+          user ? `← ${t('common.nav.myChapters')}` : t('tool.job.back')
+        }}</RouterLink>
 
         <div v-if="!isProcessing" class="job-header">
           <template v-if="isDone">

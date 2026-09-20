@@ -27,6 +27,7 @@ const logoPath = computed(() => (user.value ? '/dashboard' : homePath.value))
 const podcastPath = computed(() => localizedPath('/podcast-chapters', locale.value as Locale))
 const pricingPath = computed(() => localizedPath('/pricing', locale.value as Locale))
 const onApp = computed(() => isAppPath(route.path))
+const loggedIn = computed(() => !!user.value)
 
 function navHref(hash: string) {
   if (route.path === homePath.value) return hash
@@ -56,7 +57,20 @@ async function onMarketingLang() {
 
 <template>
   <header class="site-header">
-    <div class="header-inner">
+    <div v-if="loggedIn" class="header-inner header-inner--app">
+      <RouterLink to="/dashboard" class="logo-link" aria-label="ChapterGen">
+        <Logo />
+      </RouterLink>
+
+      <RouterLink to="/dashboard" class="nav-center">{{ t('common.nav.myChapters') }}</RouterLink>
+
+      <div class="header-right">
+        <RouterLink :to="pricingPath" class="buy-credits">{{ t('common.nav.buyCredits') }}</RouterLink>
+        <UserMenu />
+      </div>
+    </div>
+
+    <div v-else class="header-inner">
       <RouterLink :to="logoPath" class="logo-link" aria-label="ChapterGen home">
         <Logo />
       </RouterLink>
@@ -88,8 +102,7 @@ async function onMarketingLang() {
       </nav>
 
       <div class="header-right">
-        <UserMenu v-if="user" />
-        <RouterLink v-else to="/login" class="nav-link login-mobile">{{ t('common.nav.login') }}</RouterLink>
+        <RouterLink to="/login" class="nav-link">{{ t('common.nav.login') }}</RouterLink>
         <button
           class="menu-toggle"
           :aria-expanded="menuOpen"
@@ -103,7 +116,7 @@ async function onMarketingLang() {
       </div>
     </div>
 
-    <nav v-if="menuOpen" class="nav-mobile" aria-label="Mobile navigation">
+    <nav v-if="menuOpen && !loggedIn" class="nav-mobile" aria-label="Mobile navigation">
       <template v-if="!onApp">
         <a
           v-for="link in navLinks"
@@ -160,9 +173,28 @@ async function onMarketingLang() {
   justify-content: space-between;
 }
 
+.header-inner--app {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+}
+
 .logo-link {
   display: flex;
   align-items: center;
+  justify-self: start;
+}
+
+.nav-center {
+  justify-self: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.nav-center:hover,
+.nav-center.router-link-active {
+  color: var(--text);
 }
 
 .nav-desktop {
@@ -203,7 +235,28 @@ async function onMarketingLang() {
 .header-right {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  justify-self: end;
+  justify-content: flex-end;
+  gap: 0.85rem;
+}
+
+.buy-credits {
+  display: inline-flex;
+  align-items: center;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  border-radius: var(--radius);
+  padding: 0.45rem 0.95rem;
+  transition: opacity 0.2s;
+}
+
+.buy-credits:hover,
+.buy-credits.router-link-active {
+  color: #fff;
+  opacity: 0.9;
 }
 
 .menu-toggle {
@@ -243,6 +296,19 @@ async function onMarketingLang() {
 
   .nav-mobile {
     display: flex;
+  }
+
+  .header-inner--app {
+    grid-template-columns: auto 1fr auto;
+    gap: 0.75rem;
+  }
+
+  .nav-center {
+    font-size: 0.85rem;
+  }
+
+  .buy-credits {
+    font-size: 0.8rem;
   }
 }
 </style>
