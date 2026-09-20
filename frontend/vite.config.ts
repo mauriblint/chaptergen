@@ -17,6 +17,15 @@ export default defineConfig({
   ssgOptions: {
     script: 'async',
     formatting: 'minify',
-    includedRoutes: () => ['/', '/podcast-chapters', '/es', '/es/capitulos-podcast'],
+    includedRoutes: () => [
+      '/',
+      '/podcast-chapters',
+      '/es',
+      '/es/capitulos-podcast',
+      '/pricing',
+      '/es/precios',
+      '/login',
+      '/dashboard',
+    ],
   },
 })

@@ -33,6 +33,9 @@ export interface JobRecord {
   acceptLanguage: string | null
   referer: string | null
   clientId: string | null
+  userId: string | null
+  refineCount: number
+  creditsCharged: number | null
   transcriptLanguage: string | null
   segments: TranscriptSegment[] | null
   chapters: Chapter[] | null
@@ -62,6 +65,9 @@ interface JobRow {
   accept_language: string | null
   referer: string | null
   client_id: string | null
+  user_id: string | null
+  refine_count: number | null
+  credits_charged: number | null
   transcript_language: string | null
   segments_json: string | null
   chapters_json: string | null
@@ -113,6 +119,9 @@ const columnMigrations = [
   'ALTER TABLE jobs ADD COLUMN failure_reason TEXT',
   'ALTER TABLE jobs ADD COLUMN duration_seconds REAL',
   'ALTER TABLE jobs ADD COLUMN transcript_language TEXT',
+  'ALTER TABLE jobs ADD COLUMN user_id TEXT',
+  'ALTER TABLE jobs ADD COLUMN refine_count INTEGER DEFAULT 0',
+  'ALTER TABLE jobs ADD COLUMN credits_charged INTEGER',
 ]
 
 for (const sql of columnMigrations) {
@@ -127,6 +136,7 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_jobs_client_id ON jobs(client_id);
   CREATE INDEX IF NOT EXISTS idx_jobs_client_ip ON jobs(client_ip);
   CREATE INDEX IF NOT EXISTS idx_jobs_created_at ON jobs(created_at);
+  CREATE INDEX IF NOT EXISTS idx_jobs_user_id ON jobs(user_id);
 `)
 
 function rowToJob(row: JobRow): JobRecord {
@@ -149,6 +159,9 @@ function rowToJob(row: JobRow): JobRecord {
     acceptLanguage: row.accept_language,
     referer: row.referer,
     clientId: row.client_id,
+    userId: row.user_id,
+    refineCount: row.refine_count ?? 0,
+    creditsCharged: row.credits_charged,
     transcriptLanguage: row.transcript_language,
     segments: row.segments_json ? JSON.parse(row.segments_json) : null,
     chapters: row.chapters_json ? JSON.parse(row.chapters_json) : null,
@@ -180,6 +193,7 @@ export function createJob(input: {
   acceptLanguage: string | null
   referer: string | null
   clientId: string | null
+  userId?: string | null
 }): JobRecord {
   const now = new Date().toISOString()
   db.prepare(`
@@ -187,9 +201,9 @@ export function createJob(input: {
       id, status, file_name, file_path, auto_mode, chapter_count,
       file_size_bytes, file_type, file_extension, media_type,
       client_ip, country, user_agent, accept_language, referer, client_id,
-      created_at, updated_at
+      user_id, refine_count, created_at, updated_at
     )
-    VALUES (?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)
   `).run(
     input.id,
     input.fileName,
@@ -206,6 +220,7 @@ export function createJob(input: {
     input.acceptLanguage,
     input.referer,
     input.clientId,
+    input.userId ?? null,
     now,
     now
   )
@@ -331,30 +346,50 @@ export function getJobSummary(id: string): JobSummary | null {
   return row ? rowToJobSummary(row) : null
 }
 
-export function countJobsByClientId(clientId: string, status?: JobStatus): number {
-  if (status) {
-    const row = db
-      .prepare('SELECT COUNT(*) AS count FROM jobs WHERE client_id = ? AND status = ?')
-      .get(clientId, status) as { count: number }
-    return row.count
-  }
+const QUOTA_STATUSES = [
+  'pending',
+  'extracting',
+  'transcribing',
+  'generating',
+  'regenerating',
+  'completed',
+] as const
+
+export function countQuotaJobsByClientId(clientId: string): number {
+  const placeholders = QUOTA_STATUSES.map(() => '?').join(',')
   const row = db
-    .prepare('SELECT COUNT(*) AS count FROM jobs WHERE client_id = ?')
-    .get(clientId) as { count: number }
+    .prepare(
+      `SELECT COUNT(*) AS count FROM jobs WHERE client_id = ? AND user_id IS NULL AND status IN (${placeholders})`
+    )
+    .get(clientId, ...QUOTA_STATUSES) as { count: number }
   return row.count
 }
 
-export function countJobsByClientIp(clientIp: string, status?: JobStatus): number {
-  if (status) {
-    const row = db
-      .prepare('SELECT COUNT(*) AS count FROM jobs WHERE client_ip = ? AND status = ?')
-      .get(clientIp, status) as { count: number }
-    return row.count
-  }
+export function countQuotaJobsByClientIp(clientIp: string): number {
+  const placeholders = QUOTA_STATUSES.map(() => '?').join(',')
   const row = db
-    .prepare('SELECT COUNT(*) AS count FROM jobs WHERE client_ip = ?')
-    .get(clientIp) as { count: number }
+    .prepare(
+      `SELECT COUNT(*) AS count FROM jobs WHERE client_ip = ? AND user_id IS NULL AND status IN (${placeholders})`
+    )
+    .get(clientIp, ...QUOTA_STATUSES) as { count: number }
   return row.count
+}
+
+export function listJobsByUserId(userId: string, limit = 50): JobSummary[] {
+  const rows = db
+    .prepare(
+      `SELECT ${jobSummaryColumns} FROM jobs WHERE user_id = ? ORDER BY created_at DESC LIMIT ?`
+    )
+    .all(userId, limit) as JobSummaryRow[]
+  return rows.map(rowToJobSummary)
+}
+
+export function incrementRefineCount(id: string): void {
+  db.prepare('UPDATE jobs SET refine_count = COALESCE(refine_count, 0) + 1 WHERE id = ?').run(id)
+}
+
+export function updateJobCreditsCharged(id: string, creditsCharged: number): void {
+  db.prepare('UPDATE jobs SET credits_charged = ? WHERE id = ?').run(creditsCharged, id)
 }
 
 export function updateJobStatus(id: string, status: JobStatus): void {

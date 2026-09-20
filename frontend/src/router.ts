@@ -26,6 +26,28 @@ export const routes: RouteRecordRaw[] = [
     meta: { locale: 'es' },
   },
   {
+    path: '/pricing',
+    name: 'pricing',
+    component: () => import('./pages/PricingPage.vue'),
+    meta: { locale: 'en' },
+  },
+  {
+    path: '/es/precios',
+    name: 'pricing-es',
+    component: () => import('./pages/PricingPage.vue'),
+    meta: { locale: 'es' },
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: () => import('./pages/LoginPage.vue'),
+  },
+  {
+    path: '/dashboard',
+    name: 'dashboard',
+    component: () => import('./pages/DashboardPage.vue'),
+  },
+  {
     path: '/jobs/:id',
     name: 'job',
     component: () => import('./pages/JobPage.vue'),

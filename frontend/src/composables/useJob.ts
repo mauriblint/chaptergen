@@ -4,7 +4,7 @@ import type { RefineRequest } from '../types/refine'
 import type { Job, JobStatus } from '../types/job'
 import { uploadFileAndCreateJob } from './useChunkedUpload'
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? '/api'
+import { API_BASE, PaywallError } from '../utils/api'
 
 export function jobStatusToStep(status: JobStatus): ProcessingStep {
   const map: Record<JobStatus, ProcessingStep> = {
@@ -44,10 +44,14 @@ export async function refineJob(id: string, options: RefineRequest): Promise<voi
   const response = await fetch(`${API_BASE}/jobs/${id}/refine`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(options),
   })
   if (!response.ok) {
-    const data = await response.json().catch(() => ({}))
+    const data = (await response.json().catch(() => ({}))) as { error?: string; code?: string }
+    if (response.status === 402 || data.code === 'PAYWALL') {
+      throw new PaywallError(data.error ?? 'Payment required')
+    }
     throw new Error(data.error ?? `Error ${response.status}`)
   }
 }

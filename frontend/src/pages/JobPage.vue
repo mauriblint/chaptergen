@@ -8,12 +8,14 @@ import Card from '../components/ui/Card.vue'
 import ProcessingStatus from '../components/ProcessingStatus.vue'
 import TimestampsResult from '../components/TimestampsResult.vue'
 import RefineModal from '../components/RefineModal.vue'
+import PaywallModal from '../components/PaywallModal.vue'
 import {
   downloadJobFile,
   jobStatusToStep,
   refineJob,
   useJobPoller,
 } from '../composables/useJob'
+import { PaywallError } from '../utils/api'
 import type { Chapter } from '../types'
 import type { RefineOptions } from '../types/refine'
 import { trackChapterGenerated } from '../utils/analytics'
@@ -34,6 +36,7 @@ const localChapters = ref<Chapter[]>([])
 const localFormatted = ref('')
 const refining = ref(false)
 const showRefineModal = ref(false)
+const showPaywall = ref(false)
 
 const step = computed(() => {
   if (!job.value) return loading.value ? 'uploading' : 'error'
@@ -44,6 +47,12 @@ const step = computed(() => {
 const displayError = computed(() => {
   if (job.value?.failureReason === 'audio_too_large') {
     return t('tool.job.errorAudioTooLarge')
+  }
+  if (job.value?.failureReason === 'duration_over_free_limit') {
+    return t('tool.job.errorFreeDuration')
+  }
+  if (job.value?.failureReason === 'insufficient_credits') {
+    return t('tool.job.errorCredits')
   }
   return fetchError.value ?? job.value?.error ?? null
 })
@@ -91,8 +100,11 @@ async function onRefine(options: RefineOptions) {
       existingChapters: localChapters.value,
     })
     startPolling()
-  } catch {
+  } catch (err) {
     refining.value = false
+    if (err instanceof PaywallError) {
+      showPaywall.value = true
+    }
   }
 }
 
@@ -186,6 +198,7 @@ watch(
         />
       </div>
     </section>
+    <PaywallModal v-if="showPaywall" @close="showPaywall = false" />
   </MarketingLayout>
 </template>
 

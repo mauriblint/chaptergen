@@ -7,6 +7,7 @@ import type { RefineOptions } from '../types/refine.js'
 import type { Chapter } from '../types.js'
 import { formatSecondsToTimestamp } from '../types.js'
 import { extractRequestMeta } from '../utils/requestMeta.js'
+import { assertCanRefine, assertCanStartJob, PaywallError, sendPaywall } from '../billing/quota.js'
 
 export const jobsRouter = Router()
 
@@ -38,6 +39,17 @@ jobsRouter.post(
       return
     }
 
+    const meta = extractRequestMeta(req)
+    try {
+      assertCanStartJob(req.user, meta)
+    } catch (err) {
+      if (err instanceof PaywallError) {
+        sendPaywall(res, err.message)
+        return
+      }
+      throw err
+    }
+
     const autoRaw = req.body.auto
     const autoMode = autoRaw !== 'false' && autoRaw !== false
     const chapterCountRaw = req.body.chapterCount
@@ -46,7 +58,6 @@ jobsRouter.post(
         ? Number(chapterCountRaw)
         : null
 
-    const meta = extractRequestMeta(req)
     const job = startJobFromFile({
       filePath: req.file.path,
       fileName: req.file.originalname,
@@ -55,6 +66,7 @@ jobsRouter.post(
       autoMode,
       chapterCount: autoMode ? null : chapterCount,
       meta,
+      userId: req.user?.id ?? null,
     })
 
     res.status(201).json({ id: job.id })
@@ -85,6 +97,16 @@ jobsRouter.post('/jobs/:id/refine', async (req: Request, res: Response) => {
   if (!job.segments?.length) {
     res.status(400).json({ error: 'No transcript available' })
     return
+  }
+
+  try {
+    assertCanRefine(req.user, job)
+  } catch (err) {
+    if (err instanceof PaywallError) {
+      sendPaywall(res, err.message)
+      return
+    }
+    throw err
   }
 
   const body = req.body ?? {}

@@ -24,9 +24,11 @@ export function softwareApplicationSchema(description: string) {
     operatingSystem: 'Web',
     description,
     offers: {
-      '@type': 'Offer',
-      price: '0',
+      '@type': 'AggregateOffer',
+      lowPrice: '0',
+      highPrice: '12',
       priceCurrency: 'USD',
+      offerCount: '3',
     },
   }
 }

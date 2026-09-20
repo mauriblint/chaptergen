@@ -1,13 +1,19 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import Logo from '../ui/Logo.vue'
-import { localizedPath, type Locale } from '../../i18n/routing'
+import { isAppPath, localizedPath, LOCALE_STORAGE_KEY, type Locale } from '../../i18n/routing'
+import { useAuth } from '../../composables/useAuth'
 
 const route = useRoute()
 const { t, locale } = useI18n()
 const menuOpen = ref(false)
+const { user, credits, ensureLoaded, updateLocale } = useAuth()
+
+onMounted(() => {
+  void ensureLoaded()
+})
 
 const navLinks = computed(() => [
   { label: t('common.nav.features'), hash: '#features' },
@@ -17,6 +23,8 @@ const navLinks = computed(() => [
 
 const homePath = computed(() => localizedPath('/', locale.value as Locale))
 const podcastPath = computed(() => localizedPath('/podcast-chapters', locale.value as Locale))
+const pricingPath = computed(() => localizedPath('/pricing', locale.value as Locale))
+const onApp = computed(() => isAppPath(route.path))
 
 function navHref(hash: string) {
   if (route.path === homePath.value) return hash
@@ -25,6 +33,19 @@ function navHref(hash: string) {
 
 const otherLocale = computed<Locale>(() => (locale.value === 'es' ? 'en' : 'es'))
 const switchPath = computed(() => localizedPath(route.path, otherLocale.value))
+
+async function switchLanguage() {
+  const next = otherLocale.value
+  if (onApp.value && user.value) {
+    await updateLocale(next)
+  }
+  locale.value = next
+  try {
+    localStorage.setItem(LOCALE_STORAGE_KEY, next)
+  } catch {
+    // ignore
+  }
+}
 </script>
 
 <template>
@@ -35,13 +56,27 @@ const switchPath = computed(() => localizedPath(route.path, otherLocale.value))
       </RouterLink>
 
       <nav class="nav-desktop" aria-label="Main navigation">
-        <a v-for="link in navLinks" :key="link.hash" :href="navHref(link.hash)" class="nav-link">
-          {{ link.label }}
-        </a>
-        <RouterLink :to="podcastPath" class="nav-link">{{ t('common.nav.podcast') }}</RouterLink>
-        <RouterLink :to="switchPath" class="nav-link lang-switch">
+        <template v-if="!onApp">
+          <a v-for="link in navLinks" :key="link.hash" :href="navHref(link.hash)" class="nav-link">
+            {{ link.label }}
+          </a>
+          <RouterLink :to="podcastPath" class="nav-link">{{ t('common.nav.podcast') }}</RouterLink>
+        </template>
+        <RouterLink :to="pricingPath" class="nav-link">{{ t('common.nav.pricing') }}</RouterLink>
+        <RouterLink v-if="user" to="/dashboard" class="nav-link credits">
+          {{ t('common.nav.credits', { count: credits }) }}
+        </RouterLink>
+        <RouterLink v-else to="/login" class="nav-link">{{ t('common.nav.login') }}</RouterLink>
+        <RouterLink
+          v-if="!onApp"
+          :to="switchPath"
+          class="nav-link lang-switch"
+        >
           {{ t(`common.language.${otherLocale}`) }}
         </RouterLink>
+        <button v-else type="button" class="nav-link lang-switch lang-btn" @click="switchLanguage">
+          {{ t(`common.language.${otherLocale}`) }}
+        </button>
       </nav>
 
       <button
@@ -57,21 +92,45 @@ const switchPath = computed(() => localizedPath(route.path, otherLocale.value))
     </div>
 
     <nav v-if="menuOpen" class="nav-mobile" aria-label="Mobile navigation">
-      <a
-        v-for="link in navLinks"
-        :key="link.hash"
-        :href="navHref(link.hash)"
-        class="nav-link"
+      <template v-if="!onApp">
+        <a
+          v-for="link in navLinks"
+          :key="link.hash"
+          :href="navHref(link.hash)"
+          class="nav-link"
+          @click="menuOpen = false"
+        >
+          {{ link.label }}
+        </a>
+        <RouterLink :to="podcastPath" class="nav-link" @click="menuOpen = false">
+          {{ t('common.nav.podcast') }}
+        </RouterLink>
+      </template>
+      <RouterLink :to="pricingPath" class="nav-link" @click="menuOpen = false">
+        {{ t('common.nav.pricing') }}
+      </RouterLink>
+      <RouterLink v-if="user" to="/dashboard" class="nav-link" @click="menuOpen = false">
+        {{ t('common.nav.credits', { count: credits }) }}
+      </RouterLink>
+      <RouterLink v-else to="/login" class="nav-link" @click="menuOpen = false">
+        {{ t('common.nav.login') }}
+      </RouterLink>
+      <RouterLink
+        v-if="!onApp"
+        :to="switchPath"
+        class="nav-link lang-switch"
         @click="menuOpen = false"
       >
-        {{ link.label }}
-      </a>
-      <RouterLink :to="podcastPath" class="nav-link" @click="menuOpen = false">
-        {{ t('common.nav.podcast') }}
-      </RouterLink>
-      <RouterLink :to="switchPath" class="nav-link lang-switch" @click="menuOpen = false">
         {{ t(`common.language.${otherLocale}`) }}
       </RouterLink>
+      <button
+        v-else
+        type="button"
+        class="nav-link lang-switch lang-btn"
+        @click="switchLanguage(); menuOpen = false"
+      >
+        {{ t(`common.language.${otherLocale}`) }}
+      </button>
     </nav>
   </header>
 </template>
@@ -117,6 +176,11 @@ const switchPath = computed(() => localizedPath(route.path, otherLocale.value))
   color: var(--text);
 }
 
+.credits {
+  font-weight: 600;
+  color: var(--accent);
+}
+
 .lang-switch {
   font-weight: 600;
   color: var(--accent);
@@ -125,6 +189,14 @@ const switchPath = computed(() => localizedPath(route.path, otherLocale.value))
 .lang-switch:hover {
   opacity: 0.8;
   color: var(--accent);
+}
+
+.lang-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
 }
 
 .menu-toggle {

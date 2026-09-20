@@ -17,6 +17,7 @@ export interface StartJobInput {
   autoMode: boolean
   chapterCount: number | null
   meta: RequestMeta
+  userId?: string | null
 }
 
 export function startJobFromFile(input: StartJobInput): JobRecord {
@@ -37,6 +38,7 @@ export function startJobFromFile(input: StartJobInput): JobRecord {
     acceptLanguage: input.meta.acceptLanguage,
     referer: input.meta.referer,
     clientId: input.meta.clientId,
+    userId: input.userId ?? null,
   })
 
   updateJobStatus(id, 'pending')

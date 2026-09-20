@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import Card from '../ui/Card.vue'
 import VideoUploader from '../VideoUploader.vue'
 import UploadProgress from '../UploadProgress.vue'
+import PaywallModal from '../PaywallModal.vue'
 import { useChunkedUpload } from '../../composables/useChunkedUpload'
+import { PaywallError } from '../../utils/api'
+import { useAuth } from '../../composables/useAuth'
 
 const props = withDefaults(
   defineProps<{
@@ -18,9 +21,21 @@ const { t } = useI18n()
 const router = useRouter()
 const uploading = ref(false)
 const error = ref<string | null>(null)
+const showPaywall = ref(false)
 const { progress, retryingChunk, uploadAndCreateJob } = useChunkedUpload()
+const { ensureLoaded } = useAuth()
+
+onMounted(() => {
+  void ensureLoaded()
+})
 
 async function onFileSelect(file: File) {
+  const me = await ensureLoaded()
+  if (!me.user && me.freeUsed >= me.freeLimit) {
+    showPaywall.value = true
+    return
+  }
+
   uploading.value = true
   error.value = null
 
@@ -28,6 +43,11 @@ async function onFileSelect(file: File) {
     const jobId = await uploadAndCreateJob(file, true)
     await router.push({ name: 'job', params: { id: jobId } })
   } catch (err) {
+    if (err instanceof PaywallError) {
+      showPaywall.value = true
+      uploading.value = false
+      return
+    }
     error.value =
       err instanceof Error ? err.message : t('tool.chapterTool.uploadFailed')
     uploading.value = false
@@ -74,6 +94,8 @@ async function onFileSelect(file: File) {
       </button>
     </div>
   </Card>
+
+  <PaywallModal v-if="showPaywall" @close="showPaywall = false" />
 </template>
 
 <style scoped>

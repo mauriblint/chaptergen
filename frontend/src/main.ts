@@ -3,13 +3,25 @@ import './style.css'
 import App from './App.vue'
 import { routes } from './router'
 import { createI18nInstance, setLocale } from './i18n'
-import { DEFAULT_LOCALE, LOCALE_STORAGE_KEY, isLocale, localeFromPath } from './i18n/routing'
+import { DEFAULT_LOCALE, LOCALE_STORAGE_KEY, isAppPath, isLocale, localeFromPath } from './i18n/routing'
 
 export const createApp = ViteSSG(App, { routes }, ({ app, router, isClient }) => {
   const i18n = createI18nInstance()
   app.use(i18n)
 
   router.beforeEach((to) => {
+    if (isAppPath(to.path)) {
+      if (isClient) {
+        try {
+          const stored = localStorage.getItem(LOCALE_STORAGE_KEY)
+          if (isLocale(stored)) setLocale(i18n, stored)
+        } catch {
+          // ignore
+        }
+      }
+      return
+    }
+
     const routeLocale = to.meta.locale
     const locale = isLocale(routeLocale) ? routeLocale : localeFromPath(to.path)
     setLocale(i18n, locale)
