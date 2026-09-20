@@ -13,8 +13,9 @@ import { useAuth } from '../../composables/useAuth'
 const props = withDefaults(
   defineProps<{
     variant?: 'video' | 'audio'
+    compact?: boolean
   }>(),
-  { variant: 'video' }
+  { variant: 'video', compact: false }
 )
 
 const { t } = useI18n()
@@ -60,7 +61,7 @@ async function onFileSelect(file: File) {
     <div v-if="!uploading" class="controls">
       <VideoUploader :variant="variant" @select="onFileSelect" />
 
-      <div class="trust-strip">
+      <div v-if="!props.compact" class="trust-strip">
         <span class="trust-item">
           <span class="stars" aria-hidden="true">★★★★★</span>
           <strong>{{ t('tool.chapterTool.rating') }}</strong> · {{ t('tool.chapterTool.ratingSuffix') }}

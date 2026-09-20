@@ -26,6 +26,8 @@ export default defineConfig({
       '/es/precios',
       '/login',
       '/dashboard',
+      '/settings',
+      '/billing',
     ],
   },
 })

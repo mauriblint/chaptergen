@@ -3,13 +3,14 @@ import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import Logo from '../ui/Logo.vue'
+import UserMenu from './UserMenu.vue'
 import { isAppPath, localizedPath, LOCALE_STORAGE_KEY, type Locale } from '../../i18n/routing'
 import { useAuth } from '../../composables/useAuth'
 
 const route = useRoute()
 const { t, locale } = useI18n()
 const menuOpen = ref(false)
-const { user, credits, ensureLoaded, updateLocale } = useAuth()
+const { user, ensureLoaded, updateLocale } = useAuth()
 
 onMounted(() => {
   void ensureLoaded()
@@ -22,6 +23,7 @@ const navLinks = computed(() => [
 ])
 
 const homePath = computed(() => localizedPath('/', locale.value as Locale))
+const logoPath = computed(() => (user.value ? '/dashboard' : homePath.value))
 const podcastPath = computed(() => localizedPath('/podcast-chapters', locale.value as Locale))
 const pricingPath = computed(() => localizedPath('/pricing', locale.value as Locale))
 const onApp = computed(() => isAppPath(route.path))
@@ -46,12 +48,16 @@ async function switchLanguage() {
     // ignore
   }
 }
+
+async function onMarketingLang() {
+  if (user.value) await updateLocale(otherLocale.value)
+}
 </script>
 
 <template>
   <header class="site-header">
     <div class="header-inner">
-      <RouterLink :to="homePath" class="logo-link" aria-label="ChapterGen home">
+      <RouterLink :to="logoPath" class="logo-link" aria-label="ChapterGen home">
         <Logo />
       </RouterLink>
 
@@ -63,32 +69,38 @@ async function switchLanguage() {
           <RouterLink :to="podcastPath" class="nav-link">{{ t('common.nav.podcast') }}</RouterLink>
         </template>
         <RouterLink :to="pricingPath" class="nav-link">{{ t('common.nav.pricing') }}</RouterLink>
-        <RouterLink v-if="user" to="/dashboard" class="nav-link credits">
-          {{ t('common.nav.credits', { count: credits }) }}
-        </RouterLink>
-        <RouterLink v-else to="/login" class="nav-link">{{ t('common.nav.login') }}</RouterLink>
         <RouterLink
           v-if="!onApp"
           :to="switchPath"
           class="nav-link lang-switch"
+          @click="onMarketingLang"
         >
           {{ t(`common.language.${otherLocale}`) }}
         </RouterLink>
-        <button v-else type="button" class="nav-link lang-switch lang-btn" @click="switchLanguage">
+        <button
+          v-else
+          type="button"
+          class="nav-link lang-switch lang-btn"
+          @click="switchLanguage"
+        >
           {{ t(`common.language.${otherLocale}`) }}
         </button>
       </nav>
 
-      <button
-        class="menu-toggle"
-        :aria-expanded="menuOpen"
-        aria-label="Toggle menu"
-        @click="menuOpen = !menuOpen"
-      >
-        <span class="menu-bar" />
-        <span class="menu-bar" />
-        <span class="menu-bar" />
-      </button>
+      <div class="header-right">
+        <UserMenu v-if="user" />
+        <RouterLink v-else to="/login" class="nav-link login-mobile">{{ t('common.nav.login') }}</RouterLink>
+        <button
+          class="menu-toggle"
+          :aria-expanded="menuOpen"
+          aria-label="Toggle menu"
+          @click="menuOpen = !menuOpen"
+        >
+          <span class="menu-bar" />
+          <span class="menu-bar" />
+          <span class="menu-bar" />
+        </button>
+      </div>
     </div>
 
     <nav v-if="menuOpen" class="nav-mobile" aria-label="Mobile navigation">
@@ -109,17 +121,11 @@ async function switchLanguage() {
       <RouterLink :to="pricingPath" class="nav-link" @click="menuOpen = false">
         {{ t('common.nav.pricing') }}
       </RouterLink>
-      <RouterLink v-if="user" to="/dashboard" class="nav-link" @click="menuOpen = false">
-        {{ t('common.nav.credits', { count: credits }) }}
-      </RouterLink>
-      <RouterLink v-else to="/login" class="nav-link" @click="menuOpen = false">
-        {{ t('common.nav.login') }}
-      </RouterLink>
       <RouterLink
         v-if="!onApp"
         :to="switchPath"
         class="nav-link lang-switch"
-        @click="menuOpen = false"
+        @click="onMarketingLang(); menuOpen = false"
       >
         {{ t(`common.language.${otherLocale}`) }}
       </RouterLink>
@@ -176,11 +182,6 @@ async function switchLanguage() {
   color: var(--text);
 }
 
-.credits {
-  font-weight: 600;
-  color: var(--accent);
-}
-
 .lang-switch {
   font-weight: 600;
   color: var(--accent);
@@ -197,6 +198,12 @@ async function switchLanguage() {
   padding: 0;
   cursor: pointer;
   font: inherit;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .menu-toggle {

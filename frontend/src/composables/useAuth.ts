@@ -8,6 +8,9 @@ export interface AuthUser {
   credits: number
   locale: Locale
   googleId: string | null
+  pictureUrl: string | null
+  createdAt: string
+  lastLoginAt: string | null
 }
 
 export interface AuthMe {

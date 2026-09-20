@@ -46,6 +46,19 @@ export const routes: RouteRecordRaw[] = [
     path: '/dashboard',
     name: 'dashboard',
     component: () => import('./pages/DashboardPage.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/settings',
+    name: 'settings',
+    component: () => import('./pages/SettingsPage.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/billing',
+    name: 'billing',
+    component: () => import('./pages/BillingPage.vue'),
+    meta: { requiresAuth: true },
   },
   {
     path: '/jobs/:id',

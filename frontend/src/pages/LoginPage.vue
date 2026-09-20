@@ -12,7 +12,7 @@ import { LOCALE_STORAGE_KEY } from '../i18n/routing'
 const { t, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
-const { requestMagicLink, magicLogin, isLoggedIn } = useAuth()
+const { requestMagicLink, magicLogin, ensureLoaded } = useAuth()
 
 const email = ref('')
 const sent = ref(false)
@@ -28,25 +28,27 @@ useHead(
 
 onMounted(async () => {
   const token = typeof route.query.token === 'string' ? route.query.token : ''
-  if (!token) {
-    if (isLoggedIn.value) {
+  if (token) {
+    loading.value = true
+    try {
+      const user = await magicLogin(token)
+      locale.value = user.locale
+      try {
+        localStorage.setItem(LOCALE_STORAGE_KEY, user.locale)
+      } catch {
+        // ignore
+      }
       await router.replace('/dashboard')
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : t('login.invalidLink')
+      loading.value = false
     }
     return
   }
-  loading.value = true
-  try {
-    const user = await magicLogin(token)
-    locale.value = user.locale
-    try {
-      localStorage.setItem(LOCALE_STORAGE_KEY, user.locale)
-    } catch {
-      // ignore
-    }
+
+  const me = await ensureLoaded()
+  if (me.user) {
     await router.replace('/dashboard')
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : t('login.invalidLink')
-    loading.value = false
   }
 })
 

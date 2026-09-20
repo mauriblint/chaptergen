@@ -14,10 +14,14 @@ const PATH_PAIRS: PathPair[] = [
   { en: '/pricing', es: '/es/precios' },
 ]
 
-export const APP_PATHS = ['/dashboard', '/login'] as const
+export const APP_PATHS = ['/dashboard', '/login', '/settings', '/billing'] as const
+
+export function isAuthPath(path: string): boolean {
+  return path === '/dashboard' || path === '/settings' || path === '/billing'
+}
 
 export function isAppPath(path: string): boolean {
-  return path === '/dashboard' || path === '/login'
+  return path === '/login' || isAuthPath(path)
 }
 
 export function isLocale(value: unknown): value is Locale {

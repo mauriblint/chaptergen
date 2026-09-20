@@ -6,32 +6,21 @@ import { useHead } from '@unhead/vue'
 import MarketingLayout from '../layouts/MarketingLayout.vue'
 import Card from '../components/ui/Card.vue'
 import Button from '../components/ui/Button.vue'
+import ChapterTool from '../components/tool/ChapterTool.vue'
 import PaywallModal from '../components/PaywallModal.vue'
-import {
-  useAuth,
-  type AccountJob,
-  type AccountPayment,
-} from '../composables/useAuth'
+import { useAuth, type AccountJob } from '../composables/useAuth'
 import { LOCALE_STORAGE_KEY, type Locale } from '../i18n/routing'
+import { formatDate } from '../utils/format'
 
 const { t, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
-const {
-  claimCheckout,
-  fetchAccount,
-  logout,
-  updateLocale,
-  user,
-  ensureLoaded,
-} = useAuth()
+const { claimCheckout, fetchAccount, user, ensureLoaded } = useAuth()
 
 const loading = ref(true)
 const error = ref<string | null>(null)
-const payments = ref<AccountPayment[]>([])
 const jobs = ref<AccountJob[]>([])
 const showPaywall = ref(false)
-const switching = ref(false)
 
 useHead(
   computed(() => ({
@@ -67,7 +56,6 @@ onMounted(async () => {
     applyLocale(me.user.locale)
 
     const account = await fetchAccount()
-    payments.value = account.payments
     jobs.value = account.jobs
   } catch (err) {
     error.value = err instanceof Error ? err.message : t('dashboard.loadError')
@@ -80,36 +68,6 @@ onMounted(async () => {
     loading.value = false
   }
 })
-
-async function onToggleLocale(next: Locale) {
-  if (next === locale.value || switching.value) return
-  switching.value = true
-  try {
-    await updateLocale(next)
-    applyLocale(next)
-  } finally {
-    switching.value = false
-  }
-}
-
-async function onLogout() {
-  await logout()
-  await router.push('/')
-}
-
-function formatMoney(cents: number) {
-  return `$${(cents / 100).toFixed(2)}`
-}
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString(locale.value, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
-}
-
-const otherLocale = computed<Locale>(() => (locale.value === 'es' ? 'en' : 'es'))
 </script>
 
 <template>
@@ -121,13 +79,7 @@ const otherLocale = computed<Locale>(() => (locale.value === 'es' ? 'en' : 'es')
         <header class="hero">
           <div>
             <h1>{{ t('dashboard.title') }}</h1>
-            <p class="email">{{ user.email }}</p>
-          </div>
-          <div class="hero-actions">
-            <button type="button" class="lang" :disabled="switching" @click="onToggleLocale(otherLocale)">
-              {{ t(`common.language.${otherLocale}`) }}
-            </button>
-            <button type="button" class="ghost" @click="onLogout">{{ t('dashboard.logout') }}</button>
+            <p class="lead">{{ t('dashboard.subtitle') }}</p>
           </div>
         </header>
 
@@ -142,16 +94,8 @@ const otherLocale = computed<Locale>(() => (locale.value === 'es' ? 'en' : 'es')
         </section>
 
         <section>
-          <h2>{{ t('dashboard.payments') }}</h2>
-          <p v-if="!payments.length" class="muted">{{ t('dashboard.noPayments') }}</p>
-          <ul v-else class="list">
-            <li v-for="payment in payments" :key="payment.id">
-              <span>{{ t(`pricing.packs.${payment.pack}.name`) }}</span>
-              <span>{{ formatMoney(payment.amountCents) }}</span>
-              <span>{{ t('pricing.credits', { count: payment.creditsGranted }) }}</span>
-              <span class="muted">{{ formatDate(payment.createdAt) }} · {{ payment.status }}</span>
-            </li>
-          </ul>
+          <h2>{{ t('dashboard.newJob') }}</h2>
+          <ChapterTool compact />
         </section>
 
         <section>
@@ -160,8 +104,8 @@ const otherLocale = computed<Locale>(() => (locale.value === 'es' ? 'en' : 'es')
           <ul v-else class="list">
             <li v-for="job in jobs" :key="job.id">
               <RouterLink :to="{ name: 'job', params: { id: job.id } }">{{ job.fileName }}</RouterLink>
-              <span>{{ job.status }}</span>
-              <span class="muted">{{ formatDate(job.createdAt) }}</span>
+              <span>{{ t(`dashboard.status.${job.status}`) }}</span>
+              <span class="muted">{{ formatDate(job.createdAt, locale) }}</span>
             </li>
           </ul>
         </section>
@@ -182,39 +126,18 @@ const otherLocale = computed<Locale>(() => (locale.value === 'es' ? 'en' : 'es')
   gap: 2rem;
 }
 
-.hero {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: flex-start;
-}
-
 h1 {
   font-size: 1.8rem;
+}
+
+.lead {
+  color: var(--text-muted);
+  margin-top: 0.25rem;
 }
 
 h2 {
   font-size: 1.1rem;
   margin-bottom: 0.75rem;
-}
-
-.email {
-  color: var(--text-muted);
-}
-
-.hero-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.lang,
-.ghost {
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 0.4rem 0.75rem;
-  cursor: pointer;
-  font-size: 0.85rem;
 }
 
 .credits-card {
@@ -241,12 +164,11 @@ h2 {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
 }
 
 .list li {
   display: grid;
-  grid-template-columns: 1.4fr 0.8fr 1fr 1.2fr;
+  grid-template-columns: 1.6fr 1fr 1fr;
   gap: 0.5rem;
   padding: 0.75rem 0;
   border-bottom: 1px solid var(--border);

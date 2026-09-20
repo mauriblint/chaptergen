@@ -20,6 +20,9 @@ function userPayload(user: NonNullable<Request['user']>) {
     credits: user.creditsRemaining,
     locale: user.locale,
     googleId: user.googleId,
+    pictureUrl: null as string | null,
+    createdAt: user.createdAt,
+    lastLoginAt: user.lastLoginAt,
   }
 }
 
