@@ -8,21 +8,27 @@ import Card from '../components/ui/Card.vue'
 import ProcessingStatus from '../components/ProcessingStatus.vue'
 import TimestampsResult from '../components/TimestampsResult.vue'
 import RefineModal from '../components/RefineModal.vue'
+import PaywallModal from '../components/PaywallModal.vue'
 import {
   downloadJobFile,
   jobStatusToStep,
   refineJob,
   useJobPoller,
 } from '../composables/useJob'
+import { PaywallError } from '../utils/api'
 import type { Chapter } from '../types'
 import type { RefineOptions } from '../types/refine'
 import { trackChapterGenerated } from '../utils/analytics'
 import { localizedPath, type Locale } from '../i18n/routing'
+import { useAuth } from '../composables/useAuth'
 
 const route = useRoute()
 const { t, locale } = useI18n()
+const { user } = useAuth()
 const jobId = computed(() => route.params.id as string)
-const homeLink = computed(() => localizedPath('/', locale.value as Locale))
+const homeLink = computed(() =>
+  user.value ? '/dashboard' : localizedPath('/', locale.value as Locale)
+)
 
 useHead({ htmlAttrs: { lang: locale } })
 
@@ -34,6 +40,7 @@ const localChapters = ref<Chapter[]>([])
 const localFormatted = ref('')
 const refining = ref(false)
 const showRefineModal = ref(false)
+const showPaywall = ref(false)
 
 const step = computed(() => {
   if (!job.value) return loading.value ? 'uploading' : 'error'
@@ -44,6 +51,12 @@ const step = computed(() => {
 const displayError = computed(() => {
   if (job.value?.failureReason === 'audio_too_large') {
     return t('tool.job.errorAudioTooLarge')
+  }
+  if (job.value?.failureReason === 'duration_over_free_limit') {
+    return t('tool.job.errorFreeDuration')
+  }
+  if (job.value?.failureReason === 'insufficient_credits') {
+    return t('tool.job.errorCredits')
   }
   return fetchError.value ?? job.value?.error ?? null
 })
@@ -91,8 +104,11 @@ async function onRefine(options: RefineOptions) {
       existingChapters: localChapters.value,
     })
     startPolling()
-  } catch {
+  } catch (err) {
     refining.value = false
+    if (err instanceof PaywallError) {
+      showPaywall.value = true
+    }
   }
 }
 
@@ -120,7 +136,9 @@ watch(
   <MarketingLayout>
     <section :key="jobId" class="job-page" :class="{ 'job-page--processing': isProcessing }">
       <div class="job-inner">
-        <RouterLink :to="homeLink" class="back-link">{{ t('tool.job.back') }}</RouterLink>
+        <RouterLink :to="homeLink" class="back-link">{{
+          user ? `← ${t('common.nav.myChapters')}` : t('tool.job.back')
+        }}</RouterLink>
 
         <div v-if="!isProcessing" class="job-header">
           <template v-if="isDone">
@@ -186,6 +204,7 @@ watch(
         />
       </div>
     </section>
+    <PaywallModal v-if="showPaywall" @close="showPaywall = false" />
   </MarketingLayout>
 </template>
 

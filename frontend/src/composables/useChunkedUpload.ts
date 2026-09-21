@@ -1,7 +1,6 @@
 import { ref } from 'vue'
 import { getClientId } from '../utils/clientId'
-
-const API_BASE = import.meta.env.VITE_API_BASE ?? '/api'
+import { API_BASE, PaywallError } from '../utils/api'
 const CHUNK_SIZE_MB = Number(import.meta.env.VITE_UPLOAD_CHUNK_SIZE_MB ?? 20)
 const MAX_RETRIES = Number(import.meta.env.VITE_UPLOAD_MAX_RETRIES ?? 3)
 const CHUNK_SIZE_BYTES = CHUNK_SIZE_MB * 1024 * 1024
@@ -23,9 +22,12 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-async function parseError(response: Response): Promise<string> {
-  const data = await response.json().catch(() => ({}))
-  return (data as { error?: string }).error ?? `Error ${response.status}`
+async function parseError(response: Response): Promise<Error> {
+  const data = await response.json().catch(() => ({})) as { error?: string; code?: string }
+  if (response.status === 402 || data.code === 'PAYWALL') {
+    return new PaywallError(data.error ?? 'Payment required')
+  }
+  return new Error(data.error ?? `Error ${response.status}`)
 }
 
 async function initUpload(
@@ -34,7 +36,11 @@ async function initUpload(
 ): Promise<{ uploadId: string; totalChunks: number; chunkSize: number }> {
   const response = await fetch(`${API_BASE}/uploads/init`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Client-Id': getClientId(),
+    },
+    credentials: 'include',
     body: JSON.stringify({
       fileName: file.name,
       fileSize: file.size,
@@ -43,7 +49,7 @@ async function initUpload(
   })
 
   if (!response.ok) {
-    throw new Error(await parseError(response))
+    throw await parseError(response)
   }
 
   return response.json()
@@ -60,10 +66,11 @@ async function uploadChunk(
   const response = await fetch(`${API_BASE}/uploads/${uploadId}/chunks/${index}`, {
     method: 'POST',
     body: formData,
+    credentials: 'include',
   })
 
   if (!response.ok) {
-    throw new Error(await parseError(response))
+    throw await parseError(response)
   }
 }
 
@@ -107,11 +114,12 @@ async function completeUpload(
       'Content-Type': 'application/json',
       'X-Client-Id': getClientId(),
     },
+    credentials: 'include',
     body: JSON.stringify(body),
   })
 
   if (!response.ok) {
-    throw new Error(await parseError(response))
+    throw await parseError(response)
   }
 
   const data = await response.json()

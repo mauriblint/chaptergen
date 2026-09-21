@@ -11,10 +11,15 @@ import {
 } from '../services/chunkedUpload.js'
 import { startJobFromFile } from '../services/startJobFromFile.js'
 import { extractRequestMeta } from '../utils/requestMeta.js'
+import { assertCanStartJob, PaywallError, sendPaywall } from '../billing/quota.js'
 
 export const uploadsRouter = Router()
 
 function handleUploadError(err: unknown, res: Response): void {
+  if (err instanceof PaywallError) {
+    sendPaywall(res, err.message)
+    return
+  }
   if (err instanceof UploadError) {
     res.status(err.statusCode).json({ error: err.message })
     return
@@ -25,6 +30,7 @@ function handleUploadError(err: unknown, res: Response): void {
 
 uploadsRouter.post('/uploads/init', (req: Request, res: Response) => {
   try {
+    assertCanStartJob(req.user, extractRequestMeta(req))
     const { fileName, fileSize, chunkSize } = req.body ?? {}
 
     if (!fileName || typeof fileName !== 'string') {
@@ -90,6 +96,9 @@ uploadsRouter.post('/uploads/:uploadId/complete', async (req: Request, res: Resp
   const uploadId = String(req.params.uploadId)
 
   try {
+    const requestMeta = extractRequestMeta(req)
+    assertCanStartJob(req.user, requestMeta)
+
     const meta = getSession(uploadId)
     const body = req.body ?? {}
     const autoMode = body.auto !== false
@@ -100,7 +109,6 @@ uploadsRouter.post('/uploads/:uploadId/complete', async (req: Request, res: Resp
         : null
 
     const finalPath = await mergeChunks(meta)
-    const requestMeta = extractRequestMeta(req)
 
     const job = startJobFromFile({
       filePath: finalPath,
@@ -109,11 +117,16 @@ uploadsRouter.post('/uploads/:uploadId/complete', async (req: Request, res: Resp
       autoMode,
       chapterCount: autoMode ? null : chapterCount,
       meta: requestMeta,
+      userId: req.user?.id ?? null,
     })
 
     cleanupSession(uploadId)
     res.status(201).json({ id: job.id })
   } catch (err) {
+    if (err instanceof PaywallError) {
+      sendPaywall(res, err.message)
+      return
+    }
     handleUploadError(err, res)
   }
 })

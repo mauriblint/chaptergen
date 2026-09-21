@@ -1,3 +1,4 @@
+import './types/http.js'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import express from 'express'
@@ -5,11 +6,17 @@ import fs from 'fs'
 import multer from 'multer'
 import path from 'path'
 import { adminRouter } from './routes/admin.js'
+import { authRouter } from './routes/auth.js'
+import { billingRouter } from './routes/billing.js'
 import { chaptersRouter } from './routes/chapters.js'
 import { jobsRouter } from './routes/jobs.js'
 import { transcribeRouter } from './routes/transcribe.js'
 import { uploadsRouter } from './routes/uploads.js'
+import { stripeWebhookHandler } from './routes/stripeWebhook.js'
 import { cleanupExpiredSessions } from './services/chunkedUpload.js'
+import { attachUser } from './auth/session.js'
+import './db/users.js'
+import './db/payments.js'
 
 dotenv.config()
 if (fs.existsSync(path.resolve('.env.production'))) {
@@ -30,9 +37,27 @@ if (!fs.existsSync(uploadsDir)) {
 if (!process.env.OPENAI_API_KEY) {
   console.warn('Warning: OPENAI_API_KEY is not set')
 }
+if (!process.env.AUTH_SECRET) {
+  console.warn('Warning: AUTH_SECRET is not set')
+}
 
-app.use(cors())
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+)
+
+app.post(
+  '/api/stripe/webhook',
+  express.raw({ type: 'application/json' }),
+  (req, res) => {
+    void stripeWebhookHandler(req, res)
+  }
+)
+
 app.use(express.json({ limit: '10mb' }))
+app.use(attachUser)
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' })
@@ -43,6 +68,8 @@ app.use('/api', chaptersRouter)
 app.use('/api', jobsRouter)
 app.use('/api', uploadsRouter)
 app.use('/api', adminRouter)
+app.use('/api', authRouter)
+app.use('/api', billingRouter)
 
 app.use(
   (

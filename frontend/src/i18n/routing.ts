@@ -11,7 +11,18 @@ interface PathPair {
 const PATH_PAIRS: PathPair[] = [
   { en: '/', es: '/es' },
   { en: '/podcast-chapters', es: '/es/capitulos-podcast' },
+  { en: '/pricing', es: '/es/precios' },
 ]
+
+export const APP_PATHS = ['/dashboard', '/login', '/settings', '/billing'] as const
+
+export function isAuthPath(path: string): boolean {
+  return path === '/dashboard' || path === '/settings' || path === '/billing'
+}
+
+export function isAppPath(path: string): boolean {
+  return path === '/login' || isAuthPath(path)
+}
 
 export function isLocale(value: unknown): value is Locale {
   return typeof value === 'string' && (LOCALES as readonly string[]).includes(value)
@@ -31,6 +42,7 @@ export function localeFromPath(path: string): Locale {
  */
 export function localizedPath(path: string, target: Locale): string {
   const normalized = path.replace(/\/+$/, '') || '/'
+  if (isAppPath(normalized) || normalized.startsWith('/jobs/')) return normalized
   const pair = PATH_PAIRS.find((p) => p.en === normalized || p.es === normalized)
   if (pair) return pair[target]
   return target === 'es' ? '/es' : '/'

@@ -13,6 +13,7 @@ import { transcribe } from './transcribe.js'
 import {
   clearJobFilePath,
   getJob,
+  incrementRefineCount,
   updateJobDuration,
   updateJobError,
   updateJobResult,
@@ -21,6 +22,7 @@ import {
 } from '../db/jobs.js'
 import { formatChapters } from '../types.js'
 import { isAudioFile } from '../utils/media.js'
+import { settleJobBilling } from '../billing/quota.js'
 
 const uploadsDir = path.resolve('uploads')
 
@@ -52,6 +54,12 @@ export async function processJob(jobId: string): Promise<void> {
         `El audio es demasiado largo para transcribir: ${sizeMb} MB tras comprimir (límite ~25 MB de OpenAI Whisper).`,
         'audio_too_large'
       )
+      return
+    }
+
+    const billed = settleJobBilling(getJob(jobId) ?? job, durationSeconds)
+    if (!billed.ok) {
+      updateJobError(jobId, billed.message, billed.reason)
       return
     }
 
@@ -108,6 +116,7 @@ export async function refineJobChapters(
     })
     const formatted = formatChapters(chapters)
     updateJobResult(jobId, chapters, formatted)
+    incrementRefineCount(jobId)
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
     updateJobError(jobId, message)

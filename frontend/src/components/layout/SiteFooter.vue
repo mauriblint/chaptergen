@@ -9,6 +9,7 @@ const { t, locale } = useI18n()
 
 const homePath = computed(() => localizedPath('/', locale.value as Locale))
 const podcastPath = computed(() => localizedPath('/podcast-chapters', locale.value as Locale))
+const pricingPath = computed(() => localizedPath('/pricing', locale.value as Locale))
 
 function localeLinkPath(target: Locale) {
   return localizedPath(route.path, target)
@@ -30,6 +31,9 @@ function localeLinkPath(target: Locale) {
           </RouterLink>
           <RouterLink :to="podcastPath" class="footer-link">
             {{ t('common.footer.podcastChapters') }}
+          </RouterLink>
+          <RouterLink :to="pricingPath" class="footer-link">
+            {{ t('common.nav.pricing') }}
           </RouterLink>
         </div>
 
