@@ -39,6 +39,27 @@ export async function prepareAudioForTranscription(
   return outputPath
 }
 
+export async function extractAudioSlice(
+  inputPath: string,
+  outputPath: string,
+  startSeconds: number,
+  durationSeconds: number
+): Promise<void> {
+  await new Promise<void>((resolve, reject) => {
+    ffmpeg(inputPath)
+      .seekInput(Math.max(0, startSeconds))
+      .duration(durationSeconds)
+      .noVideo()
+      .audioCodec('libmp3lame')
+      .audioChannels(1)
+      .audioFrequency(AUDIO_SAMPLE_RATE)
+      .audioBitrate(AUDIO_BITRATE)
+      .on('end', () => resolve())
+      .on('error', (err) => reject(new Error(`ffmpeg error: ${err.message}`)))
+      .save(outputPath)
+  })
+}
+
 export async function cleanupFiles(...paths: string[]): Promise<void> {
   await Promise.all(paths.map((p) => fs.unlink(p).catch(() => {})))
 }
