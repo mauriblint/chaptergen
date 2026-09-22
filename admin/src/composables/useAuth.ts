@@ -16,7 +16,7 @@ export function useAuth() {
 
     if (!res.ok) {
       const data = (await res.json().catch(() => ({}))) as { error?: string }
-      throw new Error(data.error ?? 'Error al iniciar sesión')
+      throw new Error(data.error ?? 'Could not sign in')
     }
 
     const data = (await res.json()) as { token: string }

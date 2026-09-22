@@ -145,3 +145,42 @@ export function updateUserLocale(userId: string, locale: AppLocale): void {
 export function touchLastLogin(userId: string): void {
   db.prepare('UPDATE users SET last_login_at = ? WHERE id = ?').run(new Date().toISOString(), userId)
 }
+
+export interface AdminUserSummary extends UserRecord {
+  jobCount: number
+  paymentCount: number
+}
+
+interface AdminUserRow extends UserRow {
+  job_count: number
+  payment_count: number
+}
+
+export function listUsers(input: {
+  limit: number
+  offset: number
+}): { users: AdminUserSummary[]; total: number } {
+  const totalRow = db.prepare('SELECT COUNT(*) AS count FROM users').get() as { count: number }
+  const rows = db
+    .prepare(
+      `
+      SELECT
+        users.*,
+        (SELECT COUNT(*) FROM jobs WHERE jobs.user_id = users.id) AS job_count,
+        (SELECT COUNT(*) FROM payments WHERE payments.user_id = users.id) AS payment_count
+      FROM users
+      ORDER BY users.created_at DESC
+      LIMIT ? OFFSET ?
+    `
+    )
+    .all(input.limit, input.offset) as AdminUserRow[]
+
+  return {
+    users: rows.map((row) => ({
+      ...rowToUser(row),
+      jobCount: row.job_count,
+      paymentCount: row.payment_count,
+    })),
+    total: totalRow.count,
+  }
+}

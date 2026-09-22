@@ -250,6 +250,8 @@ export interface JobSummary {
   acceptLanguage: string | null
   referer: string | null
   clientId: string | null
+  userId: string | null
+  userEmail: string | null
   errorMessage: string | null
   failureReason: string | null
   createdAt: string
@@ -274,6 +276,8 @@ interface JobSummaryRow {
   accept_language: string | null
   referer: string | null
   client_id: string | null
+  user_id: string | null
+  user_email: string | null
   error_message: string | null
   failure_reason: string | null
   created_at: string
@@ -300,6 +304,8 @@ function rowToJobSummary(row: JobSummaryRow): JobSummary {
     acceptLanguage: row.accept_language,
     referer: row.referer,
     clientId: row.client_id,
+    userId: row.user_id,
+    userEmail: row.user_email,
     errorMessage: row.error_message,
     failureReason: row.failure_reason,
     createdAt: row.created_at,
@@ -307,11 +313,16 @@ function rowToJobSummary(row: JobSummaryRow): JobSummary {
   }
 }
 
-const jobSummaryColumns = `
-  id, status, file_name, auto_mode, chapter_count, chapters_generated,
-  file_size_bytes, duration_seconds, file_type, file_extension, media_type,
-  client_ip, country, user_agent, accept_language, referer, client_id,
-  error_message, failure_reason, created_at, updated_at
+const jobSummarySelect = `
+  SELECT
+    jobs.id, jobs.status, jobs.file_name, jobs.auto_mode, jobs.chapter_count,
+    jobs.chapters_generated, jobs.file_size_bytes, jobs.duration_seconds,
+    jobs.file_type, jobs.file_extension, jobs.media_type, jobs.client_ip,
+    jobs.country, jobs.user_agent, jobs.accept_language, jobs.referer,
+    jobs.client_id, jobs.user_id, users.email AS user_email,
+    jobs.error_message, jobs.failure_reason, jobs.created_at, jobs.updated_at
+  FROM jobs
+  LEFT JOIN users ON users.id = jobs.user_id
 `
 
 export function listJobs(input: {
@@ -320,16 +331,16 @@ export function listJobs(input: {
   status?: JobStatus
 }): { jobs: JobSummary[]; total: number } {
   const { limit, offset, status } = input
-  const where = status ? 'WHERE status = ?' : ''
+  const where = status ? 'WHERE jobs.status = ?' : ''
   const params = status ? [status] : []
 
   const countRow = db
-    .prepare(`SELECT COUNT(*) AS count FROM jobs ${where}`)
+    .prepare(`SELECT COUNT(*) AS count FROM jobs ${status ? 'WHERE status = ?' : ''}`)
     .get(...params) as { count: number }
 
   const rows = db
     .prepare(
-      `SELECT ${jobSummaryColumns} FROM jobs ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`
+      `${jobSummarySelect} ${where} ORDER BY jobs.created_at DESC LIMIT ? OFFSET ?`
     )
     .all(...params, limit, offset) as JobSummaryRow[]
 
@@ -341,7 +352,7 @@ export function listJobs(input: {
 
 export function getJobSummary(id: string): JobSummary | null {
   const row = db
-    .prepare(`SELECT ${jobSummaryColumns} FROM jobs WHERE id = ?`)
+    .prepare(`${jobSummarySelect} WHERE jobs.id = ?`)
     .get(id) as JobSummaryRow | undefined
   return row ? rowToJobSummary(row) : null
 }
@@ -378,10 +389,17 @@ export function countQuotaJobsByClientIp(clientIp: string): number {
 export function listJobsByUserId(userId: string, limit = 50): JobSummary[] {
   const rows = db
     .prepare(
-      `SELECT ${jobSummaryColumns} FROM jobs WHERE user_id = ? ORDER BY created_at DESC LIMIT ?`
+      `${jobSummarySelect} WHERE jobs.user_id = ? ORDER BY jobs.created_at DESC LIMIT ?`
     )
     .all(userId, limit) as JobSummaryRow[]
   return rows.map(rowToJobSummary)
+}
+
+export function countJobsByUserId(userId: string): number {
+  const row = db
+    .prepare('SELECT COUNT(*) AS count FROM jobs WHERE user_id = ?')
+    .get(userId) as { count: number }
+  return row.count
 }
 
 export function incrementRefineCount(id: string): void {

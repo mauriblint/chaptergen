@@ -1,22 +1,19 @@
-import { onUnmounted, ref } from 'vue'
-import type { JobStatus, JobsListResponse } from '../types/job'
+import { ref } from 'vue'
+import type { PaymentsListResponse } from '../types/payment'
 import { apiFetch } from '../utils/api'
 import { useAuth } from './useAuth'
 
 const PAGE_SIZE = 50
 
-export function useAdminJobs() {
+export function useAdminPayments() {
   const { getToken } = useAuth()
-  const jobs = ref<JobsListResponse['jobs']>([])
+  const payments = ref<PaymentsListResponse['payments']>([])
   const total = ref(0)
   const offset = ref(0)
   const loading = ref(false)
   const error = ref<string | null>(null)
-  const statusFilter = ref<JobStatus | ''>('')
 
-  let refreshTimer: ReturnType<typeof setInterval> | null = null
-
-  async function fetchJobs(): Promise<void> {
+  async function fetchPayments(): Promise<void> {
     const token = getToken()
     if (!token) return
 
@@ -28,11 +25,7 @@ export function useAdminJobs() {
         limit: String(PAGE_SIZE),
         offset: String(offset.value),
       })
-      if (statusFilter.value) {
-        params.set('status', statusFilter.value)
-      }
-
-      const res = await apiFetch(`/admin/jobs?${params}`, {
+      const res = await apiFetch(`/admin/payments?${params}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
 
@@ -43,11 +36,11 @@ export function useAdminJobs() {
 
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string }
-        throw new Error(data.error ?? 'Could not load jobs')
+        throw new Error(data.error ?? 'Could not load payments')
       }
 
-      const data = (await res.json()) as JobsListResponse
-      jobs.value = data.jobs
+      const data = (await res.json()) as PaymentsListResponse
+      payments.value = data.payments
       total.value = data.total
     } catch (e) {
       error.value = e instanceof Error ? e.message : 'Unknown error'
@@ -59,51 +52,26 @@ export function useAdminJobs() {
   function nextPage(): void {
     if (offset.value + PAGE_SIZE < total.value) {
       offset.value += PAGE_SIZE
-      void fetchJobs()
+      void fetchPayments()
     }
   }
 
   function prevPage(): void {
     if (offset.value > 0) {
       offset.value = Math.max(0, offset.value - PAGE_SIZE)
-      void fetchJobs()
+      void fetchPayments()
     }
   }
-
-  function setStatusFilter(status: JobStatus | ''): void {
-    statusFilter.value = status
-    offset.value = 0
-    void fetchJobs()
-  }
-
-  function startAutoRefresh(): void {
-    refreshTimer = setInterval(() => {
-      void fetchJobs()
-    }, 30_000)
-  }
-
-  function stopAutoRefresh(): void {
-    if (refreshTimer) {
-      clearInterval(refreshTimer)
-      refreshTimer = null
-    }
-  }
-
-  onUnmounted(stopAutoRefresh)
 
   return {
-    jobs,
+    payments,
     total,
     offset,
     pageSize: PAGE_SIZE,
     loading,
     error,
-    statusFilter,
-    fetchJobs,
+    fetchPayments,
     nextPage,
     prevPage,
-    setStatusFilter,
-    startAutoRefresh,
-    stopAutoRefresh,
   }
 }
