@@ -17,6 +17,8 @@ export const FREE_JOB_LIMIT = 2
 export const FREE_MAX_MINUTES = 20
 export const FREE_MAX_SECONDS = FREE_MAX_MINUTES * 60
 export const FREE_REFINE_LIMIT = 2
+
+/** Kept for a later duration-based price. Today every paid job costs 1 credit. */
 export const MINUTES_PER_CREDIT = 60
 
 export function isPackId(value: unknown): value is PackId {
@@ -36,12 +38,8 @@ export function packFromPriceId(priceId: string): Pack | null {
   return null
 }
 
-export function creditsForDuration(durationSeconds: number | null): number {
-  if (durationSeconds == null || !Number.isFinite(durationSeconds) || durationSeconds <= 0) {
-    return 1
-  }
-  const minutes = durationSeconds / 60
-  return Math.max(1, Math.ceil(minutes / MINUTES_PER_CREDIT))
+export function creditsForDuration(_durationSeconds: number | null): number {
+  return 1
 }
 
 export function publicSiteUrl(): string {

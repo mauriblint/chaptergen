@@ -96,6 +96,11 @@ billingRouter.post('/billing/claim', async (req: Request, res: Response) => {
         locale: result.user.locale,
         googleId: result.user.googleId,
       },
+      payment: {
+        pack: result.payment.pack,
+        creditsGranted: result.payment.creditsGranted,
+        created: result.created,
+      },
     })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Claim failed'

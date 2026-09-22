@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { getClientId } from '../utils/clientId'
-import { API_BASE, PaywallError } from '../utils/api'
+import { API_BASE, PaywallError, parsePaywallReason } from '../utils/api'
 const CHUNK_SIZE_MB = Number(import.meta.env.VITE_UPLOAD_CHUNK_SIZE_MB ?? 20)
 const MAX_RETRIES = Number(import.meta.env.VITE_UPLOAD_MAX_RETRIES ?? 3)
 const CHUNK_SIZE_BYTES = CHUNK_SIZE_MB * 1024 * 1024
@@ -23,9 +23,13 @@ function sleep(ms: number): Promise<void> {
 }
 
 async function parseError(response: Response): Promise<Error> {
-  const data = await response.json().catch(() => ({})) as { error?: string; code?: string }
+  const data = (await response.json().catch(() => ({}))) as {
+    error?: string
+    code?: string
+    reason?: string
+  }
   if (response.status === 402 || data.code === 'PAYWALL') {
-    return new PaywallError(data.error ?? 'Payment required')
+    return new PaywallError(data.error ?? 'Payment required', parsePaywallReason(data.reason))
   }
   return new Error(data.error ?? `Error ${response.status}`)
 }

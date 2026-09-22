@@ -1,5 +1,11 @@
 import { computed, ref } from 'vue'
 import { apiFetch } from '../utils/api'
+import {
+  identifyUser,
+  resetAnalytics,
+  trackPaymentCompleted,
+  trackViewCheckout,
+} from '../utils/analytics'
 import type { Locale } from '../i18n/routing'
 
 export interface AuthUser {
@@ -33,6 +39,7 @@ export interface AccountJob {
   id: string
   status: string
   fileName: string
+  fileExtension: string | null
   chaptersGenerated: number | null
   durationSeconds: number | null
   createdAt: string
@@ -69,6 +76,9 @@ export function useAuth() {
       const data = await apiFetch<AuthMe>('/auth/me')
       me.value = data
       loaded.value = true
+      if (data.user) {
+        identifyUser(data.user)
+      }
       return data
     } finally {
       loading.value = false
@@ -82,6 +92,7 @@ export function useAuth() {
 
   async function logout(): Promise<void> {
     await apiFetch('/auth/logout', { method: 'POST' })
+    resetAnalytics()
     me.value = {
       user: null,
       freeUsed: me.value?.freeUsed ?? 0,
@@ -115,11 +126,30 @@ export function useAuth() {
   }
 
   async function claimCheckout(sessionId: string): Promise<AuthUser> {
-    const data = await apiFetch<{ user: AuthUser }>('/billing/claim', {
+    const data = await apiFetch<{
+      user: AuthUser
+      payment?: { pack: Pack['id']; creditsGranted: number; created: boolean }
+    }>('/billing/claim', {
       method: 'POST',
       body: JSON.stringify({ session_id: sessionId }),
     })
     await refresh()
+    if (data.payment) {
+      const key = `analytics:PaymentCompleted:${sessionId}`
+      let alreadyTracked = false
+      try {
+        alreadyTracked = sessionStorage.getItem(key) === '1'
+        if (!alreadyTracked) sessionStorage.setItem(key, '1')
+      } catch {
+        // ignore
+      }
+      if (!alreadyTracked) {
+        trackPaymentCompleted({
+          plan: data.payment.pack,
+          credits: data.payment.creditsGranted,
+        })
+      }
+    }
     return data.user
   }
 
@@ -128,6 +158,7 @@ export function useAuth() {
       method: 'POST',
       body: JSON.stringify({ pack, locale }),
     })
+    trackViewCheckout(pack)
     return data.url
   }
 

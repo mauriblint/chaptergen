@@ -4,7 +4,7 @@ import type { RefineRequest } from '../types/refine'
 import type { Job, JobStatus } from '../types/job'
 import { uploadFileAndCreateJob } from './useChunkedUpload'
 
-import { API_BASE, PaywallError } from '../utils/api'
+import { API_BASE, PaywallError, parsePaywallReason } from '../utils/api'
 
 export function jobStatusToStep(status: JobStatus): ProcessingStep {
   const map: Record<JobStatus, ProcessingStep> = {
@@ -48,9 +48,13 @@ export async function refineJob(id: string, options: RefineRequest): Promise<voi
     body: JSON.stringify(options),
   })
   if (!response.ok) {
-    const data = (await response.json().catch(() => ({}))) as { error?: string; code?: string }
+    const data = (await response.json().catch(() => ({}))) as {
+      error?: string
+      code?: string
+      reason?: string
+    }
     if (response.status === 402 || data.code === 'PAYWALL') {
-      throw new PaywallError(data.error ?? 'Payment required')
+      throw new PaywallError(data.error ?? 'Payment required', parsePaywallReason(data.reason))
     }
     throw new Error(data.error ?? `Error ${response.status}`)
   }

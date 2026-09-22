@@ -74,7 +74,7 @@ onMounted(async () => {
       </template>
     </div>
 
-    <PaywallModal v-if="showPaywall" @close="showPaywall = false" />
+    <PaywallModal v-if="showPaywall" reason="buy" @close="showPaywall = false" />
   </MarketingLayout>
 </template>
 

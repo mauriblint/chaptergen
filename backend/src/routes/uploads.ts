@@ -17,7 +17,7 @@ export const uploadsRouter = Router()
 
 function handleUploadError(err: unknown, res: Response): void {
   if (err instanceof PaywallError) {
-    sendPaywall(res, err.message)
+    sendPaywall(res, err)
     return
   }
   if (err instanceof UploadError) {
@@ -124,7 +124,7 @@ uploadsRouter.post('/uploads/:uploadId/complete', async (req: Request, res: Resp
     res.status(201).json({ id: job.id })
   } catch (err) {
     if (err instanceof PaywallError) {
-      sendPaywall(res, err.message)
+      sendPaywall(res, err)
       return
     }
     handleUploadError(err, res)

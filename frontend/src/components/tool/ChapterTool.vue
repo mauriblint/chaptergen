@@ -7,8 +7,9 @@ import VideoUploader from '../VideoUploader.vue'
 import UploadProgress from '../UploadProgress.vue'
 import PaywallModal from '../PaywallModal.vue'
 import { useChunkedUpload } from '../../composables/useChunkedUpload'
-import { PaywallError } from '../../utils/api'
+import { PaywallError, type PaywallReason } from '../../utils/api'
 import { useAuth } from '../../composables/useAuth'
+import { trackUpload, trackUploadError } from '../../utils/analytics'
 
 const props = withDefaults(
   defineProps<{
@@ -23,6 +24,7 @@ const router = useRouter()
 const uploading = ref(false)
 const error = ref<string | null>(null)
 const showPaywall = ref(false)
+const paywallReason = ref<PaywallReason>('free_limit')
 const { progress, retryingChunk, uploadAndCreateJob } = useChunkedUpload()
 const { ensureLoaded } = useAuth()
 
@@ -33,33 +35,38 @@ onMounted(() => {
 async function onFileSelect(file: File) {
   const me = await ensureLoaded()
   if (!me.user && me.freeUsed >= me.freeLimit) {
+    paywallReason.value = 'free_limit'
     showPaywall.value = true
     return
   }
 
   uploading.value = true
   error.value = null
+  trackUpload()
 
   try {
     const jobId = await uploadAndCreateJob(file, true)
     await router.push({ name: 'job', params: { id: jobId } })
   } catch (err) {
     if (err instanceof PaywallError) {
+      paywallReason.value = err.reason ?? (me.user ? 'credits' : 'free_limit')
       showPaywall.value = true
       uploading.value = false
       return
     }
-    error.value =
+    const message =
       err instanceof Error ? err.message : t('tool.chapterTool.uploadFailed')
+    trackUploadError(message)
+    error.value = message
     uploading.value = false
   }
 }
 </script>
 
 <template>
-  <Card class="chapter-tool" shadow="lg">
+  <Card class="chapter-tool" :class="{ compact }" shadow="lg">
     <div v-if="!uploading" class="controls">
-      <VideoUploader :variant="variant" @select="onFileSelect" />
+      <VideoUploader :variant="variant" :compact="compact" @select="onFileSelect" />
 
       <div v-if="!props.compact" class="trust-strip">
         <span class="trust-item">
@@ -96,12 +103,16 @@ async function onFileSelect(file: File) {
     </div>
   </Card>
 
-  <PaywallModal v-if="showPaywall" @close="showPaywall = false" />
+  <PaywallModal v-if="showPaywall" :reason="paywallReason" @close="showPaywall = false" />
 </template>
 
 <style scoped>
 .chapter-tool {
   width: 100%;
+}
+
+.chapter-tool.compact {
+  padding: 0.65rem;
 }
 
 .controls {

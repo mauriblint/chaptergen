@@ -2,11 +2,23 @@ import { getClientId } from './clientId'
 
 export const API_BASE = import.meta.env.VITE_API_BASE ?? '/api'
 
+export type PaywallReason = 'free_limit' | 'credits' | 'refine' | 'free_duration' | 'buy'
+
+const API_PAYWALL_REASONS = new Set(['free_limit', 'credits', 'refine'])
+
+export function parsePaywallReason(value: unknown): PaywallReason | undefined {
+  return typeof value === 'string' && API_PAYWALL_REASONS.has(value)
+    ? (value as PaywallReason)
+    : undefined
+}
+
 export class PaywallError extends Error {
   readonly code = 'PAYWALL'
-  constructor(message = 'Payment required') {
+  readonly reason?: PaywallReason
+  constructor(message = 'Payment required', reason?: PaywallReason) {
     super(message)
     this.name = 'PaywallError'
+    this.reason = reason
   }
 }
 
@@ -36,11 +48,12 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   const data = (await response.json().catch(() => ({}))) as {
     error?: string
     code?: string
+    reason?: string
   }
 
   if (!response.ok) {
     if (response.status === 402 || data.code === 'PAYWALL') {
-      throw new PaywallError(data.error ?? 'Payment required')
+      throw new PaywallError(data.error ?? 'Payment required', parsePaywallReason(data.reason))
     }
     throw new ApiError(data.error ?? `Error ${response.status}`, response.status, data.code)
   }
