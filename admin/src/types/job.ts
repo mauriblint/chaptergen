@@ -25,6 +25,8 @@ export interface JobSummary {
   acceptLanguage: string | null
   referer: string | null
   clientId: string | null
+  userId: string | null
+  userEmail: string | null
   errorMessage: string | null
   failureReason: string | null
   createdAt: string

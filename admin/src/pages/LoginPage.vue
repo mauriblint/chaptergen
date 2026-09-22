@@ -16,9 +16,9 @@ async function handleSubmit() {
   error.value = null
   try {
     await login(password.value)
-    await router.push({ name: 'jobs' })
+    await router.push({ name: 'users' })
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Error al iniciar sesión'
+    error.value = e instanceof Error ? e.message : 'Could not sign in'
   } finally {
     loading.value = false
   }
@@ -28,13 +28,19 @@ async function handleSubmit() {
 <template>
   <div class="flex min-h-screen items-center justify-center px-4">
     <div class="w-full max-w-sm rounded-xl border border-border bg-surface p-8 shadow-lg">
-      <h1 class="mb-1 text-xl font-semibold text-text">ChapterGen Admin</h1>
-      <p class="mb-6 text-sm text-muted">Ingresá la contraseña para continuar</p>
+      <div class="mb-6 flex items-center gap-2.5">
+        <img src="/logo.svg" alt="" width="28" height="28" class="block" />
+        <div>
+          <h1 class="text-lg font-semibold leading-tight text-text">ChapterGen</h1>
+          <p class="text-sm text-muted">Admin</p>
+        </div>
+      </div>
+      <p class="mb-6 text-sm text-muted">Enter the admin password to continue.</p>
 
-      <form @submit.prevent="handleSubmit" class="space-y-4">
+      <form class="space-y-4" @submit.prevent="handleSubmit">
         <div>
           <label for="password" class="mb-1.5 block text-sm font-medium text-text">
-            Contraseña
+            Password
           </label>
           <input
             id="password"
@@ -53,7 +59,7 @@ async function handleSubmit() {
           :disabled="loading || !password"
           class="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
         >
-          {{ loading ? 'Ingresando…' : 'Ingresar' }}
+          {{ loading ? 'Signing in…' : 'Sign in' }}
         </button>
       </form>
     </div>

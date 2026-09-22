@@ -108,6 +108,58 @@ export function listPaymentsByUserId(userId: string): PaymentRecord[] {
   return rows.map(rowToPayment)
 }
 
+export interface AdminPayment extends PaymentRecord {
+  userEmail: string | null
+}
+
+interface AdminPaymentRow extends PaymentRow {
+  user_email: string | null
+}
+
+function rowToAdminPayment(row: AdminPaymentRow): AdminPayment {
+  return {
+    ...rowToPayment(row),
+    userEmail: row.user_email,
+  }
+}
+
+const paymentSelect = `
+  SELECT payments.*, users.email AS user_email
+  FROM payments
+  LEFT JOIN users ON users.id = payments.user_id
+`
+
+export function listPayments(input: {
+  limit: number
+  offset: number
+}): { payments: AdminPayment[]; total: number } {
+  const totalRow = db.prepare('SELECT COUNT(*) AS count FROM payments').get() as {
+    count: number
+  }
+  const rows = db
+    .prepare(`${paymentSelect} ORDER BY payments.created_at DESC LIMIT ? OFFSET ?`)
+    .all(input.limit, input.offset) as AdminPaymentRow[]
+
+  return {
+    payments: rows.map(rowToAdminPayment),
+    total: totalRow.count,
+  }
+}
+
+export function listAdminPaymentsByUserId(userId: string): AdminPayment[] {
+  const rows = db
+    .prepare(`${paymentSelect} WHERE payments.user_id = ? ORDER BY payments.created_at DESC`)
+    .all(userId) as AdminPaymentRow[]
+  return rows.map(rowToAdminPayment)
+}
+
+export function countPaymentsByUserId(userId: string): number {
+  const row = db
+    .prepare('SELECT COUNT(*) AS count FROM payments WHERE user_id = ?')
+    .get(userId) as { count: number }
+  return row.count
+}
+
 export function markPaymentRefunded(id: string): void {
   db.prepare(`UPDATE payments SET status = 'refunded' WHERE id = ? AND status = 'paid'`).run(id)
 }
