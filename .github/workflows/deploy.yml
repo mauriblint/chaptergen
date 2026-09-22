@@ -22,9 +22,9 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          script_stop: true
           command_timeout: 25m
           script: |
             set -eu
             cd "${{ secrets.DEPLOY_PATH }}"
+            git config --global --add safe.directory "${{ secrets.DEPLOY_PATH }}"
             ./deploy

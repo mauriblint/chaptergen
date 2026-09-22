@@ -2,6 +2,7 @@
 set -e
 
 cd "$(dirname "$0")"
+git config --global --add safe.directory "$(pwd)"
 
 BRANCH=main
 
