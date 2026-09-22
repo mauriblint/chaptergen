@@ -15,7 +15,7 @@ import {
   refineJob,
   useJobPoller,
 } from '../composables/useJob'
-import { PaywallError } from '../utils/api'
+import { PaywallError, type PaywallReason } from '../utils/api'
 import type { Chapter } from '../types'
 import type { RefineOptions } from '../types/refine'
 import { trackChapterGenerated } from '../utils/analytics'
@@ -41,6 +41,8 @@ const localFormatted = ref('')
 const refining = ref(false)
 const showRefineModal = ref(false)
 const showPaywall = ref(false)
+const paywallReason = ref<PaywallReason>('refine')
+const paywallOpened = ref(false)
 
 const step = computed(() => {
   if (!job.value) return loading.value ? 'uploading' : 'error'
@@ -107,10 +109,27 @@ async function onRefine(options: RefineOptions) {
   } catch (err) {
     refining.value = false
     if (err instanceof PaywallError) {
+      paywallReason.value = err.reason ?? 'refine'
       showPaywall.value = true
     }
   }
 }
+
+watch(
+  () => job.value,
+  (j) => {
+    if (!j || j.status !== 'failed' || paywallOpened.value) return
+    if (j.failureReason === 'duration_over_free_limit') {
+      paywallReason.value = 'free_duration'
+      showPaywall.value = true
+      paywallOpened.value = true
+    } else if (j.failureReason === 'insufficient_credits') {
+      paywallReason.value = 'credits'
+      showPaywall.value = true
+      paywallOpened.value = true
+    }
+  }
+)
 
 watch(
   () => job.value?.status,
@@ -204,7 +223,7 @@ watch(
         />
       </div>
     </section>
-    <PaywallModal v-if="showPaywall" @close="showPaywall = false" />
+    <PaywallModal v-if="showPaywall" :reason="paywallReason" @close="showPaywall = false" />
   </MarketingLayout>
 </template>
 

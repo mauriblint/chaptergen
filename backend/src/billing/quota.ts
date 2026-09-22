@@ -14,18 +14,27 @@ import {
 import { debitCredits, getUserById, type UserRecord } from '../db/users.js'
 import type { RequestMeta } from '../utils/requestMeta.js'
 
+export type PaywallReason = 'free_limit' | 'credits' | 'refine'
+
 export class PaywallError extends Error {
   readonly code = 'PAYWALL' as const
   readonly statusCode = 402
+  readonly reason: PaywallReason
 
-  constructor(message = 'Payment required') {
+  constructor(message: string, reason: PaywallReason) {
     super(message)
     this.name = 'PaywallError'
+    this.reason = reason
   }
 }
 
-export function sendPaywall(res: Response, message = 'Payment required'): void {
-  res.status(402).json({ error: message, code: 'PAYWALL', checkout: true })
+export function sendPaywall(res: Response, err: PaywallError): void {
+  res.status(402).json({
+    error: err.message,
+    code: 'PAYWALL',
+    checkout: true,
+    reason: err.reason,
+  })
 }
 
 export function getFreeUsage(meta: RequestMeta): { used: number; limit: number } {
@@ -42,20 +51,20 @@ export function getFreeUsage(meta: RequestMeta): { used: number; limit: number }
 export function assertCanStartJob(user: UserRecord | null | undefined, meta: RequestMeta): void {
   if (user) {
     if (user.creditsRemaining < 1) {
-      throw new PaywallError('No credits remaining')
+      throw new PaywallError('No credits remaining', 'credits')
     }
     return
   }
   const { used, limit } = getFreeUsage(meta)
   if (used >= limit) {
-    throw new PaywallError('Free limit reached')
+    throw new PaywallError('Free limit reached', 'free_limit')
   }
 }
 
 export function assertCanRefine(user: UserRecord | null | undefined, job: JobRecord): void {
   if (user && job.userId === user.id) return
   if (job.refineCount >= FREE_REFINE_LIMIT) {
-    throw new PaywallError('Free refine limit reached')
+    throw new PaywallError('Free refine limit reached', 'refine')
   }
 }
 

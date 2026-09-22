@@ -5,8 +5,9 @@ import { useI18n } from 'vue-i18n'
 const props = withDefaults(
   defineProps<{
     variant?: 'video' | 'audio'
+    compact?: boolean
   }>(),
-  { variant: 'video' }
+  { variant: 'video', compact: false }
 )
 
 const emit = defineEmits<{
@@ -20,9 +21,14 @@ const inputRef = ref<HTMLInputElement | null>(null)
 
 const ACCEPTED = '.mp4,.mov,.webm,.mkv,.avi,.m4v,.mp3,.wav,.m4a,.aac,.ogg,.flac,.opus'
 
-const title = computed(() =>
-  props.variant === 'audio' ? t('tool.uploader.titleAudio') : t('tool.uploader.titleVideo')
-)
+const title = computed(() => {
+  if (props.compact) {
+    return props.variant === 'audio'
+      ? t('tool.uploader.titleAudioCompact')
+      : t('tool.uploader.titleVideoCompact')
+  }
+  return props.variant === 'audio' ? t('tool.uploader.titleAudio') : t('tool.uploader.titleVideo')
+})
 
 const hint = computed(() =>
   props.variant === 'audio' ? t('tool.uploader.hintAudio') : t('tool.uploader.hintVideo')
@@ -47,7 +53,7 @@ function openPicker() {
 <template>
   <div
     class="uploader"
-    :class="{ dragging: isDragging }"
+    :class="{ dragging: isDragging, compact: props.compact }"
     @dragover.prevent="isDragging = true"
     @dragleave.prevent="isDragging = false"
     @drop.prevent="onDrop"
@@ -67,8 +73,10 @@ function openPicker() {
         <rect x="24" y="8" width="4" height="24" rx="1" fill="#6366F1" />
       </svg>
     </div>
-    <p class="uploader-title">{{ title }}</p>
-    <p class="uploader-hint">{{ hint }}</p>
+    <div class="uploader-copy">
+      <p class="uploader-title">{{ title }}</p>
+      <p class="uploader-hint">{{ hint }}</p>
+    </div>
     <button type="button" class="uploader-btn" @click.stop="openPicker">
       {{ t('tool.uploader.button') }}
     </button>
@@ -77,6 +85,9 @@ function openPicker() {
 
 <style scoped>
 .uploader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   border: 2px dashed var(--border);
   border-radius: var(--radius);
   padding: 2.5rem 2rem;
@@ -101,6 +112,7 @@ function openPicker() {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .uploader-title {
@@ -126,9 +138,65 @@ function openPicker() {
   font-weight: 500;
   cursor: pointer;
   transition: opacity 0.2s;
+  white-space: nowrap;
 }
 
 .uploader-btn:hover {
   opacity: 0.9;
+}
+
+.uploader.compact {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.7rem 0.75rem 0.7rem 0.85rem;
+  text-align: left;
+}
+
+.uploader.compact .uploader-icon {
+  margin: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+}
+
+.uploader.compact .uploader-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.uploader.compact .uploader-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.uploader.compact .uploader-title {
+  font-size: 0.92rem;
+  margin-bottom: 0.1rem;
+}
+
+.uploader.compact .uploader-hint {
+  margin-bottom: 0;
+  font-size: 0.78rem;
+}
+
+.uploader.compact .uploader-btn {
+  padding: 0.6rem 1.15rem;
+  font-size: 0.85rem;
+  border-radius: 10px;
+}
+
+@media (max-width: 640px) {
+  .uploader.compact {
+    flex-wrap: wrap;
+  }
+
+  .uploader.compact .uploader-copy {
+    flex: 1 1 180px;
+  }
+
+  .uploader.compact .uploader-btn {
+    width: 100%;
+  }
 }
 </style>

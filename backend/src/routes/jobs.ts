@@ -44,7 +44,7 @@ jobsRouter.post(
       assertCanStartJob(req.user, meta)
     } catch (err) {
       if (err instanceof PaywallError) {
-        sendPaywall(res, err.message)
+        sendPaywall(res, err)
         return
       }
       throw err
@@ -103,7 +103,7 @@ jobsRouter.post('/jobs/:id/refine', async (req: Request, res: Response) => {
     assertCanRefine(req.user, job)
   } catch (err) {
     if (err instanceof PaywallError) {
-      sendPaywall(res, err.message)
+      sendPaywall(res, err)
       return
     }
     throw err

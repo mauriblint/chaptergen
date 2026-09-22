@@ -5,6 +5,7 @@ import { routes } from './router'
 import { createI18nInstance, setLocale } from './i18n'
 import { DEFAULT_LOCALE, LOCALE_STORAGE_KEY, isAppPath, isLocale, localeFromPath } from './i18n/routing'
 import { useAuth } from './composables/useAuth'
+import { initMixpanel, trackPageView } from './utils/analytics'
 
 export const createApp = ViteSSG(App, { routes }, ({ app, router, isClient }) => {
   const i18n = createI18nInstance()
@@ -37,6 +38,7 @@ export const createApp = ViteSSG(App, { routes }, ({ app, router, isClient }) =>
   })
 
   if (isClient) {
+    initMixpanel()
     const { ensureLoaded } = useAuth()
 
     router.beforeEach(async (to) => {
@@ -81,6 +83,10 @@ export const createApp = ViteSSG(App, { routes }, ({ app, router, isClient }) =>
 
       if (preferred === 'es') return '/es'
       return true
+    })
+
+    router.afterEach((to) => {
+      trackPageView(to.fullPath)
     })
   }
 })

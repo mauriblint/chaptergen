@@ -100,6 +100,7 @@ authRouter.get('/account', requireUser, (req: Request, res: Response) => {
     id: job.id,
     status: job.status,
     fileName: job.fileName,
+    fileExtension: job.fileExtension,
     chaptersGenerated: job.chaptersGenerated,
     durationSeconds: job.durationSeconds,
     createdAt: job.createdAt,
