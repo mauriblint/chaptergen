@@ -26,5 +26,4 @@ jobs:
           script: |
             set -eu
             cd "${{ secrets.DEPLOY_PATH }}"
-            git config --global --add safe.directory "${{ secrets.DEPLOY_PATH }}"
-            ./deploy
+            sudo -n ./deploy
