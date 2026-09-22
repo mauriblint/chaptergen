@@ -9,7 +9,7 @@ import {
 import { generateChapters } from './generateChapters.js'
 import type { RefineOptions } from '../types/refine.js'
 import type { Chapter } from '../types.js'
-import { transcribe } from './transcribe.js'
+import { AudioTooLargeError, transcribe } from './transcribe.js'
 import {
   clearJobFilePath,
   getJob,
@@ -47,7 +47,10 @@ export async function processJob(jobId: string): Promise<void> {
     }
 
     const audioSizeBytes = statSync(audioPath).size
-    if (audioSizeBytes > AUDIO_MAX_UPLOAD_BYTES) {
+    if (
+      audioSizeBytes > AUDIO_MAX_UPLOAD_BYTES &&
+      (durationSeconds == null || durationSeconds <= 0)
+    ) {
       const sizeMb = (audioSizeBytes / (1024 * 1024)).toFixed(1)
       updateJobError(
         jobId,
@@ -81,6 +84,10 @@ export async function processJob(jobId: string): Promise<void> {
     const formatted = formatChapters(chapters)
     updateJobResult(jobId, chapters, formatted, segments)
   } catch (err) {
+    if (err instanceof AudioTooLargeError) {
+      updateJobError(jobId, err.message, err.reason)
+      return
+    }
     const message = err instanceof Error ? err.message : 'Unknown error'
     updateJobError(jobId, message)
   } finally {
