@@ -67,10 +67,9 @@ function openPicker() {
       @change="onFileChange"
     />
     <div class="uploader-icon">
-      <svg width="28" height="28" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-        <rect x="8" y="18" width="4" height="14" rx="1" fill="#6366F1" opacity="0.7" />
-        <rect x="16" y="12" width="4" height="20" rx="1" fill="#818CF8" />
-        <rect x="24" y="8" width="4" height="24" rx="1" fill="#6366F1" />
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 16V4M7 9l5-5 5 5" />
+        <path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" />
       </svg>
     </div>
     <div class="uploader-copy">
@@ -86,75 +85,76 @@ function openPicker() {
 <style scoped>
 .uploader {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  border: 2px dashed var(--border);
-  border-radius: var(--radius);
-  padding: 2.5rem 2rem;
-  text-align: center;
+  gap: 1.1rem;
+  border: 1.5px dashed #c9c5b9;
+  border-radius: 18px;
+  padding: 1.6rem 1.6rem;
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
-  background: var(--bg);
+  transition: border-color 0.15s, background 0.15s;
+  background: var(--surface);
 }
 
 .uploader:hover,
 .uploader.dragging {
   border-color: var(--accent);
-  background: rgba(99, 102, 241, 0.04);
+  background: #fbfbff;
 }
 
 .uploader-icon {
-  margin: 0 auto 1rem;
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
   border-radius: 14px;
-  background: rgba(99, 102, 241, 0.1);
+  background: var(--accent-soft);
+  color: var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
+.uploader-copy {
+  flex: 1;
+  min-width: 0;
+}
+
 .uploader-title {
-  font-size: 1rem;
-  font-weight: 700;
-  margin-bottom: 0.4rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
   color: var(--text);
 }
 
 .uploader-hint {
   font-size: 0.85rem;
   color: var(--text-muted);
-  margin-bottom: 1.25rem;
 }
 
 .uploader-btn {
-  background: var(--accent);
-  color: white;
+  min-height: 48px;
+  background: var(--ink);
+  color: #fff;
   border: none;
-  padding: 0.65rem 1.5rem;
-  border-radius: var(--radius);
-  font-size: 0.9rem;
-  font-weight: 500;
+  padding: 0 1.4rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: background 0.15s;
   white-space: nowrap;
 }
 
 .uploader-btn:hover {
-  opacity: 0.9;
+  background: #2a2e36;
 }
 
 .uploader.compact {
-  flex-direction: row;
-  align-items: center;
   gap: 0.85rem;
   padding: 0.7rem 0.75rem 0.7rem 0.85rem;
-  text-align: left;
+  border-radius: 12px;
 }
 
 .uploader.compact .uploader-icon {
-  margin: 0;
   width: 40px;
   height: 40px;
   border-radius: 10px;
@@ -165,38 +165,39 @@ function openPicker() {
   height: 20px;
 }
 
-.uploader.compact .uploader-copy {
-  min-width: 0;
-  flex: 1;
-}
-
 .uploader.compact .uploader-title {
   font-size: 0.92rem;
   margin-bottom: 0.1rem;
 }
 
 .uploader.compact .uploader-hint {
-  margin-bottom: 0;
   font-size: 0.78rem;
 }
 
 .uploader.compact .uploader-btn {
-  padding: 0.6rem 1.15rem;
+  min-height: 42px;
+  padding: 0 1.15rem;
   font-size: 0.85rem;
   border-radius: 10px;
 }
 
 @media (max-width: 640px) {
+  .uploader:not(.compact) {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.5rem 1.25rem;
+  }
+
+  .uploader-btn {
+    width: 100%;
+  }
+
   .uploader.compact {
     flex-wrap: wrap;
   }
 
   .uploader.compact .uploader-copy {
     flex: 1 1 180px;
-  }
-
-  .uploader.compact .uploader-btn {
-    width: 100%;
   }
 }
 </style>

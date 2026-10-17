@@ -12,7 +12,16 @@ const PATH_PAIRS: PathPair[] = [
   { en: '/', es: '/es' },
   { en: '/podcast-chapters', es: '/es/capitulos-podcast' },
   { en: '/pricing', es: '/es/precios' },
+  { en: '/about', es: '/es/acerca-de' },
+  { en: '/privacy', es: '/es/privacidad' },
+  { en: '/terms', es: '/es/terminos' },
 ]
+
+/** Returns the [en, es] pair a marketing path belongs to, if any. */
+export function pathPair(path: string): PathPair | undefined {
+  const normalized = path.replace(/\/+$/, '') || '/'
+  return PATH_PAIRS.find((p) => p.en === normalized || p.es === normalized)
+}
 
 export const APP_PATHS = ['/dashboard', '/login', '/settings', '/billing'] as const
 

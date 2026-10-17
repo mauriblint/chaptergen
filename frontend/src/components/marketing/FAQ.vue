@@ -4,7 +4,11 @@ import Section from '../ui/Section.vue'
 import type { FAQItem } from '../../content/home'
 
 defineProps<{
+  eyebrow?: string
   title: string
+  aside?: string
+  contactLabel?: string
+  contactHref?: string
   faqs: FAQItem[]
 }>()
 
@@ -17,19 +21,42 @@ function toggle(index: number) {
 
 <template>
   <Section id="faq">
-    <h2 class="section-title">{{ title }}</h2>
-    <div class="faq-list">
-      <div v-for="(faq, i) in faqs" :key="i" class="faq-item">
-        <button
-          class="faq-question"
-          :aria-expanded="openIndex === i"
-          @click="toggle(i)"
-        >
-          {{ faq.question }}
-          <span class="faq-icon" :class="{ open: openIndex === i }">+</span>
-        </button>
-        <div v-show="openIndex === i" class="faq-answer">
-          <p>{{ faq.answer }}</p>
+    <div class="faq-grid">
+      <div class="faq-head">
+        <span v-if="eyebrow" class="eyebrow">{{ eyebrow }}</span>
+        <h2 class="section-title">{{ title }}</h2>
+        <p v-if="aside" class="aside">
+          {{ aside }}
+          <a v-if="contactHref" :href="contactHref" class="contact">{{ contactLabel }}</a>
+        </p>
+      </div>
+
+      <div class="faq-list">
+        <div v-for="(faq, i) in faqs" :key="i" class="faq-item">
+          <h3 class="faq-q">
+            <button
+              :id="`faq-q-${i}`"
+              class="faq-question"
+              :aria-expanded="openIndex === i"
+              :aria-controls="`faq-a-${i}`"
+              @click="toggle(i)"
+            >
+              <span>{{ faq.question }}</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                <path d="M5 12h14" />
+                <path v-if="openIndex !== i" d="M12 5v14" />
+              </svg>
+            </button>
+          </h3>
+          <div
+            v-show="openIndex === i"
+            :id="`faq-a-${i}`"
+            class="faq-answer"
+            role="region"
+            :aria-labelledby="`faq-q-${i}`"
+          >
+            <p>{{ faq.answer }}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -37,66 +64,89 @@ function toggle(index: number) {
 </template>
 
 <style scoped>
-.section-title {
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin-bottom: 2rem;
-  text-align: center;
+.faq-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 3rem;
+}
+
+.faq-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.aside {
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.contact {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.contact:hover {
+  text-decoration: underline;
 }
 
 .faq-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  border-bottom: 1px solid var(--border);
 }
 
 .faq-item {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
+  border-top: 1px solid var(--border);
+}
+
+.faq-q {
+  font: inherit;
 }
 
 .faq-question {
   width: 100%;
+  min-height: 72px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
+  gap: 1.5rem;
+  padding: 1.25rem 0;
   background: none;
   border: none;
-  font-size: 0.95rem;
-  font-weight: 500;
-  text-align: left;
+  font-size: 1.15rem;
+  font-weight: 600;
   color: var(--text);
+  text-align: left;
   cursor: pointer;
 }
 
 .faq-question:hover {
-  background: var(--bg);
+  color: var(--accent);
 }
 
-.faq-icon {
+.faq-question svg {
   flex-shrink: 0;
-  font-size: 1.25rem;
-  color: var(--text-muted);
-  transition: transform 0.2s;
-  line-height: 1;
-}
-
-.faq-icon.open {
-  transform: rotate(45deg);
 }
 
 .faq-answer {
-  padding: 0 1.25rem 1rem;
+  padding: 0 0 1.5rem;
 }
 
 .faq-answer p {
-  font-size: 0.9rem;
+  max-width: 720px;
+  font-size: 1rem;
+  line-height: 1.65;
   color: var(--text-muted);
-  line-height: 1.6;
+}
+
+@media (max-width: 860px) {
+  .faq-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+  }
+
+  .faq-question {
+    font-size: 1.05rem;
+  }
 }
 </style>

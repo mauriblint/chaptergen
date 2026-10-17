@@ -38,6 +38,42 @@ export const routes: RouteRecordRaw[] = [
     meta: { locale: 'es' },
   },
   {
+    path: '/about',
+    name: 'about',
+    component: () => import('./pages/ProsePage.vue'),
+    meta: { locale: 'en', prose: 'about' },
+  },
+  {
+    path: '/es/acerca-de',
+    name: 'about-es',
+    component: () => import('./pages/ProsePage.vue'),
+    meta: { locale: 'es', prose: 'about' },
+  },
+  {
+    path: '/privacy',
+    name: 'privacy',
+    component: () => import('./pages/ProsePage.vue'),
+    meta: { locale: 'en', prose: 'privacy' },
+  },
+  {
+    path: '/es/privacidad',
+    name: 'privacy-es',
+    component: () => import('./pages/ProsePage.vue'),
+    meta: { locale: 'es', prose: 'privacy' },
+  },
+  {
+    path: '/terms',
+    name: 'terms',
+    component: () => import('./pages/ProsePage.vue'),
+    meta: { locale: 'en', prose: 'terms' },
+  },
+  {
+    path: '/es/terminos',
+    name: 'terms-es',
+    component: () => import('./pages/ProsePage.vue'),
+    meta: { locale: 'es', prose: 'terms' },
+  },
+  {
     path: '/login',
     name: 'login',
     component: () => import('./pages/LoginPage.vue'),
@@ -64,5 +100,10 @@ export const routes: RouteRecordRaw[] = [
     path: '/jobs/:id',
     name: 'job',
     component: () => import('./pages/JobPage.vue'),
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'not-found',
+    component: () => import('./pages/NotFoundPage.vue'),
   },
 ]

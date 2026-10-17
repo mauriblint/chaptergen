@@ -4,36 +4,41 @@ import { useI18n } from 'vue-i18n'
 import { useHead } from '@unhead/vue'
 import MarketingLayout from '../layouts/MarketingLayout.vue'
 import HeroSection from '../components/marketing/HeroSection.vue'
+import AudienceStrip from '../components/marketing/AudienceStrip.vue'
 import HowItWorks from '../components/marketing/HowItWorks.vue'
-import Differentiator from '../components/marketing/Differentiator.vue'
+import WhyChapterGen from '../components/marketing/WhyChapterGen.vue'
 import SeoBenefits from '../components/marketing/SeoBenefits.vue'
-import ComparisonTable from '../components/marketing/ComparisonTable.vue'
 import UseCases from '../components/marketing/UseCases.vue'
+import PricingTeaser from '../components/marketing/PricingTeaser.vue'
 import FAQ from '../components/marketing/FAQ.vue'
-import { SITE_URL } from '../content/home'
-import type { FAQItem, StepItem, UseCaseItem } from '../content/home'
+import FinalCta from '../components/marketing/FinalCta.vue'
+import { SITE_URL, SUPPORT_EMAIL } from '../content/home'
+import type { FAQItem, PlanTeaser, PreviewContent, StepItem, UseCaseItem } from '../content/home'
 import {
   faqSchema,
   softwareApplicationSchema,
   howToSchema,
+  organizationSchema,
   hreflangLinks,
 } from '../utils/schema'
 import { localizedPath, type Locale } from '../i18n/routing'
 
 const { t, tm, locale } = useI18n()
 
+const preview = computed(() => tm('home.hero.preview') as PreviewContent)
+const audienceItems = computed(() => tm('home.audience.items') as string[])
 const steps = computed(() => tm('home.howItWorks.steps') as StepItem[])
-const differentiatorBullets = computed(
-  () => tm('home.differentiator.bullets') as { title: string; description: string }[]
+const whyBullets = computed(() => tm('home.why.bullets') as { title: string; description: string }[])
+const comparisonRows = computed(
+  () => tm('home.why.rows') as { feature: string; youtube: string; chaptergen: string }[]
 )
 const seoBullets = computed(
   () => tm('home.seoBenefits.bullets') as { title: string; description: string }[]
 )
-const comparisonRows = computed(
-  () => tm('home.comparison.rows') as { feature: string; youtube: string; chaptergen: string }[]
-)
 const useCaseItems = computed(() => tm('home.useCases.items') as UseCaseItem[])
+const plans = computed(() => tm('home.pricing.plans') as PlanTeaser[])
 const faqs = computed(() => tm('home.faq.items') as FAQItem[])
+const pricingPath = computed(() => localizedPath('/pricing', locale.value as Locale))
 
 const canonical = computed(() => `${SITE_URL}${localizedPath('/', locale.value as Locale)}`)
 
@@ -48,9 +53,9 @@ useHead(
       { property: 'og:type', content: 'website' },
       { property: 'og:url', content: canonical.value },
       { property: 'og:image', content: `${SITE_URL}/og-image.png` },
-      { property: 'og:image:width', content: '1734' },
-      { property: 'og:image:height', content: '907' },
-      { property: 'og:image:alt', content: 'ChapterGen — AI-Powered Chapters & Summaries' },
+      { property: 'og:image:width', content: '1200' },
+      { property: 'og:image:height', content: '630' },
+      { property: 'og:image:alt', content: 'ChapterGen — AI YouTube chapter generator' },
       { name: 'twitter:card', content: 'summary_large_image' },
       { name: 'twitter:title', content: t('home.meta.title') },
       { name: 'twitter:description', content: t('home.meta.description') },
@@ -61,6 +66,10 @@ useHead(
       {
         type: 'application/ld+json',
         innerHTML: JSON.stringify(softwareApplicationSchema(t('home.schema.softwareDescription'))),
+      },
+      {
+        type: 'application/ld+json',
+        innerHTML: JSON.stringify(organizationSchema()),
       },
       {
         type: 'application/ld+json',
@@ -81,28 +90,59 @@ useHead(
       :badge="t('home.hero.badge')"
       :title="t('home.hero.title')"
       :subtitle="t('home.hero.subtitle')"
-      :microcopy="t('home.hero.microcopy')"
+      :preview="preview"
     />
-    <HowItWorks :title="t('home.howItWorks.title')" :steps="steps" />
-    <Differentiator
-      :title="t('home.differentiator.title')"
-      :intro="t('home.differentiator.intro')"
-      :bullets="differentiatorBullets"
+    <AudienceStrip :label="t('home.audience.label')" :items="audienceItems" />
+    <HowItWorks
+      :eyebrow="t('home.howItWorks.eyebrow')"
+      :title="t('home.howItWorks.title')"
+      :intro="t('home.howItWorks.intro')"
+      :steps="steps"
+    />
+    <WhyChapterGen
+      :eyebrow="t('home.why.eyebrow')"
+      :title="t('home.why.title')"
+      :intro="t('home.why.intro')"
+      :outro="t('home.why.outro')"
+      :bullets="whyBullets"
+      :col-youtube="t('home.why.colYoutube')"
+      :col-chaptergen="t('home.why.colChaptergen')"
+      :yes-label="t('home.why.yes')"
+      :no-label="t('home.why.no')"
+      :rows="comparisonRows"
     />
     <SeoBenefits
+      :eyebrow="t('home.seoBenefits.eyebrow')"
       :title="t('home.seoBenefits.title')"
       :intro="t('home.seoBenefits.intro')"
       :bullets="seoBullets"
     />
-    <ComparisonTable
-      :title="t('home.comparison.title')"
-      :intro="t('home.comparison.intro')"
-      :outro="t('home.comparison.outro')"
-      :col-youtube="t('home.comparison.colYoutube')"
-      :col-chaptergen="t('home.comparison.colChaptergen')"
-      :rows="comparisonRows"
+    <UseCases
+      :eyebrow="t('home.useCases.eyebrow')"
+      :title="t('home.useCases.title')"
+      :items="useCaseItems"
     />
-    <UseCases :title="t('home.useCases.title')" :items="useCaseItems" />
-    <FAQ :title="t('home.faq.title')" :faqs="faqs" />
+    <PricingTeaser
+      :eyebrow="t('home.pricing.eyebrow')"
+      :title="t('home.pricing.title')"
+      :subtitle="t('home.pricing.subtitle')"
+      :plans="plans"
+      free-href="#start"
+      :pricing-path="pricingPath"
+    />
+    <FAQ
+      :eyebrow="t('home.faq.eyebrow')"
+      :title="t('home.faq.title')"
+      :aside="t('home.faq.aside')"
+      :contact-label="t('home.faq.contact')"
+      :contact-href="`mailto:${SUPPORT_EMAIL}`"
+      :faqs="faqs"
+    />
+    <FinalCta
+      :title="t('home.finalCta.title')"
+      :subtitle="t('home.finalCta.subtitle')"
+      :cta="t('home.finalCta.cta')"
+      href="#start"
+    />
   </MarketingLayout>
 </template>

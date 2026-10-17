@@ -1,4 +1,4 @@
-import type { FAQItem } from '../content/home'
+import { SITE_URL, SUPPORT_EMAIL, type FAQItem } from '../content/home'
 
 export function faqSchema(faqs: FAQItem[]) {
   return {
@@ -15,21 +15,34 @@ export function faqSchema(faqs: FAQItem[]) {
   }
 }
 
+export function organizationSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': `${SITE_URL}/#organization`,
+    name: 'ChapterGen',
+    url: SITE_URL,
+    logo: `${SITE_URL}/android-chrome-512x512.png`,
+    email: SUPPORT_EMAIL,
+  }
+}
+
 export function softwareApplicationSchema(description: string) {
   return {
     '@context': 'https://schema.org',
-    '@type': 'SoftwareApplication',
+    '@type': 'WebApplication',
     name: 'ChapterGen',
+    url: SITE_URL,
     applicationCategory: 'MultimediaApplication',
     operatingSystem: 'Web',
+    browserRequirements: 'Requires a modern web browser',
     description,
-    offers: {
-      '@type': 'AggregateOffer',
-      lowPrice: '0',
-      highPrice: '12',
-      priceCurrency: 'USD',
-      offerCount: '3',
-    },
+    publisher: { '@id': `${SITE_URL}/#organization` },
+    offers: [
+      { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: 'USD' },
+      { '@type': 'Offer', name: 'Starter (5 videos)', price: '5', priceCurrency: 'USD' },
+      { '@type': 'Offer', name: 'Creator (15 videos)', price: '12', priceCurrency: 'USD' },
+    ],
   }
 }
 

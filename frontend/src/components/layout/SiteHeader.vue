@@ -16,12 +16,6 @@ onMounted(() => {
   void ensureLoaded()
 })
 
-const navLinks = computed(() => [
-  { label: t('common.nav.features'), hash: '#features' },
-  { label: t('common.nav.useCases'), hash: '#use-cases' },
-  { label: t('common.nav.faq'), hash: '#faq' },
-])
-
 const homePath = computed(() => localizedPath('/', locale.value as Locale))
 const logoPath = computed(() => (user.value ? '/dashboard' : homePath.value))
 const podcastPath = computed(() => localizedPath('/podcast-chapters', locale.value as Locale))
@@ -33,6 +27,8 @@ function navHref(hash: string) {
   if (route.path === homePath.value) return hash
   return `${homePath.value}${hash}`
 }
+
+const startHref = computed(() => navHref('#start'))
 
 const otherLocale = computed<Locale>(() => (locale.value === 'es' ? 'en' : 'es'))
 const switchPath = computed(() => localizedPath(route.path, otherLocale.value))
@@ -65,68 +61,69 @@ async function onMarketingLang() {
       <RouterLink to="/dashboard" class="nav-center">{{ t('common.nav.myChapters') }}</RouterLink>
 
       <div class="header-right">
-        <RouterLink :to="pricingPath" class="buy-credits">{{ t('common.nav.buyCredits') }}</RouterLink>
+        <RouterLink :to="pricingPath" class="btn btn-ink buy-credits">{{ t('common.nav.buyCredits') }}</RouterLink>
         <UserMenu />
       </div>
     </div>
 
     <div v-else class="header-inner">
-      <RouterLink :to="logoPath" class="logo-link" aria-label="ChapterGen home">
-        <Logo />
-      </RouterLink>
+      <div class="header-left">
+        <RouterLink :to="logoPath" class="logo-link" :aria-label="t('common.nav.homeLabel')">
+          <Logo />
+        </RouterLink>
 
-      <nav class="nav-desktop" aria-label="Main navigation">
-        <template v-if="!onApp">
-          <a v-for="link in navLinks" :key="link.hash" :href="navHref(link.hash)" class="nav-link">
-            {{ link.label }}
-          </a>
-          <RouterLink :to="podcastPath" class="nav-link">{{ t('common.nav.podcast') }}</RouterLink>
-        </template>
-        <RouterLink :to="pricingPath" class="nav-link">{{ t('common.nav.pricing') }}</RouterLink>
+        <nav class="nav-desktop" :aria-label="t('common.nav.mainLabel')">
+          <template v-if="!onApp">
+            <a :href="navHref('#how')" class="nav-link">{{ t('common.nav.howItWorks') }}</a>
+            <a :href="navHref('#use-cases')" class="nav-link">{{ t('common.nav.useCases') }}</a>
+            <RouterLink :to="podcastPath" class="nav-link">{{ t('common.nav.podcast') }}</RouterLink>
+          </template>
+          <RouterLink :to="pricingPath" class="nav-link">{{ t('common.nav.pricing') }}</RouterLink>
+          <a v-if="!onApp" :href="navHref('#faq')" class="nav-link">{{ t('common.nav.faq') }}</a>
+        </nav>
+      </div>
+
+      <div class="header-right">
         <RouterLink
           v-if="!onApp"
           :to="switchPath"
-          class="nav-link lang-switch"
+          class="lang-switch"
+          :aria-label="t(`common.language.${otherLocale}`)"
           @click="onMarketingLang"
         >
-          {{ t(`common.language.${otherLocale}`) }}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18" /></svg>
+          {{ otherLocale.toUpperCase() }}
         </RouterLink>
         <button
           v-else
           type="button"
-          class="nav-link lang-switch lang-btn"
+          class="lang-switch lang-btn"
+          :aria-label="t(`common.language.${otherLocale}`)"
           @click="switchLanguage"
         >
-          {{ t(`common.language.${otherLocale}`) }}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18" /></svg>
+          {{ otherLocale.toUpperCase() }}
         </button>
-      </nav>
-
-      <div class="header-right">
-        <RouterLink to="/login" class="nav-link">{{ t('common.nav.login') }}</RouterLink>
+        <RouterLink to="/login" class="nav-link login-link">{{ t('common.nav.login') }}</RouterLink>
+        <a v-if="!onApp" :href="startHref" class="btn btn-ink header-cta">{{ t('common.nav.tryFree') }}</a>
         <button
           class="menu-toggle"
           :aria-expanded="menuOpen"
-          aria-label="Toggle menu"
+          :aria-label="t('common.nav.toggleMenu')"
           @click="menuOpen = !menuOpen"
         >
-          <span class="menu-bar" />
-          <span class="menu-bar" />
-          <span class="menu-bar" />
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path v-if="menuOpen" d="M6 6l12 12M18 6L6 18" />
+            <path v-else d="M4 7h16M4 12h16M4 17h16" />
+          </svg>
         </button>
       </div>
     </div>
 
-    <nav v-if="menuOpen && !loggedIn" class="nav-mobile" aria-label="Mobile navigation">
+    <nav v-if="menuOpen && !loggedIn" class="nav-mobile" :aria-label="t('common.nav.mobileLabel')">
       <template v-if="!onApp">
-        <a
-          v-for="link in navLinks"
-          :key="link.hash"
-          :href="navHref(link.hash)"
-          class="nav-link"
-          @click="menuOpen = false"
-        >
-          {{ link.label }}
-        </a>
+        <a :href="navHref('#how')" class="nav-link" @click="menuOpen = false">{{ t('common.nav.howItWorks') }}</a>
+        <a :href="navHref('#use-cases')" class="nav-link" @click="menuOpen = false">{{ t('common.nav.useCases') }}</a>
         <RouterLink :to="podcastPath" class="nav-link" @click="menuOpen = false">
           {{ t('common.nav.podcast') }}
         </RouterLink>
@@ -134,10 +131,11 @@ async function onMarketingLang() {
       <RouterLink :to="pricingPath" class="nav-link" @click="menuOpen = false">
         {{ t('common.nav.pricing') }}
       </RouterLink>
+      <a v-if="!onApp" :href="navHref('#faq')" class="nav-link" @click="menuOpen = false">{{ t('common.nav.faq') }}</a>
       <RouterLink
         v-if="!onApp"
         :to="switchPath"
-        class="nav-link lang-switch"
+        class="nav-link"
         @click="onMarketingLang(); menuOpen = false"
       >
         {{ t(`common.language.${otherLocale}`) }}
@@ -145,11 +143,12 @@ async function onMarketingLang() {
       <button
         v-else
         type="button"
-        class="nav-link lang-switch lang-btn"
+        class="nav-link lang-btn"
         @click="switchLanguage(); menuOpen = false"
       >
         {{ t(`common.language.${otherLocale}`) }}
       </button>
+      <a v-if="!onApp" :href="startHref" class="btn btn-ink" @click="menuOpen = false">{{ t('common.nav.tryFree') }}</a>
     </nav>
   </header>
 </template>
@@ -159,24 +158,32 @@ async function onMarketingLang() {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(248, 250, 252, 0.9);
-  backdrop-filter: blur(8px);
+  background: rgba(247, 246, 242, 0.88);
+  backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
 }
 
 .header-inner {
-  max-width: 1100px;
+  max-width: 1280px;
+  height: 72px;
   margin: 0 auto;
-  padding: 0.85rem 1.5rem;
+  padding: 0 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1.5rem;
 }
 
 .header-inner--app {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
 }
 
 .logo-link {
@@ -200,36 +207,49 @@ async function onMarketingLang() {
 .nav-desktop {
   display: flex;
   align-items: center;
-  gap: 1.75rem;
+  gap: 2rem;
 }
 
 .nav-link {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  transition: color 0.2s;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text);
+  transition: color 0.15s;
 }
 
 .nav-link:hover,
 .nav-link.router-link-active {
-  color: var(--text);
+  color: var(--accent);
 }
 
 .lang-switch {
-  font-weight: 600;
-  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 44px;
+  padding: 0 0.6rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-muted);
 }
 
 .lang-switch:hover {
-  opacity: 0.8;
-  color: var(--accent);
+  color: var(--text);
 }
 
 .lang-btn {
   background: none;
   border: none;
-  padding: 0;
   cursor: pointer;
   font: inherit;
+  text-align: left;
+}
+
+.login-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.6rem;
 }
 
 .header-right {
@@ -237,65 +257,64 @@ async function onMarketingLang() {
   align-items: center;
   justify-self: end;
   justify-content: flex-end;
-  gap: 0.85rem;
+  gap: 0.5rem;
 }
 
 .buy-credits {
-  display: inline-flex;
-  align-items: center;
-  background: var(--accent);
-  color: #fff;
-  font-size: 0.85rem;
-  font-weight: 600;
-  white-space: nowrap;
-  border-radius: var(--radius);
-  padding: 0.45rem 0.95rem;
-  transition: opacity 0.2s;
-}
-
-.buy-credits:hover,
-.buy-credits.router-link-active {
-  color: #fff;
-  opacity: 0.9;
+  min-height: 38px;
+  font-size: 0.875rem;
 }
 
 .menu-toggle {
   display: none;
-  flex-direction: column;
-  gap: 5px;
-  background: none;
-  border: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
   cursor: pointer;
-  padding: 0.25rem;
-}
-
-.menu-bar {
-  display: block;
-  width: 22px;
-  height: 2px;
-  background: var(--text);
-  border-radius: 1px;
 }
 
 .nav-mobile {
   display: none;
   flex-direction: column;
-  gap: 0.75rem;
-  padding: 0 1.5rem 1rem;
+  gap: 0.25rem;
+  padding: 0.5rem 1rem 1rem;
   border-top: 1px solid var(--border);
 }
 
-@media (max-width: 768px) {
-  .nav-desktop {
+.nav-mobile .nav-link {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 1rem;
+}
+
+.nav-mobile .btn {
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 960px) {
+  .nav-desktop,
+  .header-cta,
+  .lang-switch {
     display: none;
   }
 
   .menu-toggle {
-    display: flex;
+    display: inline-flex;
   }
 
   .nav-mobile {
     display: flex;
+  }
+
+  .header-inner {
+    padding: 0 1rem;
+    height: 64px;
   }
 
   .header-inner--app {
@@ -305,10 +324,6 @@ async function onMarketingLang() {
 
   .nav-center {
     font-size: 0.85rem;
-  }
-
-  .buy-credits {
-    font-size: 0.8rem;
   }
 }
 </style>

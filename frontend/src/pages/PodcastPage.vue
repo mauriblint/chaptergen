@@ -10,7 +10,7 @@ import UseCases from '../components/marketing/UseCases.vue'
 import TextSection from '../components/marketing/TextSection.vue'
 import FAQ from '../components/marketing/FAQ.vue'
 import { SITE_URL } from '../content/home'
-import type { FAQItem, UseCaseItem } from '../content/home'
+import type { FAQItem, PreviewContent, UseCaseItem } from '../content/home'
 import { faqSchema, hreflangLinks } from '../utils/schema'
 import { localizedPath, type Locale } from '../i18n/routing'
 
@@ -21,6 +21,7 @@ const platformItems = computed(
 )
 const useCaseItems = computed(() => tm('podcast.useCases.items') as UseCaseItem[])
 const faqs = computed(() => tm('podcast.faq.items') as FAQItem[])
+const preview = computed(() => tm('podcast.hero.preview') as PreviewContent)
 
 const canonical = computed(
   () => `${SITE_URL}${localizedPath('/podcast-chapters', locale.value as Locale)}`
@@ -38,9 +39,9 @@ useHead(
       { property: 'og:type', content: 'website' },
       { property: 'og:url', content: canonical.value },
       { property: 'og:image', content: `${SITE_URL}/og-image.png` },
-      { property: 'og:image:width', content: '1734' },
-      { property: 'og:image:height', content: '907' },
-      { property: 'og:image:alt', content: 'ChapterGen — AI-Powered Chapters & Summaries' },
+      { property: 'og:image:width', content: '1200' },
+      { property: 'og:image:height', content: '630' },
+      { property: 'og:image:alt', content: 'ChapterGen — AI YouTube chapter generator' },
       { name: 'twitter:card', content: 'summary_large_image' },
       { name: 'twitter:title', content: t('podcast.meta.title') },
       { name: 'twitter:description', content: t('podcast.meta.description') },
@@ -66,7 +67,7 @@ useHead(
       :badge="t('podcast.hero.badge')"
       :title="t('podcast.hero.title')"
       :subtitle="t('podcast.hero.subtitle')"
-      :microcopy="t('podcast.hero.microcopy')"
+      :preview="preview"
       variant="audio"
     />
     <PlatformSection
@@ -89,16 +90,16 @@ useHead(
 <style scoped>
 .cross-link {
   text-align: center;
-  padding: 2rem 1.5rem 3rem;
+  padding: 0 1.5rem 4rem;
 }
 
 .cross-link-anchor {
-  font-size: 0.95rem;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 600;
   color: var(--accent);
 }
 
 .cross-link-anchor:hover {
-  opacity: 0.8;
+  text-decoration: underline;
 }
 </style>

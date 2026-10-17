@@ -105,58 +105,97 @@ async function buy(pack: Pack['id']) {
 
 <style scoped>
 .wrap {
-  max-width: 960px;
+  max-width: 1040px;
   margin: 0 auto;
-  padding: 3rem 1.5rem 4rem;
+  padding: 5rem 1.5rem 6rem;
 }
 
 h1 {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  margin-bottom: 0.9rem;
 }
 
 .lead {
+  font-size: 1.1rem;
+  line-height: 1.6;
   color: var(--text-muted);
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
   max-width: 36rem;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.grid :deep(.card) {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  box-shadow: none;
 }
 
 .paid.featured {
-  border-color: var(--accent);
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--on-ink);
 }
 
 .name {
   font-weight: 600;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.75rem;
 }
 
 .price {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+  font-family: var(--font-display);
+  font-size: 3.25rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin-bottom: 0.9rem;
 }
 
 .blurb {
   color: var(--text-muted);
-  font-size: 0.9rem;
-  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.featured .blurb,
+.featured ul {
+  color: #d5d8dd;
 }
 
 ul {
   list-style: none;
-  margin: 0 0 1.25rem;
+  margin: 0 0 1.5rem;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  color: var(--text-muted);
-  font-size: 0.9rem;
+  gap: 0.55rem;
+  color: #3c3f45;
+  font-size: 0.95rem;
+}
+
+.paid :deep(.btn) {
+  margin-top: auto;
+  justify-content: center;
+  min-height: 48px;
+}
+
+.featured :deep(.btn-primary) {
+  background: var(--on-ink);
+  color: var(--ink);
+}
+
+.featured :deep(.btn-primary:hover:not(:disabled)) {
+  background: #fff;
 }
 
 .error {
@@ -164,9 +203,14 @@ ul {
   margin-top: 1rem;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 860px) {
   .grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 440px;
+  }
+
+  .wrap {
+    padding: 3rem 1rem 4rem;
   }
 }
 </style>

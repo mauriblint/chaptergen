@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import Card from '../ui/Card.vue'
@@ -27,6 +27,12 @@ const showPaywall = ref(false)
 const paywallReason = ref<PaywallReason>('free_limit')
 const { progress, retryingChunk, uploadAndCreateJob } = useChunkedUpload()
 const { ensureLoaded } = useAuth()
+
+const trustItems = computed(() => [
+  t('tool.chapterTool.noSignup'),
+  t('tool.chapterTool.filesDeleted'),
+  t('tool.chapterTool.languages'),
+])
 
 onMounted(() => {
   void ensureLoaded()
@@ -64,24 +70,16 @@ async function onFileSelect(file: File) {
 </script>
 
 <template>
-  <Card class="chapter-tool" :class="{ compact }" shadow="lg">
+  <Card class="chapter-tool" :class="{ compact }" :shadow="compact ? 'lg' : 'none'">
     <div v-if="!uploading" class="controls">
       <VideoUploader :variant="variant" :compact="compact" @select="onFileSelect" />
 
-      <div v-if="!props.compact" class="trust-strip">
-        <span class="trust-item">
-          <span class="stars" aria-hidden="true">★★★★★</span>
-          <strong>{{ t('tool.chapterTool.rating') }}</strong> · {{ t('tool.chapterTool.ratingSuffix') }}
-        </span>
-        <span class="trust-item">
-          <svg class="trust-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="2" />
-            <path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-          </svg>
-          {{ t('tool.chapterTool.filesDeleted') }}
-        </span>
-        <span class="trust-item">{{ t('tool.chapterTool.noSignup') }}</span>
-      </div>
+      <ul v-if="!props.compact" class="trust-strip">
+        <li v-for="item in trustItems" :key="item" class="trust-item">
+          <svg class="trust-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+          {{ item }}
+        </li>
+      </ul>
     </div>
 
     <UploadProgress
@@ -123,6 +121,9 @@ async function onFileSelect(file: File) {
 
 .uploading-state {
   text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
   padding: 3rem 2rem;
   color: var(--text-muted);
 }
@@ -171,14 +172,25 @@ async function onFileSelect(file: File) {
   white-space: nowrap;
 }
 
+.chapter-tool:not(.compact) {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.chapter-tool:not(.compact) :deep(.upload-progress) {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+}
+
 .trust-strip {
+  list-style: none;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
   gap: 0.5rem 1.5rem;
-  padding-top: 0.25rem;
-  font-size: 0.82rem;
+  font-size: 0.875rem;
   color: var(--text-muted);
 }
 
@@ -186,38 +198,10 @@ async function onFileSelect(file: File) {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  position: relative;
-}
-
-.trust-item + .trust-item::before {
-  content: '';
-  position: absolute;
-  left: -0.8rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 1px;
-  height: 14px;
-  background: var(--border);
-}
-
-.trust-item strong {
-  color: var(--text);
-  font-weight: 600;
-}
-
-.stars {
-  color: #f59e0b;
-  letter-spacing: 0.05em;
 }
 
 .trust-icon {
-  color: var(--text-muted);
+  color: var(--accent);
   flex-shrink: 0;
-}
-
-@media (max-width: 560px) {
-  .trust-item + .trust-item::before {
-    display: none;
-  }
 }
 </style>

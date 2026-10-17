@@ -8,27 +8,25 @@ defineProps<{
 </script>
 
 <template>
-  <Section alt>
-    <h2 class="section-title">{{ title }}</h2>
-    <p class="section-desc">{{ description }}</p>
+  <Section dark>
+    <div class="text-block">
+      <h2 class="section-title">{{ title }}</h2>
+      <p class="section-desc">{{ description }}</p>
+    </div>
   </Section>
 </template>
 
 <style scoped>
-.section-title {
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin-bottom: 1rem;
-  text-align: center;
+.text-block {
+  max-width: 820px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
 .section-desc {
-  font-size: 1rem;
-  color: var(--text-muted);
+  font-size: 1.125rem;
   line-height: 1.7;
-  max-width: 720px;
-  margin: 0 auto;
-  text-align: center;
+  color: var(--on-ink-muted);
 }
 </style>

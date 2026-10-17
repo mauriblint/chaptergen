@@ -1,10 +1,15 @@
 export default {
   common: {
     nav: {
-      features: 'Features',
-      useCases: 'Use Cases',
+      howItWorks: 'How it works',
+      tryFree: 'Try it free',
+      homeLabel: 'ChapterGen home',
+      mainLabel: 'Main navigation',
+      mobileLabel: 'Mobile navigation',
+      toggleMenu: 'Toggle menu',
+      useCases: 'Use cases',
       faq: 'FAQ',
-      podcast: 'Podcast',
+      podcast: 'Podcasts',
       pricing: 'Pricing',
       login: 'Log in',
       dashboard: 'Dashboard',
@@ -18,11 +23,12 @@ export default {
       credits: '{count} credits',
     },
     footer: {
-      tagline: 'AI chapters for every story.',
+      tagline: 'AI YouTube chapter generator for videos and podcasts. Upload the file, get timestamps in YouTube format.',
       productHeading: 'Product',
       youtubeChapters: 'YouTube Chapters',
       podcastChapters: 'Podcast Chapters',
-      legalHeading: 'Legal',
+      companyHeading: 'Company',
+      about: 'About',
       privacy: 'Privacy',
       terms: 'Terms',
       contact: 'Contact',
@@ -37,129 +43,182 @@ export default {
   },
   home: {
     meta: {
-      title: 'AI YouTube Chapter Generator — Free Timestamps in Seconds',
+      title: 'AI YouTube Chapter Generator — Timestamps from Your Video File',
       description:
-        'Upload your video or audio and get AI-generated YouTube chapters instantly. No URL needed — works before you publish. Free to try, no signup.',
+        'Upload a video or audio file and get YouTube chapters with timestamps and SEO-ready titles. No public URL needed — works before you publish. 2 free videos, no signup.',
     },
     hero: {
-      badge: 'AI-Powered · Fast · Accurate',
-      title: 'AI YouTube Chapter Generator — Get Timestamps in Seconds',
+      badge: 'Works on private and unpublished videos',
+      title: 'The AI YouTube chapter generator that works before you publish',
       subtitle:
-        'No YouTube URL needed. Upload your video or audio and get clean, SEO-ready chapters before you even publish — works with private videos, drafts, and podcast audio.',
-      microcopy: 'Free to try · No signup required · MP4, MOV, MP3, WAV and more · Files up to 500 MB',
+        "Upload a video or audio file and get clean, SEO-ready timestamps in YouTube's exact format. No public URL needed.",
+      preview: {
+        fileName: 'episode-42-final.mp4',
+        duration: '48:12',
+        label: 'Example output',
+        copy: 'Copy for YouTube',
+        refine: 'Refine titles',
+        activeIndex: 3,
+        chapters: [
+          { time: '0:00', title: 'Intro: why chapters matter' },
+          { time: '1:42', title: 'Setting up the recording' },
+          { time: '6:15', title: 'Editing the rough cut' },
+          { time: '14:08', title: 'Color grading on a budget' },
+          { time: '22:37', title: 'Exporting for YouTube' },
+          { time: '31:50', title: 'Q&A and wrap-up' },
+        ],
+      },
+    },
+    audience: {
+      label: 'Built for long-form creators',
+      items: ['Tutorials', 'Podcasts', 'Interviews', 'Webinars & courses', 'Reviews & vlogs'],
     },
     howItWorks: {
-      title: 'How to Generate YouTube Chapters with AI',
+      eyebrow: 'How it works',
+      title: 'How to generate YouTube chapters with AI',
+      intro:
+        'No need to upload to YouTube first. ChapterGen works with drafts, private videos and plain audio files.',
       steps: [
         {
           title: 'Upload your file',
           description:
-            'Drag and drop your video or audio file. No need to publish to YouTube first — the tool works with raw files, private videos, and drafts.',
+            'Drag in a video or audio file. Raw exports, drafts, private recordings and podcast audio all work.',
         },
         {
-          title: 'AI analyzes your content',
+          title: 'AI finds the topics',
           description:
-            'Our AI transcribes your audio, detects topic changes, and identifies the natural sections of your video — then writes a clear, descriptive title for each one.',
+            'We transcribe the audio, detect where the topic changes and write a clear, descriptive title for each section.',
         },
         {
           title: 'Copy and paste',
           description:
-            "Copy the generated chapters in YouTube's exact required format (starting at 0:00) and paste them into your video description. Done.",
+            "Paste the list into your description in YouTube Studio. It's already in YouTube's required format, starting at 0:00.",
         },
       ],
     },
-    differentiator: {
-      title: 'Generate Chapters Before You Publish',
+    why: {
+      eyebrow: 'Why ChapterGen',
+      title: "Better than YouTube's automatic chapters",
       intro:
-        'Most chapter generators need a public YouTube URL — which means your video already has to be live. ChapterGen works differently: you upload the file itself.',
+        'YouTube\'s auto-chapters often cut mid-sentence, miss topic transitions and produce generic titles like "Section 1". ChapterGen follows what is actually said, and you can edit every chapter before the video goes live.',
+      outro:
+        "Tip: turn off automatic chapters in YouTube Studio (Advanced settings → Allow automatic chapters) so YouTube doesn't replace yours.",
+      colYoutube: 'YouTube auto',
+      colChaptergen: 'ChapterGen',
+      yes: 'Yes',
+      no: 'No',
       bullets: [
         {
           title: 'Unpublished videos',
-          description:
-            'Generate your chapters while the video is still a draft, so your description is perfect from minute one.',
+          description: 'Your description is ready from minute one.',
         },
         {
-          title: 'Private and unlisted videos',
-          description: 'No public URL required, ever.',
+          title: 'Private & unlisted',
+          description: 'You never need a public URL.',
         },
         {
-          title: 'Audio-only content',
-          description: 'Podcasts, interviews, and voice recordings work just as well as video.',
+          title: 'Audio only',
+          description: 'Podcasts, interviews and voice recordings.',
         },
         {
           title: 'Any language',
-          description: 'Whisper auto-detects — works with 90+ languages.',
+          description: 'Detected automatically, 90+ languages supported.',
         },
+      ],
+      rows: [
+        { feature: 'Chapter titles', youtube: 'Generic', chaptergen: 'From your content' },
+        { feature: 'Edit before publishing', youtube: 'no', chaptergen: 'yes' },
+        { feature: 'Unpublished videos', youtube: 'no', chaptergen: 'yes' },
+        { feature: 'Audio & podcasts', youtube: 'no', chaptergen: 'yes' },
+        { feature: 'Your own keywords', youtube: 'no', chaptergen: 'yes' },
       ],
     },
     seoBenefits: {
-      title: 'Why YouTube Chapters Boost Your Views',
-      intro:
-        "Chapters aren't just convenient for viewers — they're one of the most underused SEO levers on YouTube:",
+      eyebrow: 'Why chapters',
+      title: 'One of the most underused SEO levers on YouTube',
+      intro: "Chapters aren't just convenient for viewers. They help your video get found and watched.",
       bullets: [
         {
-          title: 'Key Moments in Google Search',
+          title: 'Key Moments in Google',
           description:
-            'Videos with chapters can appear in Google results with clickable sections, taking up more space on the results page.',
+            'Videos with chapters can show clickable sections in Google results and take up more space on the page.',
         },
         {
           title: 'Higher engagement',
           description:
-            'Large-scale analyses of YouTube videos show that videos with chapters get significantly better like and comment ratios.',
+            'Large-scale analyses of YouTube videos show that videos with chapters get better like and comment ratios.',
         },
         {
           title: 'Better retention',
           description:
-            "Viewers who can jump to what they need are more likely to stay, rewatch, and return — all signals YouTube's algorithm rewards.",
+            'Viewers who can jump to what they need stay longer, rewatch and come back — signals the algorithm rewards.',
         },
         {
           title: 'Searchable metadata',
           description:
-            'Every chapter title is text YouTube can index. Descriptive, keyword-rich titles help your video rank for more searches.',
+            'Every chapter title is text YouTube indexes, so descriptive titles help your video rank for more searches.',
         },
       ],
     },
-    comparison: {
-      title: "Better Than YouTube's Automatic Chapters",
-      intro:
-        "YouTube can auto-generate chapters — so why use a dedicated tool? Because YouTube's automatic chapters are inconsistent: they often cut mid-sentence, miss topic transitions, and produce generic titles like \"Section 1\" that carry zero SEO value.",
-      outro:
-        "With ChapterGen you get chapters based on what's actually said in your video, with descriptive titles you can edit and optimize with your own keywords — then simply disable YouTube's auto-chapters in YouTube Studio and paste yours in.",
-      colYoutube: 'YouTube auto-chapters',
-      colChaptergen: 'ChapterGen',
-      rows: [
-        { feature: 'Descriptive, SEO-ready titles', youtube: 'Generic', chaptergen: 'Based on real content' },
-        { feature: 'Editable before publishing', youtube: 'no', chaptergen: 'yes' },
-        { feature: 'Works on unpublished videos', youtube: 'no', chaptergen: 'yes' },
-        { feature: 'Works with audio / podcasts', youtube: 'no', chaptergen: 'yes' },
-      ],
-    },
     useCases: {
-      title: 'Built for Every Kind of Long-Form Content',
+      eyebrow: 'Use cases',
+      title: 'Built for every kind of long-form content',
       items: [
         {
           title: 'Tutorials & how-tos',
           description:
-            'Let viewers jump straight to the step they need — and come back to your video as a reference.',
+            'Let viewers jump straight to the step they need, and come back to your video as a reference.',
         },
         {
           title: 'Podcasts & interviews',
-          description: 'One chapter per question or topic.',
+          description: 'One chapter per question or topic, from the audio file alone.',
           link: '/podcast-chapters',
           linkLabel: 'Podcast chapter generator →',
         },
         {
           title: 'Webinars & courses',
-          description: 'Turn a 2-hour recording into a navigable lesson.',
+          description: 'Turn a two-hour recording into a lesson people can navigate.',
         },
         {
-          title: 'Product reviews & vlogs',
+          title: 'Reviews & vlogs',
           description: 'Highlight each product or moment so nobody scrolls away.',
         },
       ],
     },
+    pricing: {
+      eyebrow: 'Pricing',
+      title: 'Pay per video. No subscription.',
+      subtitle: 'Credits never expire. One credit = one video.',
+      plans: [
+        {
+          name: 'Free',
+          price: '$0',
+          features: ['2 videos', 'Up to 20 minutes each', 'No signup needed'],
+          cta: 'Start free',
+        },
+        {
+          name: 'Starter',
+          price: '$5',
+          unit: '5 videos',
+          features: ['$1.00 per video', 'Any length, up to 500 MB', 'Unlimited title refinements'],
+          cta: 'Buy Starter',
+        },
+        {
+          name: 'Creator',
+          price: '$12',
+          unit: '15 videos',
+          badge: 'Best value',
+          features: ['$0.80 per video', 'Any length, up to 500 MB', 'Unlimited title refinements'],
+          cta: 'Buy Creator',
+          featured: true,
+        },
+      ],
+    },
     faq: {
-      title: 'Frequently Asked Questions',
+      eyebrow: 'FAQ',
+      title: 'Questions, answered',
+      aside: 'Something else?',
+      contact: 'Email us',
       items: [
         {
           question: 'How do I add chapters to a YouTube video?',
@@ -170,6 +229,11 @@ export default {
           question: "Why aren't my chapters showing up on YouTube?",
           answer:
             'YouTube has three strict rules: the first timestamp must be exactly 0:00, you need at least 3 chapters, and each chapter must be at least 10 seconds long. ChapterGen formats everything correctly by default, so this never happens with our output.',
+        },
+        {
+          question: 'Can ChatGPT or Claude generate YouTube chapters from my video?',
+          answer:
+            "Not reliably. Chat assistants can't listen to a long video file: uploads are rejected or too large, and without a real transcript the timestamps they return are guesses. ChapterGen transcribes the audio first, so every timestamp matches what is actually said.",
         },
         {
           question: 'Do I need a YouTube URL to use this?',
@@ -202,9 +266,14 @@ export default {
         },
       ],
     },
+    finalCta: {
+      title: 'Your next upload deserves chapters.',
+      subtitle: 'Try it on 2 videos for free. No account needed.',
+      cta: 'Generate chapters',
+    },
     schema: {
       softwareDescription:
-        'AI-powered YouTube chapter generator. Upload video or audio and get SEO-ready timestamps instantly.',
+        'AI YouTube chapter generator. Upload a video or audio file and get SEO-ready timestamps in YouTube format, even before the video is published.',
       howToName: 'How to Generate YouTube Chapters with AI',
     },
   },
@@ -219,7 +288,22 @@ export default {
       title: 'AI Podcast Chapter Generator — Upload Your Audio, Get Timestamped Chapters',
       subtitle:
         'Drop in your episode file — MP3, WAV, M4A — and get clean chapters with descriptive titles in minutes. Built for interviews, solo shows, and episodes of any length.',
-      microcopy: 'Free to try · No signup required · MP3, WAV, M4A and more · Files up to 500 MB',
+      preview: {
+        fileName: 'ep-87-interview.mp3',
+        duration: '1:12:40',
+        label: 'Example output',
+        copy: 'Copy chapters',
+        refine: 'Refine titles',
+        activeIndex: 2,
+        chapters: [
+          { time: '0:00', title: 'Cold open and guest intro' },
+          { time: '4:35', title: 'How the company started' },
+          { time: '18:20', title: 'The first 1,000 customers' },
+          { time: '37:05', title: 'Hiring the first team' },
+          { time: '52:48', title: 'Mistakes worth avoiding' },
+          { time: '1:05:10', title: 'Rapid-fire questions' },
+        ],
+      },
     },
     platforms: {
       title: 'One Episode, Chapters for Every Platform',
@@ -308,8 +392,8 @@ export default {
   },
   tool: {
     uploader: {
-      titleVideo: 'Drag and drop a video or audio file, or click to browse',
-      titleAudio: 'Drag and drop your audio file, or click to browse',
+      titleVideo: 'Drop your video or audio here',
+      titleAudio: 'Drop your episode audio here',
       titleVideoCompact: 'Drop a video or audio, or click to browse',
       titleAudioCompact: 'Drop an audio file, or click to browse',
       hintVideo: 'MP4, MOV, WebM, MP3, WAV, M4A — up to 500 MB',
@@ -317,10 +401,9 @@ export default {
       button: 'Generate Chapters',
     },
     chapterTool: {
-      rating: '4.9',
-      ratingSuffix: '12,000+ creators',
-      filesDeleted: 'Files auto-deleted after processing',
-      noSignup: '2 free videos · No signup',
+      filesDeleted: 'Files deleted after processing',
+      noSignup: '2 free videos, no signup',
+      languages: '90+ languages',
       uploading: 'Uploading file and starting processing…',
       uploadProgress: 'Uploading file… {percent}%',
       uploadChunk: 'Part {current} of {total}',
@@ -541,5 +624,162 @@ export default {
     sent: 'Thanks — we got your message and will reply by email.',
     sendError: 'Could not send the message. Try again.',
     close: 'Close',
+  },
+  pages: {
+    updated: 'Last updated: {date}',
+    contactLead: 'Questions? Write to',
+    about: {
+      meta: {
+        title: 'About ChapterGen — Why We Built an AI YouTube Chapter Generator',
+        description:
+          'ChapterGen turns a video or audio file into YouTube chapters. It started when ChatGPT and Claude could not process a long video. Here is why and how it works.',
+      },
+      eyebrow: 'About',
+      title: 'Built because the obvious shortcut did not work',
+      intro:
+        'ChapterGen is a small, independent tool that turns a video or audio file into YouTube chapters with accurate timestamps and descriptive titles.',
+      sections: [
+        {
+          heading: 'Why ChapterGen exists',
+          paragraphs: [
+            'I wanted chapters for a long video before publishing it. My first try was the obvious one: upload the file to ChatGPT and Claude and ask for timestamps.',
+            'It did not work. The video file was too large to upload, the assistants could not actually listen to the audio, and when I pasted partial text the timestamps that came back were invented. Getting usable chapters still meant transcribing the video, splitting it by topic and checking every timestamp by hand.',
+            'So I built a tool that does exactly that, end to end, from the file itself.',
+          ],
+        },
+        {
+          heading: 'How it works',
+          paragraphs: [
+            "ChapterGen extracts the audio from your file and transcribes it with OpenAI's Whisper speech-recognition model, so every timestamp comes from the real audio. A language model then finds where the topic changes and writes a descriptive title for each section.",
+            "The output follows YouTube's chapter rules: it starts at 0:00, has at least three chapters, and no chapter is shorter than 10 seconds. You can edit every title before you copy it.",
+          ],
+        },
+        {
+          heading: 'What makes it different',
+          paragraphs: [
+            'Most chapter tools need a public YouTube URL. ChapterGen works from the file, so you can add chapters to drafts, private and unlisted videos, and audio-only podcasts before anything is published.',
+            'It supports 90+ languages, files up to 500 MB, and you can try it on 2 videos for free without an account.',
+          ],
+        },
+        {
+          heading: 'Your files',
+          paragraphs: [
+            'Uploaded files are deleted from our servers after processing. We keep the transcript and the chapters so you can come back to them. The privacy policy explains the details.',
+          ],
+        },
+      ],
+      signature: 'Mauricio, founder of ChapterGen',
+    },
+    privacy: {
+      meta: {
+        title: 'Privacy Policy — ChapterGen',
+        description: 'How ChapterGen handles the files you upload, your account data and payments.',
+      },
+      eyebrow: 'Legal',
+      title: 'Privacy policy',
+      updatedDate: 'October 17, 2026',
+      intro:
+        'This policy explains what ChapterGen collects when you use chaptergen.com, why, and what you can do about it. We collect as little as we can to run the service.',
+      sections: [
+        {
+          heading: 'Files you upload',
+          paragraphs: [
+            'Video and audio files are uploaded to our server only to extract the audio and generate chapters. The original file and the extracted audio are deleted after processing. Incomplete uploads are removed automatically.',
+          ],
+        },
+        {
+          heading: 'Transcripts and chapters',
+          paragraphs: [
+            'We store the transcript, the generated chapters and basic file details (name, size, duration and language) so you can view, edit and copy your results later. They are linked to your account, or to an anonymous ID stored in your browser if you did not sign in.',
+          ],
+        },
+        {
+          heading: 'Account and payments',
+          paragraphs: [
+            'If you sign in, we store your email address to send you sign-in links and to keep your credits. There are no passwords.',
+            'Payments are processed by Stripe. We never see or store your card details; we keep a record of each purchase (pack, amount and date).',
+          ],
+        },
+        {
+          heading: 'Service providers',
+          paragraphs: [
+            "Audio is sent to OpenAI's API for transcription, and the transcript is sent to OpenAI to generate chapter titles. Under OpenAI's API terms, this data is not used to train their models.",
+            'We also use Stripe (payments), Resend (sign-in emails), Google Analytics and Mixpanel (anonymous usage analytics), and our hosting provider.',
+          ],
+        },
+        {
+          heading: 'Cookies and local storage',
+          paragraphs: [
+            'We use a session cookie to keep you signed in, and browser storage to remember your language and anonymous ID. Analytics tools set their own cookies to measure visits.',
+          ],
+        },
+        {
+          heading: 'Your choices',
+          paragraphs: [
+            'You can ask us to export or delete your account, transcripts and chapters at any time by email. We reply within 30 days.',
+          ],
+        },
+      ],
+    },
+    terms: {
+      meta: {
+        title: 'Terms of Service — ChapterGen',
+        description: 'The terms for using ChapterGen, the AI YouTube chapter generator.',
+      },
+      eyebrow: 'Legal',
+      title: 'Terms of service',
+      updatedDate: 'October 17, 2026',
+      intro: 'By using chaptergen.com you agree to these terms. They are short on purpose.',
+      sections: [
+        {
+          heading: 'The service',
+          paragraphs: [
+            'ChapterGen generates chapter timestamps and titles from video and audio files you upload. Results are produced by AI and may contain mistakes, so review them before publishing.',
+          ],
+        },
+        {
+          heading: 'Your content',
+          paragraphs: [
+            'You keep all rights to the files you upload and to the chapters generated from them. You confirm that you have the right to upload the content and that it does not break the law.',
+          ],
+        },
+        {
+          heading: 'Free use and credits',
+          paragraphs: [
+            'Every visitor can process 2 videos for free, up to 20 minutes each. Paid credits are sold in packs; one credit processes one video. Credits do not expire.',
+            'If a video fails to process because of a problem on our side, email us and we will restore the credit. The same goes for any problem with a purchase, including a refund when appropriate.',
+          ],
+        },
+        {
+          heading: 'Acceptable use',
+          paragraphs: [
+            'Do not use ChapterGen to process content you do not have rights to, to overload the service, or to attempt to access other users’ data.',
+          ],
+        },
+        {
+          heading: 'Liability',
+          paragraphs: [
+            'ChapterGen is provided as is. To the extent allowed by law, our total liability is limited to the amount you paid us in the last 12 months.',
+          ],
+        },
+        {
+          heading: 'Changes',
+          paragraphs: [
+            'We may update these terms. The date at the top shows the latest version; continued use means you accept the changes.',
+          ],
+        },
+      ],
+    },
+    notFound: {
+      meta: {
+        title: 'Page not found — ChapterGen',
+      },
+      code: '404',
+      title: 'This page skipped a chapter',
+      description: "The page you are looking for doesn't exist or has moved.",
+      home: 'Go to the chapter generator',
+      podcast: 'Podcast chapters',
+      pricing: 'Pricing',
+    },
   },
 }

@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from 'vue'
-import Badge from '../ui/Badge.vue'
+import ChapterPreview from './ChapterPreview.vue'
+import type { PreviewContent } from '../../content/home'
 
 defineProps<{
   badge: string
   title: string
   subtitle: string
-  microcopy: string
+  preview: PreviewContent
   variant?: 'video' | 'audio'
 }>()
 
@@ -16,16 +17,19 @@ const ChapterTool = defineAsyncComponent(
 </script>
 
 <template>
-  <section class="hero">
+  <section id="start" class="hero">
     <div class="hero-inner">
       <div class="hero-content">
-        <Badge class="hero-badge">{{ badge }}</Badge>
+        <span class="hero-badge">{{ badge }}</span>
         <h1 class="hero-title">{{ title }}</h1>
         <p class="hero-subtitle">{{ subtitle }}</p>
+        <div class="hero-tool">
+          <ChapterTool :variant="variant ?? 'video'" />
+        </div>
       </div>
 
-      <div class="hero-tool">
-        <ChapterTool :variant="variant ?? 'video'" />
+      <div class="hero-preview">
+        <ChapterPreview :preview="preview" />
       </div>
     </div>
   </section>
@@ -33,50 +37,81 @@ const ChapterTool = defineAsyncComponent(
 
 <style scoped>
 .hero {
-  padding: 4rem 1.5rem 5rem;
-  background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
+  padding: 5rem 1.5rem 5.5rem;
 }
 
 .hero-inner {
-  max-width: 760px;
+  max-width: 1200px;
   margin: 0 auto;
-  text-align: center;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 4.5rem;
+  align-items: center;
 }
 
 .hero-content {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
+  gap: 1.5rem;
 }
 
 .hero-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
   color: var(--accent);
-  background: rgba(99, 102, 241, 0.08);
-  border-color: rgba(99, 102, 241, 0.18);
+  font-size: 0.85rem;
   font-weight: 600;
 }
 
 .hero-title {
-  font-size: clamp(2rem, 5.5vw, 3.5rem);
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 5.2vw, 4.25rem);
   font-weight: 800;
   letter-spacing: -0.04em;
-  line-height: 1.08;
-  margin-top: 1.5rem;
+  line-height: 1.02;
   color: var(--text);
   text-wrap: balance;
 }
 
 .hero-subtitle {
-  font-size: clamp(1rem, 2vw, 1.15rem);
+  font-size: clamp(1.05rem, 1.6vw, 1.2rem);
   color: var(--text-muted);
-  margin-top: 1.25rem;
-  max-width: 620px;
-  line-height: 1.6;
-  text-wrap: balance;
+  max-width: 560px;
+  line-height: 1.55;
 }
 
 .hero-tool {
-  margin-top: 2.5rem;
-  text-align: left;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.hero-tool :deep(.controls) {
+  gap: 1.1rem;
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+}
+
+@media (max-width: 960px) {
+  .hero {
+    padding: 2.5rem 1rem 3.5rem;
+  }
+
+  .hero-inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.5rem;
+  }
+
+  .hero-content {
+    gap: 1.1rem;
+  }
 }
 </style>

@@ -1,9 +1,14 @@
 export default {
   common: {
     nav: {
-      features: 'Funciones',
+      howItWorks: 'Cómo funciona',
+      tryFree: 'Probar gratis',
+      homeLabel: 'Inicio de ChapterGen',
+      mainLabel: 'Navegación principal',
+      mobileLabel: 'Navegación móvil',
+      toggleMenu: 'Abrir o cerrar menú',
       useCases: 'Casos de uso',
-      faq: 'Ayuda',
+      faq: 'Preguntas',
       podcast: 'Podcasts',
       pricing: 'Precios',
       login: 'Entrar',
@@ -18,11 +23,12 @@ export default {
       credits: '{count} créditos',
     },
     footer: {
-      tagline: 'Capítulos con IA para cada historia.',
+      tagline: 'Generador de capítulos de YouTube con IA para videos y podcasts. Sube el archivo y obtén marcas de tiempo en formato YouTube.',
       productHeading: 'Producto',
       youtubeChapters: 'Capítulos de YouTube',
       podcastChapters: 'Capítulos de Podcast',
-      legalHeading: 'Legal',
+      companyHeading: 'Empresa',
+      about: 'Acerca de',
       privacy: 'Privacidad',
       terms: 'Términos',
       contact: 'Contacto',
@@ -37,175 +43,238 @@ export default {
   },
   home: {
     meta: {
-      title: 'Generador de Capítulos de YouTube con IA — Marcas de Tiempo Gratis en Segundos',
+      title: 'Generador de Capítulos de YouTube con IA — Marcas de Tiempo desde tu Archivo',
       description:
-        'Sube tu video o audio y obtén capítulos de YouTube generados con IA al instante. Sin necesidad de URL — funciona antes de publicar. Probá gratis, sin registro.',
+        'Sube un video o audio y obtén capítulos de YouTube con marcas de tiempo y títulos optimizados para SEO. Sin URL pública — funciona antes de publicar. 2 videos gratis, sin registro.',
     },
     hero: {
-      badge: 'Con IA · Rápido · Preciso',
-      title: 'Generador de Capítulos de YouTube con IA — Marcas de Tiempo en Segundos',
+      badge: 'Funciona con videos privados y sin publicar',
+      title: 'Capítulos de YouTube con IA, listos antes de publicar',
       subtitle:
-        'No necesitas la URL de YouTube. Sube tu video o audio y obtén capítulos limpios y optimizados para SEO antes incluso de publicar — funciona con videos privados, borradores y audio de podcast.',
-      microcopy: 'Probá gratis · Sin registro · MP4, MOV, MP3, WAV y más · Archivos de hasta 500 MB',
+        'Sube un video o audio y obtén marcas de tiempo limpias y optimizadas para SEO, en el formato exacto de YouTube. Sin URL pública.',
+      preview: {
+        fileName: 'episodio-42-final.mp4',
+        duration: '48:12',
+        label: 'Ejemplo de resultado',
+        copy: 'Copiar para YouTube',
+        refine: 'Mejorar títulos',
+        activeIndex: 3,
+        chapters: [
+          { time: '0:00', title: 'Intro: por qué importan los capítulos' },
+          { time: '1:42', title: 'Preparar la grabación' },
+          { time: '6:15', title: 'Editar el primer corte' },
+          { time: '14:08', title: 'Corrección de color con poco presupuesto' },
+          { time: '22:37', title: 'Exportar para YouTube' },
+          { time: '31:50', title: 'Preguntas y cierre' },
+        ],
+      },
+    },
+    audience: {
+      label: 'Hecho para contenido largo',
+      items: ['Tutoriales', 'Podcasts', 'Entrevistas', 'Webinars y cursos', 'Reseñas y vlogs'],
     },
     howItWorks: {
-      title: 'Cómo Generar Capítulos de YouTube con IA',
+      eyebrow: 'Cómo funciona',
+      title: 'Cómo generar capítulos de YouTube con IA',
+      intro:
+        'No necesitas subir el video a YouTube primero. ChapterGen funciona con borradores, videos privados y archivos de audio.',
       steps: [
         {
           title: 'Sube tu archivo',
           description:
-            'Arrastra y suelta tu archivo de video o audio. No necesitas publicarlo primero en YouTube — la herramienta funciona con archivos sin procesar, videos privados y borradores.',
+            'Arrastra un video o audio. Exportaciones sin editar, borradores, grabaciones privadas y audio de podcast funcionan igual.',
         },
         {
-          title: 'La IA analiza tu contenido',
+          title: 'La IA detecta los temas',
           description:
-            'Nuestra IA transcribe tu audio, detecta los cambios de tema e identifica las secciones naturales de tu video — y luego escribe un título claro y descriptivo para cada una.',
+            'Transcribimos el audio, detectamos dónde cambia el tema y escribimos un título claro y descriptivo para cada sección.',
         },
         {
           title: 'Copia y pega',
           description:
-            'Copia los capítulos generados en el formato exacto que exige YouTube (empezando en 0:00) y pégalos en la descripción de tu video. Listo.',
+            'Pega la lista en la descripción desde YouTube Studio. Ya está en el formato que exige YouTube, empezando en 0:00.',
         },
       ],
     },
-    differentiator: {
-      title: 'Genera Capítulos Antes de Publicar',
+    why: {
+      eyebrow: 'Por qué ChapterGen',
+      title: 'Mejor que los capítulos automáticos de YouTube',
       intro:
-        'La mayoría de los generadores de capítulos necesitan una URL pública de YouTube — lo que significa que tu video ya tiene que estar en vivo. ChapterGen funciona distinto: subes el archivo directamente.',
+        'Los capítulos automáticos de YouTube suelen cortar a mitad de frase, se saltan cambios de tema y generan títulos genéricos como "Sección 1". ChapterGen sigue lo que realmente se dice, y puedes editar cada capítulo antes de que el video salga.',
+      outro:
+        'Consejo: desactiva los capítulos automáticos en YouTube Studio (Configuración avanzada → Permitir capítulos automáticos) para que YouTube no reemplace los tuyos.',
+      colYoutube: 'YouTube automático',
+      colChaptergen: 'ChapterGen',
+      yes: 'Sí',
+      no: 'No',
       bullets: [
         {
           title: 'Videos sin publicar',
-          description:
-            'Genera tus capítulos mientras el video sigue en borrador, para que tu descripción sea perfecta desde el primer minuto.',
+          description: 'Tu descripción está lista desde el primer minuto.',
         },
         {
-          title: 'Videos privados y ocultos',
-          description: 'Nunca se requiere una URL pública.',
+          title: 'Privados y ocultos',
+          description: 'Nunca necesitas una URL pública.',
         },
         {
-          title: 'Contenido solo de audio',
-          description: 'Podcasts, entrevistas y grabaciones de voz funcionan igual de bien que el video.',
+          title: 'Solo audio',
+          description: 'Podcasts, entrevistas y grabaciones de voz.',
         },
         {
           title: 'Cualquier idioma',
-          description: 'Whisper detecta el idioma automáticamente — funciona con más de 90 idiomas.',
+          description: 'Detección automática, más de 90 idiomas.',
         },
+      ],
+      rows: [
+        { feature: 'Títulos de capítulos', youtube: 'Genéricos', chaptergen: 'Según tu contenido' },
+        { feature: 'Editar antes de publicar', youtube: 'no', chaptergen: 'yes' },
+        { feature: 'Videos sin publicar', youtube: 'no', chaptergen: 'yes' },
+        { feature: 'Audio y podcasts', youtube: 'no', chaptergen: 'yes' },
+        { feature: 'Tus propias palabras clave', youtube: 'no', chaptergen: 'yes' },
       ],
     },
     seoBenefits: {
-      title: 'Por Qué los Capítulos de YouTube Aumentan tus Vistas',
-      intro:
-        'Los capítulos no solo son cómodos para los espectadores — son una de las palancas de SEO más desaprovechadas en YouTube:',
+      eyebrow: 'Por qué capítulos',
+      title: 'Una de las palancas de SEO más desaprovechadas en YouTube',
+      intro: 'Los capítulos no solo son cómodos para quien mira. Ayudan a que tu video se encuentre y se vea.',
       bullets: [
         {
-          title: 'Momentos clave en la Búsqueda de Google',
+          title: 'Momentos clave en Google',
           description:
-            'Los videos con capítulos pueden aparecer en los resultados de Google con secciones clicables, ocupando más espacio en la página de resultados.',
+            'Los videos con capítulos pueden mostrar secciones clicables en los resultados de Google y ocupar más espacio en la página.',
         },
         {
-          title: 'Mayor interacción',
+          title: 'Más interacción',
           description:
-            'Análisis a gran escala de videos de YouTube muestran que los videos con capítulos obtienen ratios de "me gusta" y comentarios notablemente mejores.',
+            'Análisis a gran escala de videos de YouTube muestran que los videos con capítulos tienen mejores ratios de "me gusta" y comentarios.',
         },
         {
           title: 'Mejor retención',
           description:
-            'Los espectadores que pueden saltar a lo que necesitan tienen más probabilidades de quedarse, volver a ver y regresar — todas señales que el algoritmo de YouTube premia.',
+            'Quien puede saltar a lo que necesita se queda más, vuelve a ver y regresa — señales que el algoritmo premia.',
         },
         {
           title: 'Metadatos indexables',
           description:
-            'Cada título de capítulo es texto que YouTube puede indexar. Los títulos descriptivos y ricos en palabras clave ayudan a que tu video posicione para más búsquedas.',
+            'Cada título de capítulo es texto que YouTube indexa, así que los títulos descriptivos ayudan a posicionar tu video en más búsquedas.',
         },
       ],
     },
-    comparison: {
-      title: 'Mejor que los Capítulos Automáticos de YouTube',
-      intro:
-        'YouTube puede generar capítulos automáticamente — entonces, ¿por qué usar una herramienta dedicada? Porque los capítulos automáticos de YouTube son inconsistentes: suelen cortar a mitad de frase, se pierden transiciones de tema y producen títulos genéricos como "Sección 1" que no aportan ningún valor SEO.',
-      outro:
-        'Con ChapterGen obtienes capítulos basados en lo que realmente se dice en tu video, con títulos descriptivos que puedes editar y optimizar con tus propias palabras clave — luego simplemente desactivas los capítulos automáticos en YouTube Studio y pegas los tuyos.',
-      colYoutube: 'Capítulos automáticos de YouTube',
-      colChaptergen: 'ChapterGen',
-      rows: [
-        { feature: 'Títulos descriptivos y listos para SEO', youtube: 'Genéricos', chaptergen: 'Basados en el contenido real' },
-        { feature: 'Editables antes de publicar', youtube: 'no', chaptergen: 'yes' },
-        { feature: 'Funciona con videos sin publicar', youtube: 'no', chaptergen: 'yes' },
-        { feature: 'Funciona con audio / podcasts', youtube: 'no', chaptergen: 'yes' },
-      ],
-    },
     useCases: {
-      title: 'Hecho para Todo Tipo de Contenido de Larga Duración',
+      eyebrow: 'Casos de uso',
+      title: 'Hecho para todo tipo de contenido largo',
       items: [
         {
           title: 'Tutoriales y guías',
           description:
-            'Permite que los espectadores salten directo al paso que necesitan — y vuelvan a tu video como referencia.',
+            'Permite que la gente salte directo al paso que necesita y vuelva a tu video como referencia.',
         },
         {
           title: 'Podcasts y entrevistas',
-          description: 'Un capítulo por cada pregunta o tema.',
+          description: 'Un capítulo por pregunta o tema, solo con el archivo de audio.',
           link: '/es/capitulos-podcast',
-          linkLabel: 'Generador de capítulos de podcast →',
+          linkLabel: 'Generador de capítulos para podcast →',
         },
         {
           title: 'Webinars y cursos',
-          description: 'Convierte una grabación de 2 horas en una lección navegable.',
+          description: 'Convierte una grabación de dos horas en una clase fácil de navegar.',
         },
         {
-          title: 'Reseñas de productos y vlogs',
+          title: 'Reseñas y vlogs',
           description: 'Destaca cada producto o momento para que nadie se vaya.',
         },
       ],
     },
+    pricing: {
+      eyebrow: 'Precios',
+      title: 'Pagas por video. Sin suscripción.',
+      subtitle: 'Los créditos no vencen. Un crédito = un video.',
+      plans: [
+        {
+          name: 'Gratis',
+          price: '$0',
+          features: ['2 videos', 'Hasta 20 minutos cada uno', 'Sin registro'],
+          cta: 'Empezar gratis',
+        },
+        {
+          name: 'Starter',
+          price: '$5',
+          unit: '5 videos',
+          features: ['$1,00 por video', 'Cualquier duración, hasta 500 MB', 'Mejoras de títulos ilimitadas'],
+          cta: 'Comprar Starter',
+        },
+        {
+          name: 'Creator',
+          price: '$12',
+          unit: '15 videos',
+          badge: 'Mejor valor',
+          features: ['$0,80 por video', 'Cualquier duración, hasta 500 MB', 'Mejoras de títulos ilimitadas'],
+          cta: 'Comprar Creator',
+          featured: true,
+        },
+      ],
+    },
     faq: {
-      title: 'Preguntas Frecuentes',
+      eyebrow: 'Preguntas frecuentes',
+      title: 'Preguntas y respuestas',
+      aside: '¿Tienes otra duda?',
+      contact: 'Escríbenos',
       items: [
         {
           question: '¿Cómo agrego capítulos a un video de YouTube?',
           answer:
-            'Copia la lista de capítulos generada y pégala en la descripción de tu video en YouTube Studio. YouTube detecta automáticamente el formato y lo convierte en capítulos clicables en la barra de progreso.',
+            'Copia la lista de capítulos generada y pégala en la descripción de tu video desde YouTube Studio. YouTube detecta el formato automáticamente y la convierte en capítulos clicables en la barra de progreso.',
         },
         {
           question: '¿Por qué no aparecen mis capítulos en YouTube?',
           answer:
-            'YouTube tiene tres reglas estrictas: la primera marca de tiempo debe ser exactamente 0:00, necesitas al menos 3 capítulos y cada capítulo debe durar al menos 10 segundos. ChapterGen formatea todo correctamente por defecto, así que esto nunca pasa con nuestros resultados.',
+            'YouTube tiene tres reglas estrictas: la primera marca de tiempo debe ser exactamente 0:00, necesitas al menos 3 capítulos y cada uno debe durar al menos 10 segundos. ChapterGen respeta todo esto por defecto, así que con nuestro resultado nunca pasa.',
         },
         {
-          question: '¿Necesito una URL de YouTube para usar esto?',
+          question: '¿ChatGPT o Claude pueden generar capítulos de YouTube a partir de mi video?',
           answer:
-            'No — ese es justamente el punto. Subes el archivo de video o audio directamente, así que funciona con videos sin publicar, privados y ocultos.',
+            'No de forma confiable. Los asistentes de chat no pueden escuchar un archivo de video largo: la subida se rechaza o es demasiado pesada, y sin una transcripción real las marcas de tiempo que devuelven son suposiciones. ChapterGen transcribe el audio primero, así que cada marca de tiempo coincide con lo que realmente se dice.',
         },
         {
-          question: '¿Puedo generar capítulos solo desde audio?',
+          question: '¿Necesito una URL de YouTube para usarlo?',
           answer:
-            'Sí. MP3, WAV, M4A y otros formatos de audio son totalmente compatibles. Perfecto para podcasts.',
+            'No — esa es justamente la idea. Subes el archivo de video o audio directamente, así que funciona con videos sin publicar, privados y ocultos.',
         },
         {
-          question: '¿Qué formatos y tamaños de archivo son compatibles?',
+          question: '¿Puedo generar capítulos solo con audio?',
+          answer:
+            'Sí. MP3, WAV, M4A y otros formatos de audio son totalmente compatibles. Ideal para podcasts.',
+        },
+        {
+          question: '¿Qué formatos y tamaños de archivo se admiten?',
           answer:
             'MP4, MOV, AVI, WebM, MKV, MP3, WAV, M4A, AAC, OGG y FLAC — hasta 500 MB por archivo.',
         },
         {
           question: '¿Es gratis?',
           answer:
-            'Tenés 2 videos gratis (hasta 20 minutos cada uno) sin registro. Después comprás un pack de créditos — Starter $5 por 5 videos, Creator $12 por 15. Sin suscripción.',
+            'Tienes 2 videos gratis (hasta 20 minutos cada uno) sin registro. Después, compras un paquete de créditos — Starter cuesta $5 por 5 videos y Creator $12 por 15. Sin suscripción.',
         },
         {
           question: '¿Puedo editar los capítulos antes de usarlos?',
-          answer: 'Sí — cada título y marca de tiempo es editable antes de copiar el resultado final.',
+          answer: 'Sí — cada título y marca de tiempo se puede editar antes de copiar el resultado final.',
         },
         {
-          question: '¿Funciona en idiomas distintos del inglés?',
+          question: '¿Funciona en otros idiomas además del inglés?',
           answer:
             'Sí. Nuestra IA usa Whisper, que detecta el idioma automáticamente y funciona con más de 90 idiomas.',
         },
       ],
     },
+    finalCta: {
+      title: 'Tu próximo video merece capítulos.',
+      subtitle: 'Pruébalo gratis con 2 videos. Sin crear cuenta.',
+      cta: 'Generar capítulos',
+    },
     schema: {
       softwareDescription:
-        'Generador de capítulos de YouTube con IA. Sube video o audio y obtén marcas de tiempo listas para SEO al instante.',
-      howToName: 'Cómo Generar Capítulos de YouTube con IA',
+        'Generador de capítulos de YouTube con IA. Sube un video o audio y obtén marcas de tiempo optimizadas para SEO en formato YouTube, incluso antes de publicar el video.',
+      howToName: 'Cómo generar capítulos de YouTube con IA',
     },
   },
   podcast: {
@@ -219,7 +288,22 @@ export default {
       title: 'Generador de Capítulos de Podcast con IA — Sube tu Audio y Obtén Capítulos con Marcas de Tiempo',
       subtitle:
         'Suelta el archivo de tu episodio — MP3, WAV, M4A — y obtén capítulos limpios con títulos descriptivos en minutos. Hecho para entrevistas, episodios en solitario y episodios de cualquier duración.',
-      microcopy: 'Probá gratis · Sin registro · MP3, WAV, M4A y más · Archivos de hasta 500 MB',
+      preview: {
+        fileName: 'ep-87-entrevista.mp3',
+        duration: '1:12:40',
+        label: 'Ejemplo de resultado',
+        copy: 'Copiar capítulos',
+        refine: 'Mejorar títulos',
+        activeIndex: 2,
+        chapters: [
+          { time: '0:00', title: 'Apertura y presentación del invitado' },
+          { time: '4:35', title: 'Cómo empezó la empresa' },
+          { time: '18:20', title: 'Los primeros 1.000 clientes' },
+          { time: '37:05', title: 'Contratar al primer equipo' },
+          { time: '52:48', title: 'Errores que conviene evitar' },
+          { time: '1:05:10', title: 'Preguntas rápidas' },
+        ],
+      },
     },
     platforms: {
       title: 'Un Episodio, Capítulos para Cada Plataforma',
@@ -308,19 +392,18 @@ export default {
   },
   tool: {
     uploader: {
-      titleVideo: 'Arrastra y suelta un archivo de video o audio, o haz clic para buscar',
-      titleAudio: 'Arrastra y suelta tu archivo de audio, o haz clic para buscar',
-      titleVideoCompact: 'Arrastrá un video o audio, o hacé clic para buscar',
-      titleAudioCompact: 'Arrastrá un audio, o hacé clic para buscar',
+      titleVideo: 'Suelta aquí tu video o audio',
+      titleAudio: 'Suelta aquí el audio de tu episodio',
+      titleVideoCompact: 'Arrastra un video o audio, o haz clic para buscar',
+      titleAudioCompact: 'Arrastra un audio, o haz clic para buscar',
       hintVideo: 'MP4, MOV, WebM, MP3, WAV, M4A — hasta 500 MB',
       hintAudio: 'MP3, WAV, M4A, AAC, OGG, FLAC — hasta 500 MB',
       button: 'Generar Capítulos',
     },
     chapterTool: {
-      rating: '4,9',
-      ratingSuffix: 'más de 12.000 creadores',
-      filesDeleted: 'Los archivos se eliminan automáticamente tras el procesamiento',
-      noSignup: '2 videos gratis · Sin registro',
+      filesDeleted: 'Archivos eliminados tras procesarlos',
+      noSignup: '2 videos gratis, sin registro',
+      languages: 'Más de 90 idiomas',
       uploading: 'Subiendo el archivo e iniciando el procesamiento…',
       uploadProgress: 'Subiendo archivo… {percent}%',
       uploadChunk: 'Parte {current} de {total}',
@@ -541,5 +624,162 @@ export default {
     sent: 'Listo — recibimos tu mensaje y te respondemos por email.',
     sendError: 'No se pudo enviar el mensaje. Probá de nuevo.',
     close: 'Cerrar',
+  },
+  pages: {
+    updated: 'Última actualización: {date}',
+    contactLead: '¿Preguntas? Escribe a',
+    about: {
+      meta: {
+        title: 'Acerca de ChapterGen — Por qué creamos un generador de capítulos de YouTube con IA',
+        description:
+          'ChapterGen convierte un archivo de video o audio en capítulos de YouTube. Nació cuando ChatGPT y Claude no pudieron procesar un video largo. Te contamos por qué y cómo funciona.',
+      },
+      eyebrow: 'Acerca de',
+      title: 'Nació porque el atajo obvio no funcionó',
+      intro:
+        'ChapterGen es una herramienta pequeña e independiente que convierte un archivo de video o audio en capítulos de YouTube con marcas de tiempo precisas y títulos descriptivos.',
+      sections: [
+        {
+          heading: 'Por qué existe ChapterGen',
+          paragraphs: [
+            'Quería capítulos para un video largo antes de publicarlo. Lo primero que probé fue lo obvio: subir el archivo a ChatGPT y a Claude y pedirles las marcas de tiempo.',
+            'No funcionó. El archivo era demasiado pesado para subirlo, los asistentes no podían escuchar el audio y, cuando pegaba parte del texto, las marcas de tiempo que devolvían eran inventadas. Conseguir capítulos útiles seguía implicando transcribir el video, dividirlo por temas y revisar cada marca de tiempo a mano.',
+            'Así que construí una herramienta que hace exactamente eso, de principio a fin, a partir del archivo.',
+          ],
+        },
+        {
+          heading: 'Cómo funciona',
+          paragraphs: [
+            'ChapterGen extrae el audio de tu archivo y lo transcribe con Whisper, el modelo de reconocimiento de voz de OpenAI, así que cada marca de tiempo sale del audio real. Después, un modelo de lenguaje detecta dónde cambia el tema y escribe un título descriptivo para cada sección.',
+            'El resultado cumple las reglas de capítulos de YouTube: empieza en 0:00, tiene al menos tres capítulos y ninguno dura menos de 10 segundos. Puedes editar cada título antes de copiarlo.',
+          ],
+        },
+        {
+          heading: 'Qué lo hace distinto',
+          paragraphs: [
+            'La mayoría de las herramientas de capítulos necesitan una URL pública de YouTube. ChapterGen trabaja con el archivo, así que puedes agregar capítulos a borradores, videos privados u ocultos y podcasts de solo audio antes de publicar nada.',
+            'Funciona en más de 90 idiomas, con archivos de hasta 500 MB, y puedes probarlo gratis con 2 videos sin crear cuenta.',
+          ],
+        },
+        {
+          heading: 'Tus archivos',
+          paragraphs: [
+            'Los archivos que subes se eliminan de nuestros servidores después de procesarlos. Guardamos la transcripción y los capítulos para que puedas volver a ellos. La política de privacidad explica los detalles.',
+          ],
+        },
+      ],
+      signature: 'Mauricio, fundador de ChapterGen',
+    },
+    privacy: {
+      meta: {
+        title: 'Política de privacidad — ChapterGen',
+        description: 'Cómo ChapterGen maneja los archivos que subes, los datos de tu cuenta y los pagos.',
+      },
+      eyebrow: 'Legal',
+      title: 'Política de privacidad',
+      updatedDate: '17 de octubre de 2026',
+      intro:
+        'Esta política explica qué datos recopila ChapterGen cuando usas chaptergen.com, para qué, y qué puedes hacer al respecto. Recopilamos lo mínimo necesario para que el servicio funcione.',
+      sections: [
+        {
+          heading: 'Archivos que subes',
+          paragraphs: [
+            'Los archivos de video y audio se suben a nuestro servidor solo para extraer el audio y generar los capítulos. El archivo original y el audio extraído se eliminan después de procesarlos. Las subidas incompletas se borran automáticamente.',
+          ],
+        },
+        {
+          heading: 'Transcripciones y capítulos',
+          paragraphs: [
+            'Guardamos la transcripción, los capítulos generados y datos básicos del archivo (nombre, tamaño, duración e idioma) para que puedas ver, editar y copiar tus resultados más tarde. Quedan asociados a tu cuenta o, si no iniciaste sesión, a un identificador anónimo guardado en tu navegador.',
+          ],
+        },
+        {
+          heading: 'Cuenta y pagos',
+          paragraphs: [
+            'Si inicias sesión, guardamos tu correo electrónico para enviarte enlaces de acceso y mantener tus créditos. No usamos contraseñas.',
+            'Los pagos los procesa Stripe. Nunca vemos ni guardamos los datos de tu tarjeta; conservamos un registro de cada compra (paquete, importe y fecha).',
+          ],
+        },
+        {
+          heading: 'Proveedores de servicio',
+          paragraphs: [
+            'El audio se envía a la API de OpenAI para transcribirlo, y la transcripción se envía a OpenAI para generar los títulos de los capítulos. Según los términos de la API de OpenAI, estos datos no se usan para entrenar sus modelos.',
+            'También usamos Stripe (pagos), Resend (correos de acceso), Google Analytics y Mixpanel (analítica de uso anónima) y nuestro proveedor de hosting.',
+          ],
+        },
+        {
+          heading: 'Cookies y almacenamiento local',
+          paragraphs: [
+            'Usamos una cookie de sesión para mantenerte conectado y el almacenamiento del navegador para recordar tu idioma y tu identificador anónimo. Las herramientas de analítica usan sus propias cookies para medir las visitas.',
+          ],
+        },
+        {
+          heading: 'Tus opciones',
+          paragraphs: [
+            'Puedes pedirnos por correo que exportemos o eliminemos tu cuenta, tus transcripciones y tus capítulos en cualquier momento. Respondemos en un plazo de 30 días.',
+          ],
+        },
+      ],
+    },
+    terms: {
+      meta: {
+        title: 'Términos del servicio — ChapterGen',
+        description: 'Los términos de uso de ChapterGen, el generador de capítulos de YouTube con IA.',
+      },
+      eyebrow: 'Legal',
+      title: 'Términos del servicio',
+      updatedDate: '17 de octubre de 2026',
+      intro: 'Al usar chaptergen.com aceptas estos términos. Son cortos a propósito.',
+      sections: [
+        {
+          heading: 'El servicio',
+          paragraphs: [
+            'ChapterGen genera marcas de tiempo y títulos de capítulos a partir de los archivos de video y audio que subes. Los resultados los produce una IA y pueden tener errores, así que revísalos antes de publicar.',
+          ],
+        },
+        {
+          heading: 'Tu contenido',
+          paragraphs: [
+            'Conservas todos los derechos sobre los archivos que subes y sobre los capítulos generados a partir de ellos. Confirmas que tienes derecho a subir ese contenido y que no infringe la ley.',
+          ],
+        },
+        {
+          heading: 'Uso gratuito y créditos',
+          paragraphs: [
+            'Cualquier visitante puede procesar 2 videos gratis, de hasta 20 minutos cada uno. Los créditos de pago se venden en paquetes; un crédito procesa un video. Los créditos no vencen.',
+            'Si un video no se procesa por un problema de nuestro lado, escríbenos y te devolvemos el crédito. Lo mismo vale para cualquier problema con una compra, incluido un reembolso cuando corresponda.',
+          ],
+        },
+        {
+          heading: 'Uso aceptable',
+          paragraphs: [
+            'No uses ChapterGen para procesar contenido sobre el que no tienes derechos, para sobrecargar el servicio ni para intentar acceder a datos de otras personas.',
+          ],
+        },
+        {
+          heading: 'Responsabilidad',
+          paragraphs: [
+            'ChapterGen se ofrece tal cual. En la medida en que lo permita la ley, nuestra responsabilidad total se limita a lo que nos pagaste en los últimos 12 meses.',
+          ],
+        },
+        {
+          heading: 'Cambios',
+          paragraphs: [
+            'Podemos actualizar estos términos. La fecha de arriba indica la última versión; seguir usando el servicio significa que aceptas los cambios.',
+          ],
+        },
+      ],
+    },
+    notFound: {
+      meta: {
+        title: 'Página no encontrada — ChapterGen',
+      },
+      code: '404',
+      title: 'Esta página se saltó un capítulo',
+      description: 'La página que buscas no existe o cambió de lugar.',
+      home: 'Ir al generador de capítulos',
+      podcast: 'Capítulos de podcast',
+      pricing: 'Precios',
+    },
   },
 }
