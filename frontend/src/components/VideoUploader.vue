@@ -87,7 +87,7 @@ function openPicker() {
   display: flex;
   align-items: center;
   gap: 1.1rem;
-  border: 1.5px dashed #c9c5b9;
+  border: 1.5px dashed #c9cad2;
   border-radius: 18px;
   padding: 1.6rem 1.6rem;
   cursor: pointer;

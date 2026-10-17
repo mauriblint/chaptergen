@@ -5,8 +5,8 @@
   --color-primary-dark: #3a2fd0;
   --color-text: #111318;
   --color-muted: #5e6166;
-  --color-border: #e6e3da;
-  --color-bg: #f7f6f2;
+  --color-border: #e7e7eb;
+  --color-bg: #ffffff;
   --color-surface: #ffffff;
   --color-accent: #4c3ff0;
 
@@ -17,16 +17,18 @@
 }
 
 :root {
-  --bg: #f7f6f2;
+  /* --page is the page background; --bg is the soft grey fill for panels and inputs. */
+  --page: #ffffff;
+  --bg: #f6f6f8;
   --surface: #ffffff;
-  --border: #e6e3da;
-  --border-soft: #efede6;
+  --border: #e7e7eb;
+  --border-soft: #efeff2;
   --text: #111318;
   --text-muted: #5e6166;
   --ink: #111318;
   --ink-2: #1b1e24;
   --ink-line: #2a2e36;
-  --on-ink: #f7f6f2;
+  --on-ink: #f6f6f8;
   --on-ink-muted: #a9adb5;
   /* Brand indigo: --accent for text and filled buttons (AA on white),
      --accent-bright for decorative marks, --accent-on-ink on dark surfaces. */
@@ -64,7 +66,7 @@ body {
   line-height: 1.5;
   font-weight: 400;
   color: var(--text);
-  background-color: var(--bg);
+  background-color: var(--page);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;

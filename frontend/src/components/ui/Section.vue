@@ -21,9 +21,7 @@ defineProps<{
 }
 
 .section.alt {
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  background: var(--bg);
 }
 
 .section.dark {

@@ -50,7 +50,7 @@ defineProps<{
 .items li + li::before {
   content: '/';
   margin: 0 1rem;
-  color: #c9c5b9;
+  color: #c9cad2;
 }
 
 @media (min-width: 1024px) {

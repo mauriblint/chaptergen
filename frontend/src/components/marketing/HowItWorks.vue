@@ -79,8 +79,8 @@ defineProps<{
   flex-direction: column;
   gap: 0.9rem;
   padding: 2rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--bg);
+  border: 1px solid var(--border-soft);
   border-radius: var(--radius-lg);
 }
 
@@ -108,7 +108,7 @@ defineProps<{
   min-height: 116px;
   padding: 1.1rem 1.4rem;
   border-radius: 14px;
-  background: var(--bg);
+  background: var(--surface);
   display: flex;
   align-items: center;
   justify-content: center;

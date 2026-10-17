@@ -70,7 +70,7 @@ defineProps<{
   padding: 2rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  background: var(--bg);
+  background: var(--surface);
 }
 
 .plan.featured {

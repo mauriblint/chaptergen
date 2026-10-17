@@ -6,7 +6,31 @@ export default {
       homeLabel: 'ChapterGen home',
       mainLabel: 'Main navigation',
       mobileLabel: 'Mobile navigation',
-      toggleMenu: 'Toggle menu',
+      openMenu: 'Open menu',
+      closeMenu: 'Close menu',
+      product: 'Product',
+      tryFreeShort: 'Try free',
+      tryFreeMobile: 'Generate chapters free',
+      promo: '2 free videos, no signup needed',
+      promoCta: 'Try it now →',
+      productMenu: {
+        youtube: {
+          title: 'YouTube chapter generator',
+          description: 'Timestamps from any video file, before you publish.',
+        },
+        podcast: {
+          title: 'Podcast chapter generator',
+          description: 'Chapters from audio for YouTube, Spotify and show notes.',
+        },
+        how: {
+          title: 'How it works',
+          description: 'Upload, transcribe, copy. Three steps.',
+        },
+        about: {
+          title: 'About ChapterGen',
+          description: 'Why we built it and how your files are handled.',
+        },
+      },
       useCases: 'Use cases',
       faq: 'FAQ',
       podcast: 'Podcasts',

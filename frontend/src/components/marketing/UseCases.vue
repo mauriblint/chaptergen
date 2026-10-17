@@ -40,8 +40,8 @@ defineProps<{
   flex-direction: column;
   gap: 0.6rem;
   padding: 1.75rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--bg);
+  border: 1px solid var(--border-soft);
   border-radius: var(--radius-lg);
 }
 

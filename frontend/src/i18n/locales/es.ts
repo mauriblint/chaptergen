@@ -6,7 +6,31 @@ export default {
       homeLabel: 'Inicio de ChapterGen',
       mainLabel: 'Navegación principal',
       mobileLabel: 'Navegación móvil',
-      toggleMenu: 'Abrir o cerrar menú',
+      openMenu: 'Abrir menú',
+      closeMenu: 'Cerrar menú',
+      product: 'Producto',
+      tryFreeShort: 'Probar',
+      tryFreeMobile: 'Generar capítulos gratis',
+      promo: '2 videos gratis, sin registro',
+      promoCta: 'Probar ahora →',
+      productMenu: {
+        youtube: {
+          title: 'Generador de capítulos de YouTube',
+          description: 'Marcas de tiempo desde cualquier video, antes de publicar.',
+        },
+        podcast: {
+          title: 'Generador de capítulos de podcast',
+          description: 'Capítulos desde el audio para YouTube, Spotify y notas del episodio.',
+        },
+        how: {
+          title: 'Cómo funciona',
+          description: 'Subes, transcribimos, copias. Tres pasos.',
+        },
+        about: {
+          title: 'Acerca de ChapterGen',
+          description: 'Por qué lo creamos y cómo tratamos tus archivos.',
+        },
+      },
       useCases: 'Casos de uso',
       faq: 'Preguntas',
       podcast: 'Podcasts',
