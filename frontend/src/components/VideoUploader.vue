@@ -85,14 +85,17 @@ function openPicker() {
 <style scoped>
 .uploader {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 1.1rem;
+  text-align: center;
+  gap: 0.4rem;
   border: 1.5px dashed #c9cad2;
-  border-radius: 18px;
-  padding: 1.6rem 1.6rem;
+  border-radius: 22px;
+  padding: 3rem 2rem 2.75rem;
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
   background: var(--surface);
+  box-shadow: 0 18px 50px rgba(17, 19, 24, 0.06);
 }
 
 .uploader:hover,
@@ -102,9 +105,10 @@ function openPicker() {
 }
 
 .uploader-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
+  width: 60px;
+  height: 60px;
+  margin-bottom: 0.75rem;
+  border-radius: 16px;
   background: var(--accent-soft);
   color: var(--accent);
   display: flex;
@@ -114,14 +118,13 @@ function openPicker() {
 }
 
 .uploader-copy {
-  flex: 1;
   min-width: 0;
 }
 
 .uploader-title {
-  font-size: 1.05rem;
+  font-size: 1.25rem;
   font-weight: 600;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.3rem;
   color: var(--text);
 }
 
@@ -131,13 +134,14 @@ function openPicker() {
 }
 
 .uploader-btn {
-  min-height: 48px;
+  min-height: 56px;
+  margin-top: 1.25rem;
   background: var(--ink);
   color: #fff;
   border: none;
-  padding: 0 1.4rem;
-  border-radius: 12px;
-  font-size: 0.95rem;
+  padding: 0 2.25rem;
+  border-radius: 14px;
+  font-size: 1.05rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
@@ -149,6 +153,9 @@ function openPicker() {
 }
 
 .uploader.compact {
+  flex-direction: row;
+  text-align: left;
+  box-shadow: none;
   gap: 0.85rem;
   padding: 0.7rem 0.75rem 0.7rem 0.85rem;
   border-radius: 12px;
@@ -157,7 +164,12 @@ function openPicker() {
 .uploader.compact .uploader-icon {
   width: 40px;
   height: 40px;
+  margin-bottom: 0;
   border-radius: 10px;
+}
+
+.uploader.compact .uploader-copy {
+  flex: 1;
 }
 
 .uploader.compact .uploader-icon svg {
@@ -175,6 +187,7 @@ function openPicker() {
 }
 
 .uploader.compact .uploader-btn {
+  margin-top: 0;
   min-height: 42px;
   padding: 0 1.15rem;
   font-size: 0.85rem;
@@ -183,12 +196,10 @@ function openPicker() {
 
 @media (max-width: 640px) {
   .uploader:not(.compact) {
-    flex-direction: column;
-    text-align: center;
-    padding: 1.5rem 1.25rem;
+    padding: 2rem 1.25rem 1.5rem;
   }
 
-  .uploader-btn {
+  .uploader:not(.compact) .uploader-btn {
     width: 100%;
   }
 

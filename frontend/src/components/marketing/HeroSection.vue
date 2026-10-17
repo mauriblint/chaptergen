@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from 'vue'
-import ChapterPreview from './ChapterPreview.vue'
-import type { PreviewContent } from '../../content/home'
 
 defineProps<{
   badge: string
   title: string
   subtitle: string
-  preview: PreviewContent
   variant?: 'video' | 'audio'
 }>()
 
@@ -19,17 +16,11 @@ const ChapterTool = defineAsyncComponent(
 <template>
   <section id="start" class="hero">
     <div class="hero-inner">
-      <div class="hero-content">
-        <span class="hero-badge">{{ badge }}</span>
-        <h1 class="hero-title">{{ title }}</h1>
-        <p class="hero-subtitle">{{ subtitle }}</p>
-        <div class="hero-tool">
-          <ChapterTool :variant="variant ?? 'video'" />
-        </div>
-      </div>
-
-      <div class="hero-preview">
-        <ChapterPreview :preview="preview" />
+      <span class="hero-badge">{{ badge }}</span>
+      <h1 class="hero-title">{{ title }}</h1>
+      <p class="hero-subtitle">{{ subtitle }}</p>
+      <div class="hero-tool">
+        <ChapterTool :variant="variant ?? 'video'" />
       </div>
     </div>
   </section>
@@ -37,23 +28,17 @@ const ChapterTool = defineAsyncComponent(
 
 <style scoped>
 .hero {
-  padding: 5rem 1.5rem 5.5rem;
+  padding: 4.5rem 1.5rem 5rem;
 }
 
 .hero-inner {
-  max-width: 1200px;
+  max-width: 880px;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-  gap: 4.5rem;
-  align-items: center;
-}
-
-.hero-content {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 1.5rem;
+  align-items: center;
+  text-align: center;
+  gap: 1.4rem;
 }
 
 .hero-badge {
@@ -69,7 +54,7 @@ const ChapterTool = defineAsyncComponent(
 
 .hero-title {
   font-family: var(--font-display);
-  font-size: clamp(2.5rem, 5.2vw, 4.25rem);
+  font-size: clamp(2.4rem, 5.6vw, 4.5rem);
   font-weight: 800;
   letter-spacing: -0.04em;
   line-height: 1.02;
@@ -78,39 +63,30 @@ const ChapterTool = defineAsyncComponent(
 }
 
 .hero-subtitle {
-  font-size: clamp(1.05rem, 1.6vw, 1.2rem);
-  color: var(--text-muted);
-  max-width: 560px;
+  max-width: 620px;
+  font-size: clamp(1.05rem, 1.7vw, 1.25rem);
   line-height: 1.55;
+  color: var(--text-muted);
+  text-wrap: balance;
 }
 
 .hero-tool {
   width: 100%;
-  margin-top: 0.5rem;
+  max-width: 760px;
+  margin-top: 1rem;
+  text-align: left;
 }
 
-.hero-tool :deep(.controls) {
-  gap: 1.1rem;
+.hero-tool :deep(.trust-strip) {
+  justify-content: center;
 }
 
-@media (min-width: 1024px) {
-  .hero {
-    padding-left: 2.5rem;
-    padding-right: 2.5rem;
-  }
-}
-
-@media (max-width: 960px) {
+@media (max-width: 640px) {
   .hero {
     padding: 2.5rem 1rem 3.5rem;
   }
 
   .hero-inner {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 2.5rem;
-  }
-
-  .hero-content {
     gap: 1.1rem;
   }
 }

@@ -76,6 +76,20 @@ export default {
       title: 'The AI YouTube chapter generator that works before you publish',
       subtitle:
         "Upload a video or audio file and get clean, SEO-ready timestamps in YouTube's exact format. No public URL needed.",
+    },
+    audience: {
+      label: 'Built for long-form creators',
+      items: ['Tutorials', 'Podcasts', 'Interviews', 'Webinars & courses', 'Reviews & vlogs'],
+    },
+    showcase: {
+      eyebrow: 'What you get',
+      title: 'Chapters you can paste straight into YouTube',
+      intro: 'Every chapter comes from the real audio, with a title that describes what is actually said.',
+      bullets: [
+        "Starts at 0:00 and follows YouTube's chapter rules",
+        'Descriptive titles you can edit or refine with AI',
+        'One click to copy into your description',
+      ],
       preview: {
         fileName: 'episode-42-final.mp4',
         duration: '48:12',
@@ -92,10 +106,6 @@ export default {
           { time: '31:50', title: 'Q&A and wrap-up' },
         ],
       },
-    },
-    audience: {
-      label: 'Built for long-form creators',
-      items: ['Tutorials', 'Podcasts', 'Interviews', 'Webinars & courses', 'Reviews & vlogs'],
     },
     howItWorks: {
       eyebrow: 'How it works',
@@ -312,22 +322,6 @@ export default {
       title: 'AI Podcast Chapter Generator — Upload Your Audio, Get Timestamped Chapters',
       subtitle:
         'Drop in your episode file — MP3, WAV, M4A — and get clean chapters with descriptive titles in minutes. Built for interviews, solo shows, and episodes of any length.',
-      preview: {
-        fileName: 'ep-87-interview.mp3',
-        duration: '1:12:40',
-        label: 'Example output',
-        copy: 'Copy chapters',
-        refine: 'Refine titles',
-        activeIndex: 2,
-        chapters: [
-          { time: '0:00', title: 'Cold open and guest intro' },
-          { time: '4:35', title: 'How the company started' },
-          { time: '18:20', title: 'The first 1,000 customers' },
-          { time: '37:05', title: 'Hiring the first team' },
-          { time: '52:48', title: 'Mistakes worth avoiding' },
-          { time: '1:05:10', title: 'Rapid-fire questions' },
-        ],
-      },
     },
     platforms: {
       title: 'One Episode, Chapters for Every Platform',
@@ -351,6 +345,32 @@ export default {
             'Your chapter list doubles as a ready-made episode outline for your website and newsletter.',
         },
       ],
+    },
+    showcase: {
+      eyebrow: 'What you get',
+      title: 'One chapter per topic, from the audio alone',
+      intro: 'Upload the episode file and get a timestamped outline you can use on YouTube, Spotify and in your show notes.',
+      bullets: [
+        'Works with MP3, WAV, M4A and long episodes',
+        "Titles that name the topic or the guest's insight",
+        'Reuse the list as your show notes',
+      ],
+      preview: {
+        fileName: 'ep-87-interview.mp3',
+        duration: '1:12:40',
+        label: 'Example output',
+        copy: 'Copy chapters',
+        refine: 'Refine titles',
+        activeIndex: 2,
+        chapters: [
+          { time: '0:00', title: 'Cold open and guest intro' },
+          { time: '4:35', title: 'How the company started' },
+          { time: '18:20', title: 'The first 1,000 customers' },
+          { time: '37:05', title: 'Hiring the first team' },
+          { time: '52:48', title: 'Mistakes worth avoiding' },
+          { time: '1:05:10', title: 'Rapid-fire questions' },
+        ],
+      },
     },
     useCases: {
       title: 'Made for How Podcasters Actually Work',

@@ -5,6 +5,7 @@ import { useHead } from '@unhead/vue'
 import MarketingLayout from '../layouts/MarketingLayout.vue'
 import HeroSection from '../components/marketing/HeroSection.vue'
 import AudienceStrip from '../components/marketing/AudienceStrip.vue'
+import ResultShowcase from '../components/marketing/ResultShowcase.vue'
 import HowItWorks from '../components/marketing/HowItWorks.vue'
 import WhyChapterGen from '../components/marketing/WhyChapterGen.vue'
 import SeoBenefits from '../components/marketing/SeoBenefits.vue'
@@ -25,7 +26,8 @@ import { localizedPath, type Locale } from '../i18n/routing'
 
 const { t, tm, locale } = useI18n()
 
-const preview = computed(() => tm('home.hero.preview') as PreviewContent)
+const preview = computed(() => tm('home.showcase.preview') as PreviewContent)
+const showcaseBullets = computed(() => tm('home.showcase.bullets') as string[])
 const audienceItems = computed(() => tm('home.audience.items') as string[])
 const steps = computed(() => tm('home.howItWorks.steps') as StepItem[])
 const whyBullets = computed(() => tm('home.why.bullets') as { title: string; description: string }[])
@@ -90,9 +92,15 @@ useHead(
       :badge="t('home.hero.badge')"
       :title="t('home.hero.title')"
       :subtitle="t('home.hero.subtitle')"
-      :preview="preview"
     />
     <AudienceStrip :label="t('home.audience.label')" :items="audienceItems" />
+    <ResultShowcase
+      :eyebrow="t('home.showcase.eyebrow')"
+      :title="t('home.showcase.title')"
+      :intro="t('home.showcase.intro')"
+      :bullets="showcaseBullets"
+      :preview="preview"
+    />
     <HowItWorks
       :eyebrow="t('home.howItWorks.eyebrow')"
       :title="t('home.howItWorks.title')"

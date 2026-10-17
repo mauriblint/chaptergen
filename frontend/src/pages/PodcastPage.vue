@@ -5,6 +5,7 @@ import { useHead } from '@unhead/vue'
 import { RouterLink } from 'vue-router'
 import MarketingLayout from '../layouts/MarketingLayout.vue'
 import HeroSection from '../components/marketing/HeroSection.vue'
+import ResultShowcase from '../components/marketing/ResultShowcase.vue'
 import PlatformSection from '../components/marketing/PlatformSection.vue'
 import UseCases from '../components/marketing/UseCases.vue'
 import TextSection from '../components/marketing/TextSection.vue'
@@ -21,7 +22,8 @@ const platformItems = computed(
 )
 const useCaseItems = computed(() => tm('podcast.useCases.items') as UseCaseItem[])
 const faqs = computed(() => tm('podcast.faq.items') as FAQItem[])
-const preview = computed(() => tm('podcast.hero.preview') as PreviewContent)
+const preview = computed(() => tm('podcast.showcase.preview') as PreviewContent)
+const showcaseBullets = computed(() => tm('podcast.showcase.bullets') as string[])
 
 const canonical = computed(
   () => `${SITE_URL}${localizedPath('/podcast-chapters', locale.value as Locale)}`
@@ -67,8 +69,14 @@ useHead(
       :badge="t('podcast.hero.badge')"
       :title="t('podcast.hero.title')"
       :subtitle="t('podcast.hero.subtitle')"
-      :preview="preview"
       variant="audio"
+    />
+    <ResultShowcase
+      :eyebrow="t('podcast.showcase.eyebrow')"
+      :title="t('podcast.showcase.title')"
+      :intro="t('podcast.showcase.intro')"
+      :bullets="showcaseBullets"
+      :preview="preview"
     />
     <PlatformSection
       :title="t('podcast.platforms.title')"

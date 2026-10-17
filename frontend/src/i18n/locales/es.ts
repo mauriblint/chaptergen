@@ -76,6 +76,20 @@ export default {
       title: 'Capítulos de YouTube con IA, listos antes de publicar',
       subtitle:
         'Sube un video o audio y obtén marcas de tiempo limpias y optimizadas para SEO, en el formato exacto de YouTube. Sin URL pública.',
+    },
+    audience: {
+      label: 'Hecho para contenido largo',
+      items: ['Tutoriales', 'Podcasts', 'Entrevistas', 'Webinars y cursos', 'Reseñas y vlogs'],
+    },
+    showcase: {
+      eyebrow: 'Lo que obtienes',
+      title: 'Capítulos listos para pegar en YouTube',
+      intro: 'Cada capítulo sale del audio real, con un título que describe lo que realmente se dice.',
+      bullets: [
+        'Empieza en 0:00 y cumple las reglas de capítulos de YouTube',
+        'Títulos descriptivos que puedes editar o mejorar con IA',
+        'Un clic para copiarlos en tu descripción',
+      ],
       preview: {
         fileName: 'episodio-42-final.mp4',
         duration: '48:12',
@@ -92,10 +106,6 @@ export default {
           { time: '31:50', title: 'Preguntas y cierre' },
         ],
       },
-    },
-    audience: {
-      label: 'Hecho para contenido largo',
-      items: ['Tutoriales', 'Podcasts', 'Entrevistas', 'Webinars y cursos', 'Reseñas y vlogs'],
     },
     howItWorks: {
       eyebrow: 'Cómo funciona',
@@ -312,22 +322,6 @@ export default {
       title: 'Generador de Capítulos de Podcast con IA — Sube tu Audio y Obtén Capítulos con Marcas de Tiempo',
       subtitle:
         'Suelta el archivo de tu episodio — MP3, WAV, M4A — y obtén capítulos limpios con títulos descriptivos en minutos. Hecho para entrevistas, episodios en solitario y episodios de cualquier duración.',
-      preview: {
-        fileName: 'ep-87-entrevista.mp3',
-        duration: '1:12:40',
-        label: 'Ejemplo de resultado',
-        copy: 'Copiar capítulos',
-        refine: 'Mejorar títulos',
-        activeIndex: 2,
-        chapters: [
-          { time: '0:00', title: 'Apertura y presentación del invitado' },
-          { time: '4:35', title: 'Cómo empezó la empresa' },
-          { time: '18:20', title: 'Los primeros 1.000 clientes' },
-          { time: '37:05', title: 'Contratar al primer equipo' },
-          { time: '52:48', title: 'Errores que conviene evitar' },
-          { time: '1:05:10', title: 'Preguntas rápidas' },
-        ],
-      },
     },
     platforms: {
       title: 'Un Episodio, Capítulos para Cada Plataforma',
@@ -351,6 +345,32 @@ export default {
             'Tu lista de capítulos también sirve como un esquema listo del episodio para tu sitio web y newsletter.',
         },
       ],
+    },
+    showcase: {
+      eyebrow: 'Lo que obtienes',
+      title: 'Un capítulo por tema, solo con el audio',
+      intro: 'Sube el archivo del episodio y obtén un índice con marcas de tiempo para YouTube, Spotify y tus notas del episodio.',
+      bullets: [
+        'Funciona con MP3, WAV, M4A y episodios largos',
+        'Títulos que nombran el tema o la idea del invitado',
+        'Reutiliza la lista como notas del episodio',
+      ],
+      preview: {
+        fileName: 'ep-87-entrevista.mp3',
+        duration: '1:12:40',
+        label: 'Ejemplo de resultado',
+        copy: 'Copiar capítulos',
+        refine: 'Mejorar títulos',
+        activeIndex: 2,
+        chapters: [
+          { time: '0:00', title: 'Apertura y presentación del invitado' },
+          { time: '4:35', title: 'Cómo empezó la empresa' },
+          { time: '18:20', title: 'Los primeros 1.000 clientes' },
+          { time: '37:05', title: 'Contratar al primer equipo' },
+          { time: '52:48', title: 'Errores que conviene evitar' },
+          { time: '1:05:10', title: 'Preguntas rápidas' },
+        ],
+      },
     },
     useCases: {
       title: 'Hecho para Cómo Trabajan Realmente los Podcasters',
