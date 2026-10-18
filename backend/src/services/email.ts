@@ -123,6 +123,7 @@ const copy = {
     failedFooter: 'You received this because you uploaded a video to ChapterGen.',
     reasons: {
       no_speech: ['No speech detected', "We couldn't hear anyone talking in this file. Check that it has a voice track and try again."],
+      no_audio: ['This file has no audio', 'The file only contains video. Downloads from YouTube are often split into video and audio; use a file that includes sound.'],
       audio_too_large: ['This file is too long to process', 'The audio is too large to transcribe. Try splitting it into shorter parts.'],
       duration_over_free_limit: ['Longer than 20 minutes', 'Free videos can be up to 20 minutes. Buy credits to process videos of any length.'],
       insufficient_credits: ['Not enough credits', 'This video needs a credit and your balance is empty.'],
@@ -173,6 +174,7 @@ const copy = {
     failedFooter: 'Recibiste este correo porque subiste un video a ChapterGen.',
     reasons: {
       no_speech: ['No detectamos voz', 'No escuchamos a nadie hablando en este archivo. Revisa que tenga pista de voz e intenta de nuevo.'],
+      no_audio: ['El archivo no tiene audio', 'El archivo solo tiene imagen. Las descargas de YouTube suelen venir separadas en video y audio; usa un archivo que incluya sonido.'],
       audio_too_large: ['El archivo es demasiado largo', 'El audio es demasiado pesado para transcribirlo. Prueba dividirlo en partes más cortas.'],
       duration_over_free_limit: ['Dura más de 20 minutos', 'Los videos gratis pueden durar hasta 20 minutos. Compra créditos para procesar videos de cualquier duración.'],
       insufficient_credits: ['No tienes créditos suficientes', 'Este video necesita un crédito y tu saldo está vacío.'],

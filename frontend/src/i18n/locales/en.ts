@@ -1023,6 +1023,10 @@ export default {
           title: 'No speech detected',
           body: 'We could not hear anyone talking in this file. Check that it has a voice track and try again.',
         },
+        no_audio: {
+          title: 'This file has no audio',
+          body: 'The file only contains video, so there is nothing to transcribe. Downloads from YouTube are often split into video and audio; upload a file that includes sound.',
+        },
         audio_too_large: {
           title: 'This file is too long to process',
           body: 'The audio is too large for transcription. Try splitting it into shorter parts.',

@@ -81,7 +81,7 @@ const meta = computed(() => {
 
 const failure = computed(() => {
   const reason = job.value?.failureReason
-  const known = ['no_speech', 'audio_too_large', 'duration_over_free_limit', 'insufficient_credits']
+  const known = ['no_speech', 'no_audio', 'audio_too_large', 'duration_over_free_limit', 'insufficient_credits']
   return reason && known.includes(reason) ? reason : 'generic'
 })
 

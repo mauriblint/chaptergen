@@ -1023,6 +1023,10 @@ export default {
           title: 'No detectamos voz',
           body: 'No escuchamos a nadie hablando en este archivo. Revisa que tenga pista de voz e intenta de nuevo.',
         },
+        no_audio: {
+          title: 'El archivo no tiene audio',
+          body: 'El archivo solo tiene imagen, así que no hay nada que transcribir. Las descargas de YouTube suelen venir separadas en video y audio; sube un archivo que incluya sonido.',
+        },
         audio_too_large: {
           title: 'El archivo es demasiado largo',
           body: 'El audio es demasiado pesado para transcribirlo. Prueba dividirlo en partes más cortas.',

@@ -78,3 +78,19 @@ export function getMediaDurationSeconds(filePath: string): Promise<number | null
     })
   })
 }
+
+/**
+ * False when the file has no audio track (for example a video-only stream
+ * downloaded from YouTube). Null when the file can't be probed at all.
+ */
+export function hasAudioStream(filePath: string): Promise<boolean | null> {
+  return new Promise((resolve) => {
+    ffmpeg.ffprobe(filePath, (err, data) => {
+      if (err) {
+        resolve(null)
+        return
+      }
+      resolve(data.streams.some((stream) => stream.codec_type === 'audio'))
+    })
+  })
+}

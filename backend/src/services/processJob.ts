@@ -4,6 +4,7 @@ import {
   AUDIO_MAX_UPLOAD_BYTES,
   cleanupFiles,
   getMediaDurationSeconds,
+  hasAudioStream,
   prepareAudioForTranscription,
 } from './extractAudio.js'
 import { generateChapters } from './generateChapters.js'
@@ -70,6 +71,10 @@ export async function processJob(jobId: string): Promise<void> {
 
   try {
     updateJobStatus(jobId, isAudio ? 'transcribing' : 'extracting')
+    if ((await hasAudioStream(filePath)) === false) {
+      failJob(jobId, 'This file has no audio track.', 'no_audio')
+      return
+    }
     audioPath = await prepareAudioForTranscription(filePath, uploadsDir)
 
     const durationSeconds = await getMediaDurationSeconds(audioPath)
