@@ -135,6 +135,8 @@ useHead(
       :title="t('home.pricing.title')"
       :subtitle="t('home.pricing.subtitle')"
       :plans="plans"
+      :trial="t('home.pricing.trial')"
+      :trial-cta="t('home.pricing.trialCta')"
       free-href="#start"
       :pricing-path="pricingPath"
     />

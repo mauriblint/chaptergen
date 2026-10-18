@@ -1,4 +1,4 @@
-export type PackId = 'starter' | 'creator'
+export type PackId = 'starter' | 'creator' | 'studio'
 
 export interface Pack {
   id: PackId
@@ -9,6 +9,7 @@ export interface Pack {
 export const PACKS: Record<PackId, Pack> = {
   starter: { id: 'starter', credits: 5, amountCents: 500 },
   creator: { id: 'creator', credits: 15, amountCents: 1200 },
+  studio: { id: 'studio', credits: 60, amountCents: 3500 },
 }
 
 export const PACK_LIST: Pack[] = Object.values(PACKS)
@@ -22,13 +23,17 @@ export const FREE_REFINE_LIMIT = 2
 export const MINUTES_PER_CREDIT = 60
 
 export function isPackId(value: unknown): value is PackId {
-  return value === 'starter' || value === 'creator'
+  return value === 'starter' || value === 'creator' || value === 'studio'
 }
 
 export function stripePriceId(pack: PackId): string | null {
-  const envKey = pack === 'starter' ? 'STRIPE_PRICE_STARTER' : 'STRIPE_PRICE_CREATOR'
-  const id = process.env[envKey]
+  const id = process.env[`STRIPE_PRICE_${pack.toUpperCase()}`]
   return id?.trim() ? id.trim() : null
+}
+
+/** Packs that can be bought right now: a pack without a Stripe price is hidden. */
+export function availablePacks(): Pack[] {
+  return PACK_LIST.filter((pack) => stripePriceId(pack.id))
 }
 
 export function packFromPriceId(priceId: string): Pack | null {

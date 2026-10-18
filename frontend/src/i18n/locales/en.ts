@@ -223,28 +223,32 @@ export default {
       title: 'Pay per video. No subscription.',
       plans: [
         {
-          name: 'Free',
-          price: '$0',
-          features: ['2 videos', 'Up to 20 minutes each', 'Just confirm your email'],
-          cta: 'Start free',
-        },
-        {
           name: 'Starter',
           price: '$5',
           unit: '5 videos',
-          features: ['$1.00 per video', 'Any length, up to 500 MB', 'Unlimited title refinements'],
+          features: ['$1.00 per video', 'Any length, up to 500 MB', 'Chapters, transcript and subtitles'],
           cta: 'Buy Starter',
         },
         {
           name: 'Creator',
           price: '$12',
           unit: '15 videos',
-          badge: 'Best value',
-          features: ['$0.80 per video', 'Any length, up to 500 MB', 'Unlimited title refinements'],
+          badge: 'Most popular',
+          features: ['$0.80 per video', 'Any length, up to 500 MB', 'Chapters, transcript and subtitles'],
           cta: 'Buy Creator',
           featured: true,
         },
+        {
+          name: 'Studio',
+          price: '$35',
+          unit: '60 videos',
+          badge: 'Best value',
+          features: ['$0.58 per video', 'Any length, up to 500 MB', 'Chapters, transcript and subtitles'],
+          cta: 'Buy Studio',
+        },
       ],
+      trial: '2 videos free to try it · no credit card',
+      trialCta: 'Start free',
     },
     faq: {
       eyebrow: 'FAQ',
@@ -532,49 +536,33 @@ export default {
     meta: {
       title: 'Pricing — ChapterGen credit packs',
       description:
-        'Try 2 videos free, then buy credits when you need more. No subscription. Starter $5 for 5 videos, Creator $12 for 15. Each video includes chapters, a transcript and subtitles.',
+        'Try 2 videos free, then buy credits when you need more. No subscription. Starter $5 for 5 videos, Creator $12 for 15, Studio $35 for 60. Each video includes chapters, a transcript and subtitles.',
     },
     eyebrow: 'Pricing',
     title: 'Pay per video. No subscription.',
-    subtitle: 'Start with 2 free videos. Buy credits only when you need more; they never expire.',
+    subtitle: 'Credits never expire. Every video includes chapters, a transcript and subtitles.',
+    trial: {
+      title: 'Start with a free trial',
+      details: '2 videos free · up to 20 minutes each · no credit card',
+      cta: 'Start free',
+    },
+    mostPopular: 'Most popular',
     bestValue: 'Best value',
+    save: 'Save {percent}%',
     oneTime: 'one-time',
     unit: '{n} videos · {price} per video',
     buy: 'Buy {name}',
-    plans: {
-      free: {
-        name: 'Free',
-        unit: '2 videos to try it',
-        cta: 'Start free',
-        features: [
-          '2 videos, up to 20 minutes each',
-          'Chapters, transcript and subtitles',
-          '2 AI title refinements per video',
-          'No card, just confirm your email',
-        ],
-      },
-      starter: {
-        features: [
-          '5 videos of any length, up to 500 MB',
-          'Chapters, transcript and subtitles',
-          'Unlimited AI title refinements',
-          'Downloads: .txt, .docx, SRT, VTT, .zip',
-          'Credits never expire',
-        ],
-      },
-      creator: {
-        features: [
-          '15 videos of any length, up to 500 MB',
-          'Chapters, transcript and subtitles',
-          'Unlimited AI title refinements',
-          'Downloads: .txt, .docx, SRT, VTT, .zip',
-          'Credits never expire',
-        ],
-      },
-    },
+    paidFeatures: [
+      '{n} videos of any length, up to 500 MB',
+      'Chapters, transcript and subtitles',
+      'Unlimited AI title refinements',
+      'Downloads: .txt, .docx, SRT, VTT, .zip',
+      'Credits never expire',
+    ],
     packs: {
       starter: { name: 'Starter' },
       creator: { name: 'Creator' },
+      studio: { name: 'Studio' },
     },
     included: {
       title: 'Every video includes',

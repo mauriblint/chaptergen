@@ -37,7 +37,7 @@ export interface VerifyCodeResult {
 
 export interface AccountPayment {
   id: string
-  pack: 'starter' | 'creator'
+  pack: 'starter' | 'creator' | 'studio'
   creditsGranted: number
   amountCents: number
   status: 'paid' | 'refunded'
@@ -61,7 +61,7 @@ export interface AccountPayload {
 }
 
 export interface Pack {
-  id: 'starter' | 'creator'
+  id: 'starter' | 'creator' | 'studio'
   credits: number
   amountCents: number
 }

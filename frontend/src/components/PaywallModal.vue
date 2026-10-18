@@ -28,15 +28,14 @@ const selected = computed(
   () => packs.value.find((pack) => pack.id === selectedId.value) ?? packs.value[0]
 )
 
-const savingsPercent = computed(() => {
-  const starter = packs.value.find((pack) => pack.id === 'starter')
-  const creator = packs.value.find((pack) => pack.id === 'creator')
-  if (!starter || !creator) return 0
+/** Percent cheaper per video than Starter; 0 for Starter itself. */
+function savingsFor(pack: Pack): number {
+  const starter = packs.value.find((p) => p.id === 'starter')
+  if (!starter) return 0
   const base = starter.amountCents / starter.credits
-  const current = creator.amountCents / creator.credits
-  if (base <= 0 || current >= base) return 0
-  return Math.round((1 - current / base) * 100)
-})
+  const rate = pack.amountCents / pack.credits
+  return rate < base ? Math.round((1 - rate / base) * 100) : 0
+}
 
 onMounted(async () => {
   window.addEventListener('keydown', onKeydown)
@@ -127,8 +126,8 @@ async function buy() {
               <span class="pack-copy">
                 <span class="pack-title">
                   {{ t('paywall.creditsLabel', { count: pack.credits }) }}
-                  <span v-if="pack.id === 'creator' && savingsPercent > 0" class="save">
-                    {{ t('paywall.savePercent', { percent: savingsPercent }) }}
+                  <span v-if="savingsFor(pack) > 0" class="save">
+                    {{ t('paywall.savePercent', { percent: savingsFor(pack) }) }}
                   </span>
                 </span>
                 <span class="pack-meta">

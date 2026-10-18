@@ -223,28 +223,32 @@ export default {
       title: 'Pagas por video. Sin suscripción.',
       plans: [
         {
-          name: 'Gratis',
-          price: '$0',
-          features: ['2 videos', 'Hasta 20 minutos cada uno', 'Solo confirma tu email'],
-          cta: 'Empezar gratis',
-        },
-        {
           name: 'Starter',
           price: '$5',
           unit: '5 videos',
-          features: ['$1,00 por video', 'Cualquier duración, hasta 500 MB', 'Mejoras de títulos ilimitadas'],
+          features: ['$1,00 por video', 'Cualquier duración, hasta 500 MB', 'Capítulos, transcripción y subtítulos'],
           cta: 'Comprar Starter',
         },
         {
           name: 'Creator',
           price: '$12',
           unit: '15 videos',
-          badge: 'Mejor valor',
-          features: ['$0,80 por video', 'Cualquier duración, hasta 500 MB', 'Mejoras de títulos ilimitadas'],
+          badge: 'Más elegido',
+          features: ['$0,80 por video', 'Cualquier duración, hasta 500 MB', 'Capítulos, transcripción y subtítulos'],
           cta: 'Comprar Creator',
           featured: true,
         },
+        {
+          name: 'Studio',
+          price: '$35',
+          unit: '60 videos',
+          badge: 'Mejor valor',
+          features: ['$0,58 por video', 'Cualquier duración, hasta 500 MB', 'Capítulos, transcripción y subtítulos'],
+          cta: 'Comprar Studio',
+        },
       ],
+      trial: '2 videos gratis para probar · sin tarjeta',
+      trialCta: 'Empezar gratis',
     },
     faq: {
       eyebrow: 'Preguntas frecuentes',
@@ -532,49 +536,33 @@ export default {
     meta: {
       title: 'Precios — Paquetes de créditos de ChapterGen',
       description:
-        'Prueba 2 videos gratis y compra créditos cuando necesites más. Sin suscripción. Starter $5 por 5 videos, Creator $12 por 15. Cada video incluye capítulos, transcripción y subtítulos.',
+        'Prueba 2 videos gratis y compra créditos cuando necesites más. Sin suscripción. Starter $5 por 5 videos, Creator $12 por 15, Studio $35 por 60. Cada video incluye capítulos, transcripción y subtítulos.',
     },
     eyebrow: 'Precios',
     title: 'Pagas por video. Sin suscripción.',
-    subtitle: 'Empieza con 2 videos gratis. Compra créditos solo cuando necesites más; no vencen.',
+    subtitle: 'Los créditos no vencen. Cada video incluye capítulos, transcripción y subtítulos.',
+    trial: {
+      title: 'Empieza con una prueba gratis',
+      details: '2 videos gratis · hasta 20 minutos cada uno · sin tarjeta',
+      cta: 'Empezar gratis',
+    },
+    mostPopular: 'Más elegido',
     bestValue: 'Mejor valor',
+    save: 'Ahorras {percent}%',
     oneTime: 'pago único',
     unit: '{n} videos · {price} por video',
     buy: 'Comprar {name}',
-    plans: {
-      free: {
-        name: 'Gratis',
-        unit: '2 videos para probarlo',
-        cta: 'Empezar gratis',
-        features: [
-          '2 videos, de hasta 20 minutos cada uno',
-          'Capítulos, transcripción y subtítulos',
-          '2 mejoras de títulos con IA por video',
-          'Sin tarjeta, solo confirma tu email',
-        ],
-      },
-      starter: {
-        features: [
-          '5 videos de cualquier duración, hasta 500 MB',
-          'Capítulos, transcripción y subtítulos',
-          'Mejoras de títulos con IA ilimitadas',
-          'Descargas: .txt, .docx, SRT, VTT, .zip',
-          'Los créditos no vencen',
-        ],
-      },
-      creator: {
-        features: [
-          '15 videos de cualquier duración, hasta 500 MB',
-          'Capítulos, transcripción y subtítulos',
-          'Mejoras de títulos con IA ilimitadas',
-          'Descargas: .txt, .docx, SRT, VTT, .zip',
-          'Los créditos no vencen',
-        ],
-      },
-    },
+    paidFeatures: [
+      '{n} videos de cualquier duración, hasta 500 MB',
+      'Capítulos, transcripción y subtítulos',
+      'Mejoras de títulos con IA ilimitadas',
+      'Descargas: .txt, .docx, SRT, VTT, .zip',
+      'Los créditos no vencen',
+    ],
     packs: {
       starter: { name: 'Starter' },
       creator: { name: 'Creator' },
+      studio: { name: 'Studio' },
     },
     included: {
       title: 'Cada video incluye',

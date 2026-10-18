@@ -21,9 +21,19 @@ const startHref = computed(() => (user.value ? '/new' : `${localizedPath('/', lo
 const faqs = computed(() => tm('pricing.faq.items') as FAQItem[])
 const included = ['chapters', 'transcript', 'subtitles'] as const
 
-function features(plan: 'free' | Pack['id']): string[] {
-  return tm(`pricing.plans.${plan}.features`) as string[]
+const starterRate = computed(() => {
+  const starter = packs.value.find((p) => p.id === 'starter')
+  return starter ? starter.amountCents / starter.credits : null
+})
+
+/** Percent cheaper per video than Starter; 0 for Starter itself. */
+function savings(pack: Pack): number {
+  if (!starterRate.value) return 0
+  const rate = pack.amountCents / pack.credits
+  return rate < starterRate.value ? Math.round((1 - rate / starterRate.value) * 100) : 0
 }
+
+const paidFeatures = computed(() => (tm('pricing.paidFeatures') as string[]).length)
 
 useHead(
   computed(() => ({
@@ -76,30 +86,29 @@ async function buy(pack: Pack['id']) {
         <p class="lead">{{ t('pricing.subtitle') }}</p>
       </header>
 
-      <div class="plans">
-        <article class="plan">
-          <h2 class="plan-name">{{ t('pricing.plans.free.name') }}</h2>
-          <p class="plan-price"><span class="amount">$0</span></p>
-          <p class="plan-unit">{{ t('pricing.plans.free.unit') }}</p>
-          <a :href="startHref" class="btn btn-outline plan-cta">{{ t('pricing.plans.free.cta') }}</a>
-          <ul class="features">
-            <li v-for="feature in features('free')" :key="feature">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
-              {{ feature }}
-            </li>
-          </ul>
-        </article>
+      <div class="trial">
+        <div class="trial-copy">
+          <strong>{{ t('pricing.trial.title') }}</strong>
+          <span>{{ t('pricing.trial.details') }}</span>
+        </div>
+        <a :href="startHref" class="btn btn-outline">{{ t('pricing.trial.cta') }}</a>
+      </div>
 
+      <div class="plans">
         <article v-for="pack in packs" :key="pack.id" class="plan" :class="{ featured: pack.id === 'creator' }">
           <div class="plan-top">
             <h2 class="plan-name">{{ t(`pricing.packs.${pack.id}.name`) }}</h2>
-            <span v-if="pack.id === 'creator'" class="badge">{{ t('pricing.bestValue') }}</span>
+            <span v-if="pack.id === 'creator'" class="badge">{{ t('pricing.mostPopular') }}</span>
+            <span v-else-if="pack.id === 'studio'" class="badge badge-soft">{{ t('pricing.bestValue') }}</span>
           </div>
           <p class="plan-price">
             <span class="amount">{{ price(pack.amountCents) }}</span>
             <span class="once">{{ t('pricing.oneTime') }}</span>
           </p>
-          <p class="plan-unit">{{ t('pricing.unit', { n: pack.credits, price: perVideo(pack) }) }}</p>
+          <p class="plan-unit">
+            {{ t('pricing.unit', { n: pack.credits, price: perVideo(pack) }) }}
+            <span v-if="savings(pack)" class="save">{{ t('pricing.save', { percent: savings(pack) }) }}</span>
+          </p>
           <button
             type="button"
             class="btn plan-cta"
@@ -110,9 +119,9 @@ async function buy(pack: Pack['id']) {
             {{ pendingPack === pack.id ? t('paywall.redirecting') : t('pricing.buy', { name: t(`pricing.packs.${pack.id}.name`) }) }}
           </button>
           <ul class="features">
-            <li v-for="feature in features(pack.id)" :key="feature">
+            <li v-for="i in paidFeatures" :key="i">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
-              {{ feature }}
+              {{ t(`pricing.paidFeatures.${i - 1}`, { n: pack.credits }) }}
             </li>
           </ul>
         </article>
@@ -169,6 +178,38 @@ async function buy(pack: Pack['id']) {
   color: var(--text-muted);
 }
 
+.trial {
+  margin-bottom: 1.25rem;
+  padding: 18px 22px;
+  border-radius: var(--radius-lg);
+  background: var(--accent-soft);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.trial-copy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+
+.trial-copy strong {
+  font-size: 1rem;
+}
+
+.trial-copy span {
+  font-size: 0.9rem;
+  color: #3c3f45;
+}
+
+.trial .btn {
+  min-height: 44px;
+}
+
 .plans {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -210,6 +251,26 @@ async function buy(pack: Pack['id']) {
   color: var(--ink);
   font-size: 0.75rem;
   font-weight: 700;
+}
+
+.badge-soft {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.save {
+  margin-left: 6px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.featured .save {
+  background: rgba(169, 156, 249, 0.18);
+  color: var(--accent-on-ink);
 }
 
 .plan-price {

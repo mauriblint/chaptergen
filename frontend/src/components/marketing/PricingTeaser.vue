@@ -8,6 +8,8 @@ defineProps<{
   title: string
   subtitle: string
   plans: PlanTeaser[]
+  trial: string
+  trialCta: string
   freeHref: string
   pricingPath: string
 }>()
@@ -21,8 +23,13 @@ defineProps<{
       <p class="section-intro">{{ subtitle }}</p>
     </div>
 
+    <div class="trial">
+      <span>{{ trial }}</span>
+      <a :href="freeHref" class="trial-link">{{ trialCta }} →</a>
+    </div>
+
     <div class="plans">
-      <div v-for="(plan, i) in plans" :key="plan.name" class="plan" :class="{ featured: plan.featured }">
+      <div v-for="plan in plans" :key="plan.name" class="plan" :class="{ featured: plan.featured }">
         <div class="plan-top">
           <h3 class="plan-name">{{ plan.name }}</h3>
           <span v-if="plan.badge" class="plan-badge">{{ plan.badge }}</span>
@@ -34,10 +41,7 @@ defineProps<{
         <ul class="plan-features">
           <li v-for="feature in plan.features" :key="feature">{{ feature }}</li>
         </ul>
-        <a v-if="i === 0" :href="freeHref" class="btn plan-cta" :class="plan.featured ? 'btn-light' : 'btn-outline'">
-          {{ plan.cta }}
-        </a>
-        <RouterLink v-else :to="pricingPath" class="btn plan-cta" :class="plan.featured ? 'btn-light' : 'btn-outline'">
+        <RouterLink :to="pricingPath" class="btn plan-cta" :class="plan.featured ? 'btn-light' : 'btn-outline'">
           {{ plan.cta }}
         </RouterLink>
       </div>
@@ -53,6 +57,30 @@ defineProps<{
 
 .centered .section-intro {
   max-width: 520px;
+}
+
+.trial {
+  max-width: 1040px;
+  margin: 0 auto 1.25rem;
+  padding: 14px 20px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  font-size: 0.95rem;
+}
+
+.trial-link {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.trial-link:hover {
+  text-decoration: underline;
 }
 
 .plans {

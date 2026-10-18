@@ -1,7 +1,7 @@
 import { Router, type Request, type Response } from 'express'
 import {
   isPackId,
-  PACK_LIST,
+  availablePacks,
   publicSiteUrl,
   stripePriceId,
 } from '../billing/packs.js'
@@ -18,7 +18,7 @@ import { establishSession } from '../auth/session.js'
 export const billingRouter = Router()
 
 billingRouter.get('/billing/packs', (_req: Request, res: Response) => {
-  res.json({ packs: PACK_LIST })
+  res.json({ packs: availablePacks() })
 })
 
 billingRouter.post('/billing/checkout', async (req: Request, res: Response) => {

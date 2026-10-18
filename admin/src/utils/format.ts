@@ -35,5 +35,6 @@ export function formatMoney(amountCents: number): string {
 export function packLabel(pack: string): string {
   if (pack === 'starter') return 'Starter'
   if (pack === 'creator') return 'Creator'
+  if (pack === 'studio') return 'Studio'
   return pack
 }
