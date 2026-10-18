@@ -65,7 +65,7 @@ const ChapterTool = defineAsyncComponent(
 }
 
 .hero-subtitle {
-  max-width: 620px;
+  max-width: 660px;
   font-size: clamp(1.05rem, 1.7vw, 1.25rem);
   line-height: 1.55;
   color: var(--text-muted);

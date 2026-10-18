@@ -72,7 +72,7 @@ export default {
     },
     hero: {
       badge: 'Works on private and unpublished videos',
-      title: 'AI YouTube chapter generator: timestamps before you publish',
+      title: 'AI YouTube Chapter Generator — Get Timestamps in Seconds',
       subtitle:
         "Upload a video or audio file and get clean, SEO-ready timestamps in YouTube's exact format. No public URL needed.",
     },
