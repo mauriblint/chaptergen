@@ -42,23 +42,27 @@ export const createApp = ViteSSG(App, { routes }, ({ app, router, isClient }) =>
     const { ensureLoaded } = useAuth()
 
     router.beforeEach(async (to) => {
-      const me = await ensureLoaded()
-      const loggedIn = !!me.user
+      // If the API is unreachable, treat the visitor as signed out instead of
+      // leaving the page blank.
+      const me = await ensureLoaded().catch(() => null)
+      const loggedIn = !!me?.user
       const claimingCheckout =
-        to.path === '/dashboard' &&
+        to.path === '/library' &&
         typeof to.query.session_id === 'string' &&
         to.query.session_id.length > 0
 
       if (to.meta.requiresAuth && !loggedIn && !claimingCheckout) {
-        return '/login'
+        return { path: '/login', query: { next: to.fullPath } }
       }
 
       if (loggedIn && (to.path === '/' || to.path === '/es')) {
-        return '/dashboard'
+        return '/library'
       }
 
       if (loggedIn && to.path === '/login' && !to.query.token) {
-        return '/dashboard'
+        return typeof to.query.next === 'string' && to.query.next.startsWith('/') && !to.query.next.startsWith('//')
+          ? to.query.next
+          : '/library'
       }
 
       return true

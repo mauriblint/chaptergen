@@ -8,8 +8,10 @@ import { useAuth } from '../../composables/useAuth'
 const props = withDefaults(
   defineProps<{
     variant?: 'dropdown' | 'segmented'
+    /** Where the dropdown opens; 'top' for menus pinned to the bottom of the screen. */
+    placement?: 'bottom' | 'top'
   }>(),
-  { variant: 'dropdown' }
+  { variant: 'dropdown', placement: 'bottom' }
 )
 
 const emit = defineEmits<{ change: [] }>()
@@ -108,7 +110,7 @@ onBeforeUnmount(() => {
       <svg class="chevron" :class="{ up: open }" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
     </button>
 
-    <div v-if="open" class="lang-panel">
+    <div v-if="open" class="lang-panel" :class="`lang-panel--${props.placement}`">
       <p class="panel-label">{{ t('common.language.label') }}</p>
       <template v-for="loc in LOCALES" :key="loc">
         <button
@@ -188,6 +190,13 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+.lang-panel--top {
+  top: auto;
+  bottom: calc(100% + 8px);
+  left: 0;
+  right: auto;
 }
 
 .panel-label {

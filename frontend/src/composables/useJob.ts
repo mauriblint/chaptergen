@@ -1,10 +1,9 @@
 import { onUnmounted, ref } from 'vue'
 import type { ProcessingStep } from '../types'
+import type { Chapter } from '../types'
 import type { RefineRequest } from '../types/refine'
-import type { Job, JobStatus } from '../types/job'
-import { uploadFileAndCreateJob } from './useChunkedUpload'
-
-import { API_BASE, PaywallError, parsePaywallReason } from '../utils/api'
+import type { DownloadType, Job, JobStatus, JobSummary } from '../types/job'
+import { API_BASE, apiFetch } from '../utils/api'
 
 export function jobStatusToStep(status: JobStatus): ProcessingStep {
   const map: Record<JobStatus, ProcessingStep> = {
@@ -23,50 +22,57 @@ export function isJobActive(status: JobStatus): boolean {
   return !['completed', 'failed'].includes(status)
 }
 
-export async function createJob(
-  file: File,
-  autoMode: boolean,
-  chapterCount?: number
-): Promise<string> {
-  return uploadFileAndCreateJob(file, autoMode, chapterCount)
+export function fetchJob(id: string): Promise<Job> {
+  return apiFetch<Job>(`/jobs/${id}`)
 }
 
-export async function fetchJob(id: string): Promise<Job> {
-  const response = await fetch(`${API_BASE}/jobs/${id}`)
-  if (!response.ok) {
-    const data = await response.json().catch(() => ({}))
-    throw new Error(data.error ?? `Error ${response.status}`)
-  }
-  return response.json()
+export async function listJobs(): Promise<JobSummary[]> {
+  const data = await apiFetch<{ jobs: JobSummary[] }>('/jobs')
+  return data.jobs
 }
 
 export async function refineJob(id: string, options: RefineRequest): Promise<void> {
-  const response = await fetch(`${API_BASE}/jobs/${id}/refine`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify(options),
-  })
-  if (!response.ok) {
-    const data = (await response.json().catch(() => ({}))) as {
-      error?: string
-      code?: string
-      reason?: string
-    }
-    if (response.status === 402 || data.code === 'PAYWALL') {
-      throw new PaywallError(data.error ?? 'Payment required', parsePaywallReason(data.reason))
-    }
-    throw new Error(data.error ?? `Error ${response.status}`)
-  }
+  await apiFetch(`/jobs/${id}/refine`, { method: 'POST', body: JSON.stringify(options) })
 }
 
-export function downloadJobFile(id: string, type: 'chapters' | 'transcript') {
-  window.open(`${API_BASE}/jobs/${id}/download/${type}`, '_blank')
+export function saveChapters(id: string, chapters: Chapter[]): Promise<Job> {
+  return apiFetch<Job>(`/jobs/${id}/chapters`, {
+    method: 'PATCH',
+    body: JSON.stringify({ chapters }),
+  })
+}
+
+export interface SubtitleSettings {
+  maxChars: number
+  maxLines: number
+}
+
+export async function fetchSubtitles(
+  id: string,
+  format: 'srt' | 'vtt',
+  settings: SubtitleSettings
+): Promise<string> {
+  const query = new URLSearchParams({
+    format,
+    maxChars: String(settings.maxChars),
+    maxLines: String(settings.maxLines),
+  })
+  const data = await apiFetch<{ content: string }>(`/jobs/${id}/subtitles?${query}`)
+  return data.content
+}
+
+export function downloadUrl(id: string, type: DownloadType, settings?: SubtitleSettings): string {
+  const query =
+    settings && (type === 'srt' || type === 'vtt')
+      ? `?maxChars=${settings.maxChars}&maxLines=${settings.maxLines}`
+      : ''
+  return `${API_BASE}/jobs/${id}/download/${type}${query}`
 }
 
 export function useJobPoller(jobId: string, intervalMs = 2000) {
   const job = ref<Job | null>(null)
   const error = ref<string | null>(null)
+  const notFound = ref(false)
   const loading = ref(true)
   let timer: ReturnType<typeof setInterval> | null = null
 
@@ -80,12 +86,12 @@ export function useJobPoller(jobId: string, intervalMs = 2000) {
   async function poll() {
     try {
       job.value = await fetchJob(jobId)
-      error.value = job.value.error
+      error.value = null
       loading.value = false
-      if (!isJobActive(job.value.status)) {
-        stopPolling()
-      }
+      if (!isJobActive(job.value.status)) stopPolling()
     } catch (err) {
+      const status = (err as { status?: number }).status
+      notFound.value = status === 404
       error.value = err instanceof Error ? err.message : 'Unknown error'
       loading.value = false
       stopPolling()
@@ -99,8 +105,7 @@ export function useJobPoller(jobId: string, intervalMs = 2000) {
   }
 
   startPolling()
-
   onUnmounted(stopPolling)
 
-  return { job, error, loading, refresh: poll, startPolling }
+  return { job, error, notFound, loading, refresh: poll, startPolling }
 }

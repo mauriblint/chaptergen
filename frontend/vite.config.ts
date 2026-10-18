@@ -32,7 +32,7 @@ export default defineConfig({
       '/es/terminos',
       '/404',
       '/login',
-      '/dashboard',
+      '/library',
       '/settings',
       '/billing',
     ],

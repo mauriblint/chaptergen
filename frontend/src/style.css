@@ -194,6 +194,16 @@ a {
   color: #fff;
 }
 
+.btn-ghost {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.btn-ghost:hover {
+  border-color: var(--text);
+}
+
 .btn-light {
   background: var(--on-ink);
   color: var(--ink);

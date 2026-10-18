@@ -79,10 +79,15 @@ export const routes: RouteRecordRaw[] = [
     component: () => import('./pages/LoginPage.vue'),
   },
   {
-    path: '/dashboard',
-    name: 'dashboard',
-    component: () => import('./pages/DashboardPage.vue'),
+    path: '/library',
+    name: 'library',
+    component: () => import('./pages/LibraryPage.vue'),
     meta: { requiresAuth: true },
+  },
+  {
+    path: '/videos/:id',
+    name: 'video',
+    component: () => import('./pages/VideoPage.vue'),
   },
   {
     path: '/settings',
@@ -96,11 +101,9 @@ export const routes: RouteRecordRaw[] = [
     component: () => import('./pages/BillingPage.vue'),
     meta: { requiresAuth: true },
   },
-  {
-    path: '/jobs/:id',
-    name: 'job',
-    component: () => import('./pages/JobPage.vue'),
-  },
+  // Old URLs still found in emails and bookmarks.
+  { path: '/dashboard', redirect: (to) => ({ path: '/library', query: to.query }) },
+  { path: '/jobs/:id', redirect: (to) => ({ path: `/videos/${to.params.id}`, query: to.query }) },
   {
     path: '/:pathMatch(.*)*',
     name: 'not-found',

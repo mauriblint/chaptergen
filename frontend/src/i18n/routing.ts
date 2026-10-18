@@ -23,14 +23,15 @@ export function pathPair(path: string): PathPair | undefined {
   return PATH_PAIRS.find((p) => p.en === normalized || p.es === normalized)
 }
 
-export const APP_PATHS = ['/dashboard', '/login', '/settings', '/billing'] as const
+export const APP_PATHS = ['/library', '/login', '/settings', '/billing'] as const
 
 export function isAuthPath(path: string): boolean {
-  return path === '/dashboard' || path === '/settings' || path === '/billing'
+  return path === '/library' || path === '/settings' || path === '/billing'
 }
 
+/** App screens share one URL for both languages; the locale comes from the account. */
 export function isAppPath(path: string): boolean {
-  return path === '/login' || isAuthPath(path)
+  return path === '/login' || isAuthPath(path) || path.startsWith('/videos/')
 }
 
 export function isLocale(value: unknown): value is Locale {
@@ -51,7 +52,7 @@ export function localeFromPath(path: string): Locale {
  */
 export function localizedPath(path: string, target: Locale): string {
   const normalized = path.replace(/\/+$/, '') || '/'
-  if (isAppPath(normalized) || normalized.startsWith('/jobs/')) return normalized
+  if (isAppPath(normalized)) return normalized
   const pair = PATH_PAIRS.find((p) => p.en === normalized || p.es === normalized)
   if (pair) return pair[target]
   return target === 'es' ? '/es' : '/'

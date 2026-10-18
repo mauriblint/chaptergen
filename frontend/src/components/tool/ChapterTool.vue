@@ -1,15 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Card from '../ui/Card.vue'
 import VideoUploader from '../VideoUploader.vue'
-import UploadProgress from '../UploadProgress.vue'
-import PaywallModal from '../PaywallModal.vue'
-import { useChunkedUpload } from '../../composables/useChunkedUpload'
-import { PaywallError, type PaywallReason } from '../../utils/api'
-import { useAuth } from '../../composables/useAuth'
-import { trackUpload, trackUploadError } from '../../utils/analytics'
+import StartVideoFlow from '../app/StartVideoFlow.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -20,13 +14,7 @@ const props = withDefaults(
 )
 
 const { t } = useI18n()
-const router = useRouter()
-const uploading = ref(false)
-const error = ref<string | null>(null)
-const showPaywall = ref(false)
-const paywallReason = ref<PaywallReason>('free_limit')
-const { progress, retryingChunk, uploadAndCreateJob } = useChunkedUpload()
-const { ensureLoaded } = useAuth()
+const flow = ref<InstanceType<typeof StartVideoFlow> | null>(null)
 
 const trustItems = computed(() => [
   t('tool.chapterTool.noSignup'),
@@ -34,44 +22,14 @@ const trustItems = computed(() => [
   t('tool.chapterTool.languages'),
 ])
 
-onMounted(() => {
-  void ensureLoaded()
-})
-
-async function onFileSelect(file: File) {
-  const me = await ensureLoaded()
-  if (!me.user && me.freeUsed >= me.freeLimit) {
-    paywallReason.value = 'free_limit'
-    showPaywall.value = true
-    return
-  }
-
-  uploading.value = true
-  error.value = null
-  trackUpload()
-
-  try {
-    const jobId = await uploadAndCreateJob(file, true)
-    await router.push({ name: 'job', params: { id: jobId } })
-  } catch (err) {
-    if (err instanceof PaywallError) {
-      paywallReason.value = err.reason ?? (me.user ? 'credits' : 'free_limit')
-      showPaywall.value = true
-      uploading.value = false
-      return
-    }
-    const message =
-      err instanceof Error ? err.message : t('tool.chapterTool.uploadFailed')
-    trackUploadError(message)
-    error.value = message
-    uploading.value = false
-  }
+function onFileSelect(file: File) {
+  void flow.value?.pick(file)
 }
 </script>
 
 <template>
   <Card class="chapter-tool" :class="{ compact }" :shadow="compact ? 'lg' : 'none'">
-    <div v-if="!uploading" class="controls">
+    <div class="controls">
       <VideoUploader :variant="variant" :compact="compact" @select="onFileSelect" />
 
       <ul v-if="!props.compact" class="trust-strip">
@@ -81,27 +39,9 @@ async function onFileSelect(file: File) {
         </li>
       </ul>
     </div>
-
-    <UploadProgress
-      v-else-if="progress"
-      :progress="progress"
-      :retrying-chunk="retryingChunk"
-    />
-
-    <div v-else class="uploading-state">
-      <div class="spinner" aria-hidden="true" />
-      <p>{{ t('tool.chapterTool.uploading') }}</p>
-    </div>
-
-    <div v-if="error" class="error-box">
-      <p>{{ error }}</p>
-      <button class="btn-secondary" @click="error = null; uploading = false">
-        {{ t('tool.chapterTool.tryAgain') }}
-      </button>
-    </div>
   </Card>
 
-  <PaywallModal v-if="showPaywall" :reason="paywallReason" @close="showPaywall = false" />
+  <StartVideoFlow ref="flow" />
 </template>
 
 <style scoped>
@@ -119,69 +59,10 @@ async function onFileSelect(file: File) {
   gap: 1.25rem;
 }
 
-.uploading-state {
-  text-align: center;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 3rem 2rem;
-  color: var(--text-muted);
-}
-
-.spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  margin: 0 auto 1rem;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.error-box {
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  border-radius: var(--radius);
-  padding: 1rem 1.25rem;
-  margin-top: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-}
-
-.error-box p {
-  color: #dc2626;
-  font-size: 0.9rem;
-}
-
-.btn-secondary {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius);
-  font-size: 0.85rem;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
 .chapter-tool:not(.compact) {
   padding: 0;
   border: none;
   background: transparent;
-}
-
-.chapter-tool:not(.compact) :deep(.upload-progress) {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 18px;
 }
 
 .trust-strip {

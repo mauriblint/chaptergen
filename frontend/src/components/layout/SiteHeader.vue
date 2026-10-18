@@ -3,7 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import Logo from '../ui/Logo.vue'
-import UserMenu from './UserMenu.vue'
+import AccountMenu from '../app/AccountMenu.vue'
 import LanguageMenu from './LanguageMenu.vue'
 import { isAppPath, localizedPath, type Locale } from '../../i18n/routing'
 import { useAuth } from '../../composables/useAuth'
@@ -22,7 +22,7 @@ function path(en: string) {
 }
 
 const homePath = computed(() => path('/'))
-const logoPath = computed(() => (user.value ? '/dashboard' : homePath.value))
+const logoPath = computed(() => (user.value ? '/library' : homePath.value))
 const pricingPath = computed(() => path('/pricing'))
 const onApp = computed(() => isAppPath(route.path))
 const loggedIn = computed(() => !!user.value)
@@ -102,15 +102,15 @@ onBeforeUnmount(() => {
 <template>
   <header class="site-header" :class="{ scrolled: scrolled || menuOpen }">
     <div v-if="loggedIn" class="header-inner header-inner--app">
-      <RouterLink to="/dashboard" class="logo-link" aria-label="ChapterGen">
+      <RouterLink :to="homePath" class="logo-link" aria-label="ChapterGen">
         <Logo />
       </RouterLink>
 
-      <RouterLink to="/dashboard" class="nav-center">{{ t('common.nav.myChapters') }}</RouterLink>
+      <span />
 
       <div class="header-right">
-        <RouterLink :to="pricingPath" class="btn btn-ink buy-credits">{{ t('common.nav.buyCredits') }}</RouterLink>
-        <UserMenu />
+        <RouterLink to="/library" class="btn btn-ink buy-credits">{{ t('app.nav.openLibrary') }}</RouterLink>
+        <AccountMenu />
       </div>
     </div>
 
@@ -261,18 +261,6 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-self: start;
-}
-
-.nav-center {
-  justify-self: center;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.nav-center:hover,
-.nav-center.router-link-active {
-  color: var(--text);
 }
 
 .nav-desktop {
@@ -550,10 +538,6 @@ onBeforeUnmount(() => {
   .header-inner--app {
     grid-template-columns: auto 1fr auto;
     gap: 0.75rem;
-  }
-
-  .nav-center {
-    font-size: 0.85rem;
   }
 
   .cta-long {
