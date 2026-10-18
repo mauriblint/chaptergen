@@ -66,13 +66,13 @@ export default {
   },
   home: {
     meta: {
-      title: 'AI YouTube Chapter Generator — Timestamps from Your Video File',
+      title: "AI YouTube Chapter Generator — Free Timestamps {'|'} ChapterGen",
       description:
-        'Upload a video or audio file and get YouTube chapters with timestamps and SEO-ready titles. No public URL needed — works before you publish. 2 free videos, no password.',
+        'Upload a video or audio file and get YouTube chapters with timestamps and SEO-ready titles, even before publishing. Try 2 videos free, no credit card.',
     },
     hero: {
       badge: 'Works on private and unpublished videos',
-      title: 'The AI YouTube chapter generator that works before you publish',
+      title: 'AI YouTube chapter generator that works before you publish',
       subtitle:
         "Upload a video or audio file and get clean, SEO-ready timestamps in YouTube's exact format. No public URL needed.",
     },
@@ -315,13 +315,13 @@ export default {
   },
   podcast: {
     meta: {
-      title: 'AI Podcast Chapter Generator — Timestamps from Your Audio',
+      title: "AI Podcast Chapter Generator — Free Timestamps {'|'} ChapterGen",
       description:
-        'Upload your podcast episode and get AI-generated chapters with timestamps. Works with MP3, WAV, and episodes of any length. Free to try.',
+        'Upload your episode and get timestamped chapters for YouTube, Spotify and show notes. MP3, WAV, M4A, any length. Try 2 episodes free, no credit card.',
     },
     hero: {
       badge: 'Audio-first · Any length · Free',
-      title: 'AI Podcast Chapter Generator — Upload Your Audio, Get Timestamped Chapters',
+      title: 'AI podcast chapter generator for your audio files',
       subtitle:
         'Drop in your episode file — MP3, WAV, M4A — and get clean chapters with descriptive titles in minutes. Built for interviews, solo shows, and episodes of any length.',
     },
@@ -1124,9 +1124,9 @@ export default {
   landings: {
     transcript: {
       meta: {
-        title: 'Video to Text — Transcribe Video and Audio Files with AI',
+        title: "Video to Text: Transcribe Video & Audio with AI {'|'} ChapterGen",
         description:
-          'Transcribe any video or audio file to text: MP4, MOV, MP3, WAV and more, in 90+ languages. Timestamps, search and .docx export. No public URL needed. 2 free videos.',
+          'Transcribe any video or audio file to text in 90+ languages, with timestamps, search and .docx export. No YouTube link needed. Try 2 videos free.',
       },
       hero: {
         badge: 'Works on private and unpublished files',
@@ -1223,13 +1223,13 @@ export default {
     },
     subtitles: {
       meta: {
-        title: 'Subtitle Generator — Create SRT and VTT Subtitles from Video with AI',
+        title: "AI Subtitle Generator — SRT & VTT from Video {'|'} ChapterGen",
         description:
-          'Generate SRT and VTT subtitles from any video or audio file. Readable line lengths, 90+ languages, ready for YouTube, Vimeo, Premiere and CapCut. 2 free videos.',
+          'Generate SRT and VTT subtitles from any video or audio file, with readable lines, ready for YouTube, Premiere and CapCut. Try 2 videos free.',
       },
       hero: {
         badge: 'SRT and VTT, ready to upload',
-        title: 'Generate subtitles from your video file with AI',
+        title: 'AI subtitle generator for SRT and VTT files',
         subtitle:
           'Upload a video or audio file and download SRT or VTT subtitles with readable line lengths. Chapters and the full transcript come with it.',
       },

@@ -66,13 +66,13 @@ export default {
   },
   home: {
     meta: {
-      title: 'Generador de Capítulos de YouTube con IA — Marcas de Tiempo desde tu Archivo',
+      title: "Generador de capítulos de YouTube con IA {'|'} ChapterGen",
       description:
-        'Sube un video o audio y obtén capítulos de YouTube con marcas de tiempo y títulos optimizados para SEO. Sin URL pública — funciona antes de publicar. 2 videos gratis, sin contraseña.',
+        'Sube un video o audio y obtén capítulos de YouTube con marcas de tiempo y títulos optimizados, incluso antes de publicar. 2 videos gratis, sin tarjeta.',
     },
     hero: {
       badge: 'Funciona con videos privados y sin publicar',
-      title: 'Capítulos de YouTube con IA, listos antes de publicar',
+      title: 'Generador de capítulos de YouTube con IA, antes de publicar',
       subtitle:
         'Sube un video o audio y obtén marcas de tiempo limpias y optimizadas para SEO, en el formato exacto de YouTube. Sin URL pública.',
     },
@@ -315,13 +315,13 @@ export default {
   },
   podcast: {
     meta: {
-      title: 'Generador de Capítulos de Podcast con IA — Marcas de Tiempo desde tu Audio',
+      title: "Generador de capítulos para podcast con IA {'|'} ChapterGen",
       description:
-        'Sube tu episodio de podcast y obtén capítulos con marcas de tiempo generados con IA. Funciona con MP3, WAV y episodios de cualquier duración. Gratis para probar.',
+        'Sube tu episodio y obtén capítulos con marcas de tiempo para YouTube, Spotify y tus notas. MP3, WAV, M4A, cualquier duración. 2 videos gratis.',
     },
     hero: {
       badge: 'Enfocado en audio · Cualquier duración · Gratis',
-      title: 'Generador de Capítulos de Podcast con IA — Sube tu Audio y Obtén Capítulos con Marcas de Tiempo',
+      title: 'Generador de capítulos para podcast desde tu audio',
       subtitle:
         'Suelta el archivo de tu episodio — MP3, WAV, M4A — y obtén capítulos limpios con títulos descriptivos en minutos. Hecho para entrevistas, episodios en solitario y episodios de cualquier duración.',
     },
@@ -1124,9 +1124,9 @@ export default {
   landings: {
     transcript: {
       meta: {
-        title: 'Video a Texto — Transcribe Video y Audio con IA',
+        title: "Video a texto: transcribe video y audio con IA {'|'} ChapterGen",
         description:
-          'Transcribe cualquier video o audio a texto: MP4, MOV, MP3, WAV y más, en más de 90 idiomas. Con marcas de tiempo, buscador y exportación a .docx. Sin URL pública. 2 videos gratis.',
+          'Transcribe cualquier video o audio a texto en más de 90 idiomas, con marcas de tiempo, buscador y .docx. Sin enlace de YouTube. 2 videos gratis.',
       },
       hero: {
         badge: 'Funciona con archivos privados y sin publicar',
@@ -1223,13 +1223,13 @@ export default {
     },
     subtitles: {
       meta: {
-        title: 'Generador de Subtítulos — Crea Subtítulos SRT y VTT desde tu Video con IA',
+        title: "Generador de subtítulos con IA: SRT y VTT {'|'} ChapterGen",
         description:
-          'Genera subtítulos SRT y VTT desde cualquier video o audio. Líneas de largo legible, más de 90 idiomas, listos para YouTube, Vimeo, Premiere y CapCut. 2 videos gratis.',
+          'Genera subtítulos SRT y VTT desde cualquier video o audio, con líneas legibles, listos para YouTube, Premiere y CapCut. 2 videos gratis.',
       },
       hero: {
         badge: 'SRT y VTT, listos para subir',
-        title: 'Genera subtítulos desde tu video con IA',
+        title: 'Generador de subtítulos SRT y VTT con IA',
         subtitle:
           'Sube un video o audio y descarga subtítulos SRT o VTT con líneas fáciles de leer. Incluye capítulos y la transcripción completa.',
       },
