@@ -12,16 +12,28 @@ const PATH_PAIRS: PathPair[] = [
   { en: '/', es: '/es' },
   { en: '/podcast-chapters', es: '/es/capitulos-podcast' },
   { en: '/pricing', es: '/es/precios' },
+  { en: '/video-to-text', es: '/es/video-a-texto' },
+  { en: '/subtitle-generator', es: '/es/generador-de-subtitulos' },
+  { en: '/about', es: '/es/acerca-de' },
+  { en: '/privacy', es: '/es/privacidad' },
+  { en: '/terms', es: '/es/terminos' },
 ]
 
-export const APP_PATHS = ['/dashboard', '/login', '/settings', '/billing'] as const
-
-export function isAuthPath(path: string): boolean {
-  return path === '/dashboard' || path === '/settings' || path === '/billing'
+/** Returns the [en, es] pair a marketing path belongs to, if any. */
+export function pathPair(path: string): PathPair | undefined {
+  const normalized = path.replace(/\/+$/, '') || '/'
+  return PATH_PAIRS.find((p) => p.en === normalized || p.es === normalized)
 }
 
+export const APP_PATHS = ['/library', '/new', '/login', '/settings', '/billing'] as const
+
+export function isAuthPath(path: string): boolean {
+  return path === '/library' || path === '/new' || path === '/settings' || path === '/billing'
+}
+
+/** App screens share one URL for both languages; the locale comes from the account. */
 export function isAppPath(path: string): boolean {
-  return path === '/login' || isAuthPath(path)
+  return path === '/login' || isAuthPath(path) || path.startsWith('/videos/')
 }
 
 export function isLocale(value: unknown): value is Locale {
@@ -42,7 +54,7 @@ export function localeFromPath(path: string): Locale {
  */
 export function localizedPath(path: string, target: Locale): string {
   const normalized = path.replace(/\/+$/, '') || '/'
-  if (isAppPath(normalized) || normalized.startsWith('/jobs/')) return normalized
+  if (isAppPath(normalized)) return normalized
   const pair = PATH_PAIRS.find((p) => p.en === normalized || p.es === normalized)
   if (pair) return pair[target]
   return target === 'es' ? '/es' : '/'

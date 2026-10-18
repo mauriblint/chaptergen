@@ -102,14 +102,18 @@ async function uploadChunkWithRetry(
   throw lastError ?? new Error('Upload failed')
 }
 
-async function completeUpload(
+export async function completeUpload(
   uploadId: string,
   autoMode: boolean,
-  chapterCount?: number
+  chapterCount?: number,
+  language?: string
 ): Promise<string> {
   const body: Record<string, unknown> = { auto: autoMode }
   if (!autoMode && chapterCount != null) {
     body.chapterCount = chapterCount
+  }
+  if (language) {
+    body.language = language
   }
 
   const response = await fetch(`${API_BASE}/uploads/${uploadId}/complete`, {
@@ -130,12 +134,8 @@ async function completeUpload(
   return data.id as string
 }
 
-export async function uploadFileAndCreateJob(
-  file: File,
-  autoMode: boolean,
-  chapterCount?: number,
-  callbacks: UploadCallbacks = {}
-): Promise<string> {
+/** Sends every chunk and resolves with the upload id; processing has not started yet. */
+export async function uploadFile(file: File, callbacks: UploadCallbacks = {}): Promise<string> {
   const { uploadId, totalChunks, chunkSize } = await initUpload(file, CHUNK_SIZE_BYTES)
   let bytesUploaded = 0
 
@@ -156,6 +156,16 @@ export async function uploadFileAndCreateJob(
     })
   }
 
+  return uploadId
+}
+
+export async function uploadFileAndCreateJob(
+  file: File,
+  autoMode: boolean,
+  chapterCount?: number,
+  callbacks: UploadCallbacks = {}
+): Promise<string> {
+  const uploadId = await uploadFile(file, callbacks)
   return completeUpload(uploadId, autoMode, chapterCount)
 }
 
@@ -163,24 +173,27 @@ export function useChunkedUpload() {
   const progress = ref<UploadProgress | null>(null)
   const retryingChunk = ref<number | null>(null)
 
-  async function uploadAndCreateJob(
-    file: File,
-    autoMode: boolean,
-    chapterCount?: number
-  ): Promise<string> {
-    progress.value = null
-    retryingChunk.value = null
-
-    return uploadFileAndCreateJob(file, autoMode, chapterCount, {
-      onProgress: (p) => {
-        progress.value = p
-        retryingChunk.value = null
-      },
-      onRetry: (chunk) => {
-        retryingChunk.value = chunk
-      },
-    })
+  const callbacks: UploadCallbacks = {
+    onProgress: (p) => {
+      progress.value = p
+      retryingChunk.value = null
+    },
+    onRetry: (chunk) => {
+      retryingChunk.value = chunk
+    },
   }
 
-  return { progress, retryingChunk, uploadAndCreateJob }
+  /** Starts sending the file; call `startJob` with the id once the user may process it. */
+  function startUpload(file: File): Promise<string> {
+    progress.value = { bytesUploaded: 0, totalBytes: file.size, percent: 0, currentChunk: 0, totalChunks: 1 }
+    retryingChunk.value = null
+    return uploadFile(file, callbacks)
+  }
+
+  /** `language` is the ISO code of the audio; empty lets the server detect it. */
+  function startJob(uploadId: string, language = ''): Promise<string> {
+    return completeUpload(uploadId, true, undefined, language)
+  }
+
+  return { progress, retryingChunk, startUpload, startJob }
 }

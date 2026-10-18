@@ -11,7 +11,11 @@ import type { Locale } from '../i18n/routing'
 export interface AuthUser {
   id: string
   email: string
+  /** Paid credits. */
   credits: number
+  freeCredits: number
+  totalCredits: number
+  hasPaid: boolean
   locale: Locale
   googleId: string | null
   pictureUrl: string | null
@@ -21,14 +25,19 @@ export interface AuthUser {
 
 export interface AuthMe {
   user: AuthUser | null
-  freeUsed: number
   freeLimit: number
   freeMaxMinutes: number
 }
 
+export interface VerifyCodeResult {
+  user: AuthUser
+  created: boolean
+  freeGranted: number
+}
+
 export interface AccountPayment {
   id: string
-  pack: 'starter' | 'creator'
+  pack: 'starter' | 'creator' | 'studio'
   creditsGranted: number
   amountCents: number
   status: 'paid' | 'refunded'
@@ -52,7 +61,7 @@ export interface AccountPayload {
 }
 
 export interface Pack {
-  id: 'starter' | 'creator'
+  id: 'starter' | 'creator' | 'studio'
   credits: number
   amountCents: number
 }
@@ -63,12 +72,8 @@ const loading = ref(false)
 
 export function useAuth() {
   const user = computed(() => me.value?.user ?? null)
-  const credits = computed(() => me.value?.user?.credits ?? 0)
+  const credits = computed(() => me.value?.user?.totalCredits ?? 0)
   const isLoggedIn = computed(() => !!me.value?.user)
-  const atFreeLimit = computed(() => {
-    if (!me.value || me.value.user) return false
-    return me.value.freeUsed >= me.value.freeLimit
-  })
 
   async function refresh(): Promise<AuthMe> {
     loading.value = true
@@ -95,7 +100,6 @@ export function useAuth() {
     resetAnalytics()
     me.value = {
       user: null,
-      freeUsed: me.value?.freeUsed ?? 0,
       freeLimit: me.value?.freeLimit ?? 2,
       freeMaxMinutes: me.value?.freeMaxMinutes ?? 20,
     }
@@ -109,11 +113,21 @@ export function useAuth() {
     if (me.value) me.value = { ...me.value, user: data.user }
   }
 
-  async function requestMagicLink(email: string): Promise<void> {
-    await apiFetch('/auth/magic-link', {
+  /** Sends a 6-digit code. Works for new and existing accounts. */
+  async function requestCode(email: string, locale: Locale): Promise<void> {
+    await apiFetch('/auth/code/request', {
       method: 'POST',
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, locale }),
     })
+  }
+
+  async function verifyCode(email: string, code: string, locale: Locale): Promise<VerifyCodeResult> {
+    const data = await apiFetch<VerifyCodeResult>('/auth/code/verify', {
+      method: 'POST',
+      body: JSON.stringify({ email, code, locale }),
+    })
+    await refresh()
+    return data
   }
 
   async function magicLogin(token: string): Promise<AuthUser> {
@@ -172,9 +186,11 @@ export function useAuth() {
   }
 
   async function sendSupport(subject: string, message: string): Promise<void> {
+    // The page they wrote from helps answer ("this video", "this screen").
+    const page = typeof window !== 'undefined' ? window.location.pathname + window.location.search : null
     await apiFetch('/support', {
       method: 'POST',
-      body: JSON.stringify({ subject, message }),
+      body: JSON.stringify({ subject, message, page }),
     })
   }
 
@@ -183,14 +199,14 @@ export function useAuth() {
     user,
     credits,
     isLoggedIn,
-    atFreeLimit,
     loaded,
     loading,
     refresh,
     ensureLoaded,
     logout,
     updateLocale,
-    requestMagicLink,
+    requestCode,
+    verifyCode,
     magicLogin,
     claimCheckout,
     startCheckout,

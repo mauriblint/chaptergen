@@ -27,6 +27,14 @@ export interface JobSummary {
   clientId: string | null
   userId: string | null
   userEmail: string | null
+  transcriptLanguage: string | null
+  audioLanguage: string | null
+  creditSource: 'free' | 'paid' | null
+  creditsRefunded: boolean
+  refineCount: number
+  retranscribed: boolean
+  /** Sum of the recorded OpenAI calls; null for jobs from before tracking. */
+  aiCostUsd: number | null
   errorMessage: string | null
   failureReason: string | null
   createdAt: string
@@ -36,4 +44,27 @@ export interface JobSummary {
 export interface JobsListResponse {
   jobs: JobSummary[]
   total: number
+}
+
+export type UsageStep = 'transcription' | 'chapters'
+export type UsageReason = 'initial' | 'refine' | 'retranscribe'
+
+export interface UsageRecord {
+  id: string
+  jobId: string
+  step: UsageStep
+  reason: UsageReason
+  model: string
+  inputTokens: number
+  cachedInputTokens: number
+  audioInputTokens: number
+  outputTokens: number
+  audioSeconds: number | null
+  costUsd: number | null
+  createdAt: string
+}
+
+export interface JobDetailResponse {
+  job: JobSummary
+  usage: UsageRecord[]
 }

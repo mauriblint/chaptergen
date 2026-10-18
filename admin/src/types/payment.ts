@@ -1,5 +1,5 @@
 export type PaymentStatus = 'paid' | 'refunded'
-export type PackId = 'starter' | 'creator'
+export type PackId = 'starter' | 'creator' | 'studio'
 
 export interface AdminPayment {
   id: string

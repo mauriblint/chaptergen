@@ -56,14 +56,16 @@ defineProps<{
 }
 
 .btn-primary {
-  background: var(--accent);
+  min-height: 44px;
+  background: var(--ink);
   color: white;
   border: none;
   padding: 0.65rem 1.25rem;
+  font-weight: 600;
 }
 
 .btn-primary:hover:not(:disabled) {
-  opacity: 0.9;
+  background: #2a2e36;
 }
 
 .btn-secondary {

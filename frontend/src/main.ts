@@ -7,86 +7,103 @@ import { DEFAULT_LOCALE, LOCALE_STORAGE_KEY, isAppPath, isLocale, localeFromPath
 import { useAuth } from './composables/useAuth'
 import { initMixpanel, trackPageView } from './utils/analytics'
 
-export const createApp = ViteSSG(App, { routes }, ({ app, router, isClient }) => {
-  const i18n = createI18nInstance()
-  app.use(i18n)
+export const createApp = ViteSSG(
+  App,
+  {
+    routes,
+    // New pages start at the top; back/forward restores the old position.
+    scrollBehavior(to, from, savedPosition) {
+      if (savedPosition) return savedPosition
+      if (to.hash) return { el: to.hash, behavior: 'smooth' }
+      if (to.path === from.path) return false
+      return { top: 0 }
+    },
+  },
+  ({ app, router, isClient }) => {
+    const i18n = createI18nInstance()
+    app.use(i18n)
 
-  router.beforeEach((to) => {
-    if (isAppPath(to.path)) {
+    router.beforeEach((to) => {
+      if (isAppPath(to.path)) {
+        if (isClient) {
+          try {
+            const stored = localStorage.getItem(LOCALE_STORAGE_KEY)
+            if (isLocale(stored)) setLocale(i18n, stored)
+          } catch {
+            // ignore
+          }
+        }
+        return
+      }
+
+      const routeLocale = to.meta.locale
+      const locale = isLocale(routeLocale) ? routeLocale : localeFromPath(to.path)
+      setLocale(i18n, locale)
+
       if (isClient) {
         try {
-          const stored = localStorage.getItem(LOCALE_STORAGE_KEY)
-          if (isLocale(stored)) setLocale(i18n, stored)
+          localStorage.setItem(LOCALE_STORAGE_KEY, locale)
         } catch {
-          // ignore
+          // ignore storage errors (private mode, etc.)
         }
       }
-      return
-    }
-
-    const routeLocale = to.meta.locale
-    const locale = isLocale(routeLocale) ? routeLocale : localeFromPath(to.path)
-    setLocale(i18n, locale)
+    })
 
     if (isClient) {
-      try {
-        localStorage.setItem(LOCALE_STORAGE_KEY, locale)
-      } catch {
-        // ignore storage errors (private mode, etc.)
-      }
+      initMixpanel()
+      const { ensureLoaded } = useAuth()
+
+      router.beforeEach(async (to) => {
+        // If the API is unreachable, treat the visitor as signed out instead of
+        // leaving the page blank.
+        const me = await ensureLoaded().catch(() => null)
+        const loggedIn = !!me?.user
+        const claimingCheckout =
+          to.path === '/library' &&
+          typeof to.query.session_id === 'string' &&
+          to.query.session_id.length > 0
+
+        if (to.meta.requiresAuth && !loggedIn && !claimingCheckout) {
+          return { path: '/login', query: { next: to.fullPath } }
+        }
+
+        if (loggedIn && (to.path === '/' || to.path === '/es')) {
+          return '/library'
+        }
+
+        if (loggedIn && to.path === '/login' && !to.query.token) {
+          return typeof to.query.next === 'string' && to.query.next.startsWith('/') && !to.query.next.startsWith('//')
+            ? to.query.next
+            : '/library'
+        }
+
+        return true
+      })
+
+      let redirected = false
+      router.beforeEach((to) => {
+        if (redirected) return true
+        redirected = true
+
+        if (to.path !== '/') return true
+
+        let stored: string | null = null
+        try {
+          stored = localStorage.getItem(LOCALE_STORAGE_KEY)
+        } catch {
+          stored = null
+        }
+
+        const preferred =
+          stored ?? (navigator.language?.toLowerCase().startsWith('es') ? 'es' : DEFAULT_LOCALE)
+
+        if (preferred === 'es') return '/es'
+        return true
+      })
+
+      router.afterEach((to) => {
+        trackPageView(to.fullPath)
+      })
     }
-  })
-
-  if (isClient) {
-    initMixpanel()
-    const { ensureLoaded } = useAuth()
-
-    router.beforeEach(async (to) => {
-      const me = await ensureLoaded()
-      const loggedIn = !!me.user
-      const claimingCheckout =
-        to.path === '/dashboard' &&
-        typeof to.query.session_id === 'string' &&
-        to.query.session_id.length > 0
-
-      if (to.meta.requiresAuth && !loggedIn && !claimingCheckout) {
-        return '/login'
-      }
-
-      if (loggedIn && (to.path === '/' || to.path === '/es')) {
-        return '/dashboard'
-      }
-
-      if (loggedIn && to.path === '/login' && !to.query.token) {
-        return '/dashboard'
-      }
-
-      return true
-    })
-
-    let redirected = false
-    router.beforeEach((to) => {
-      if (redirected) return true
-      redirected = true
-
-      if (to.path !== '/') return true
-
-      let stored: string | null = null
-      try {
-        stored = localStorage.getItem(LOCALE_STORAGE_KEY)
-      } catch {
-        stored = null
-      }
-
-      const preferred =
-        stored ?? (navigator.language?.toLowerCase().startsWith('es') ? 'es' : DEFAULT_LOCALE)
-
-      if (preferred === 'es') return '/es'
-      return true
-    })
-
-    router.afterEach((to) => {
-      trackPageView(to.fullPath)
-    })
   }
-})
+)

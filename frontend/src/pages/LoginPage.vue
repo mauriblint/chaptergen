@@ -1,143 +1,161 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useHead } from '@unhead/vue'
-import MarketingLayout from '../layouts/MarketingLayout.vue'
-import Card from '../components/ui/Card.vue'
-import Button from '../components/ui/Button.vue'
-import { useAuth } from '../composables/useAuth'
-import { LOCALE_STORAGE_KEY } from '../i18n/routing'
+import Logo from '../components/ui/Logo.vue'
+import EmailCodeForm from '../components/auth/EmailCodeForm.vue'
+import { useAuth, type AuthUser } from '../composables/useAuth'
+import { LOCALE_STORAGE_KEY, localizedPath, type Locale } from '../i18n/routing'
 
 const { t, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
-const { requestMagicLink, magicLogin, ensureLoaded } = useAuth()
+const { magicLogin, ensureLoaded } = useAuth()
 
-const email = ref('')
-const sent = ref(false)
 const error = ref<string | null>(null)
-const loading = ref(false)
+const checking = ref(true)
 
 useHead(
   computed(() => ({
-    title: t('login.metaTitle'),
+    title: t('app.login.metaTitle'),
     htmlAttrs: { lang: locale.value },
+    meta: [{ name: 'robots', content: 'noindex' }],
   }))
 )
+
+/** Only same-site paths are allowed as a redirect target. */
+const next = computed(() => {
+  const value = typeof route.query.next === 'string' ? route.query.next : ''
+  return value.startsWith('/') && !value.startsWith('//') ? value : '/library'
+})
+
+function applyLocale(user: AuthUser) {
+  locale.value = user.locale
+  try {
+    localStorage.setItem(LOCALE_STORAGE_KEY, user.locale)
+  } catch {
+    // ignore
+  }
+}
 
 onMounted(async () => {
   const token = typeof route.query.token === 'string' ? route.query.token : ''
   if (token) {
-    loading.value = true
     try {
-      const user = await magicLogin(token)
-      locale.value = user.locale
-      try {
-        localStorage.setItem(LOCALE_STORAGE_KEY, user.locale)
-      } catch {
-        // ignore
-      }
-      await router.replace('/dashboard')
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : t('login.invalidLink')
-      loading.value = false
+      applyLocale(await magicLogin(token))
+      await router.replace(next.value)
+      return
+    } catch {
+      error.value = t('app.login.invalidLink')
     }
-    return
+  } else {
+    const me = await ensureLoaded()
+    if (me.user) {
+      await router.replace(next.value)
+      return
+    }
   }
-
-  const me = await ensureLoaded()
-  if (me.user) {
-    await router.replace('/dashboard')
-  }
+  checking.value = false
 })
 
-async function onSubmit() {
-  error.value = null
-  loading.value = true
-  try {
-    await requestMagicLink(email.value)
-    sent.value = true
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : t('login.sendError')
-  } finally {
-    loading.value = false
-  }
+async function onVerified(result: { user: AuthUser }) {
+  applyLocale(result.user)
+  await router.replace(next.value)
 }
 </script>
 
 <template>
-  <MarketingLayout>
-    <div class="wrap">
-      <Card class="card" shadow="lg">
-        <h1>{{ t('login.title') }}</h1>
-        <p class="lead">{{ t('login.subtitle') }}</p>
-
-        <form v-if="!sent" class="form" @submit.prevent="onSubmit">
-          <label for="email">{{ t('login.email') }}</label>
-          <input
-            id="email"
-            v-model="email"
-            type="email"
-            required
-            autocomplete="email"
-            :placeholder="t('login.placeholder')"
-          />
-          <Button type="submit" :disabled="loading || !email">
-            {{ loading ? t('login.sending') : t('login.submit') }}
-          </Button>
-        </form>
-
-        <p v-else class="ok">{{ t('login.sent') }}</p>
-        <p v-if="error" class="error">{{ error }}</p>
-      </Card>
-    </div>
-  </MarketingLayout>
+  <div class="login">
+    <RouterLink :to="localizedPath('/', locale as Locale)" class="logo" :aria-label="t('common.nav.homeLabel')">
+      <Logo />
+    </RouterLink>
+    <main class="card">
+      <div v-if="checking && !error" class="checking" role="status">
+        <span class="spinner" aria-hidden="true" />
+        {{ t('app.login.checking') }}
+      </div>
+      <template v-else>
+        <p v-if="error" class="error" role="alert">{{ error }}</p>
+        <EmailCodeForm variant="login" @verified="onVerified" />
+      </template>
+    </main>
+    <p class="foot">
+      {{ t('app.login.noAccount') }}
+      <RouterLink :to="localizedPath('/', locale as Locale)">{{ t('app.login.tryFree') }}</RouterLink>
+    </p>
+  </div>
 </template>
 
 <style scoped>
-.wrap {
-  max-width: 440px;
-  margin: 4rem auto;
-  padding: 0 1.5rem 4rem;
-}
-
-h1 {
-  font-size: 1.6rem;
-  margin-bottom: 0.4rem;
-}
-
-.lead {
-  color: var(--text-muted);
-  margin-bottom: 1.5rem;
-}
-
-.form {
+.login {
+  min-height: 100vh;
+  padding: 2.5rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 2rem;
+  background: var(--bg);
 }
 
-label {
-  font-size: 0.85rem;
-  font-weight: 500;
+.logo {
+  display: flex;
 }
 
-input {
+.card {
+  width: 100%;
+  max-width: 440px;
+  padding: 2rem;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 0.7rem 0.85rem;
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
+  border-radius: 22px;
+  background: var(--surface);
+  box-shadow: 0 18px 50px rgba(17, 19, 24, 0.06);
 }
 
-.ok {
-  color: var(--text);
+.checking {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-muted);
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .error {
-  color: #dc2626;
-  margin-top: 0.75rem;
-  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #fdecec;
+  color: #b42318;
+  font-size: 0.875rem;
+}
+
+.foot {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.foot a {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+@media (max-width: 520px) {
+  .card {
+    padding: 1.5rem 1.25rem;
+  }
 }
 </style>

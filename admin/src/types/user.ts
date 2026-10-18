@@ -4,6 +4,8 @@ export interface AdminUser {
   googleId: string | null
   stripeCustomerId: string | null
   creditsRemaining: number
+  freeCredits: number
+  emailVerifiedAt: string | null
   locale: 'en' | 'es'
   createdAt: string
   lastLoginAt: string | null

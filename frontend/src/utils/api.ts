@@ -2,9 +2,9 @@ import { getClientId } from './clientId'
 
 export const API_BASE = import.meta.env.VITE_API_BASE ?? '/api'
 
-export type PaywallReason = 'free_limit' | 'credits' | 'refine' | 'free_duration' | 'buy'
+export type PaywallReason = 'free_limit' | 'credits' | 'refine' | 'free_duration' | 'buy' | 'verify'
 
-const API_PAYWALL_REASONS = new Set(['free_limit', 'credits', 'refine'])
+const API_PAYWALL_REASONS = new Set(['free_limit', 'credits', 'refine', 'verify'])
 
 export function parsePaywallReason(value: unknown): PaywallReason | undefined {
   return typeof value === 'string' && API_PAYWALL_REASONS.has(value)

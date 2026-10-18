@@ -5,12 +5,17 @@ import {
   formatSecondsToTimestamp,
 } from '../types.js'
 import type { RefineOptions } from '../types/refine.js'
+import { recordUsage, type UsageContext } from '../db/aiUsage.js'
+
+const CHAPTERS_MODEL = 'gpt-4o-mini'
 
 export interface ChapterGenerationOptions {
   chapterCount: number | null
   refine?: RefineOptions
   existingChapters?: Chapter[]
   language?: string | null
+  /** Records the call's tokens and cost against this job. */
+  usage?: UsageContext
 }
 
 function getOpenAI(): OpenAI {
@@ -140,7 +145,7 @@ export async function generateChapters(
   const temperature = options.refine?.mode === 'titles' ? 0.5 : 0.3
 
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
+    model: CHAPTERS_MODEL,
     response_format: { type: 'json_object' },
     messages: [
       {
@@ -161,6 +166,12 @@ The "time" field must be HH:MM:SS.`,
       },
     ],
     temperature,
+  })
+
+  recordUsage(options.usage, 'chapters', CHAPTERS_MODEL, {
+    inputTokens: response.usage?.prompt_tokens ?? 0,
+    cachedInputTokens: response.usage?.prompt_tokens_details?.cached_tokens ?? 0,
+    outputTokens: response.usage?.completion_tokens ?? 0,
   })
 
   const content = response.choices[0]?.message?.content

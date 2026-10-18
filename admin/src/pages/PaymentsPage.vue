@@ -4,17 +4,7 @@ import PaginationBar from '../components/PaginationBar.vue'
 import PaymentsTable from '../components/PaymentsTable.vue'
 import { useAdminPayments } from '../composables/useAdminPayments'
 
-const {
-  payments,
-  total,
-  offset,
-  pageSize,
-  loading,
-  error,
-  fetchPayments,
-  nextPage,
-  prevPage,
-} = useAdminPayments()
+const { payments, total, offset, pageSize, loading, error, fetchPayments, nextPage, prevPage } = useAdminPayments()
 
 onMounted(() => {
   void fetchPayments()
@@ -22,30 +12,22 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
-    <div class="mb-4 flex items-center justify-end">
-      <button
-        type="button"
-        class="rounded-lg border border-border px-3 py-1.5 text-sm text-muted transition hover:bg-bg hover:text-text disabled:opacity-50"
-        :disabled="loading"
-        @click="fetchPayments"
-      >
+  <div class="flex flex-col gap-5">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h1 class="page-title">Payments</h1>
+        <p class="mt-1 text-sm text-muted">{{ total.toLocaleString('en-US') }} credit purchases through Stripe.</p>
+      </div>
+      <button type="button" class="btn btn-outline" :disabled="loading" @click="fetchPayments">
         {{ loading ? 'Refreshing…' : 'Refresh' }}
       </button>
     </div>
 
-    <p v-if="error" class="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
-      {{ error }}
-    </p>
+    <p v-if="error" class="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{{ error }}</p>
 
-    <PaymentsTable :payments="payments" :loading="loading" />
-    <PaginationBar
-      :total="total"
-      :offset="offset"
-      :page-size="pageSize"
-      :loading="loading"
-      @prev="prevPage"
-      @next="nextPage"
-    />
+    <div>
+      <PaymentsTable :payments="payments" :loading="loading" />
+      <PaginationBar :total="total" :offset="offset" :page-size="pageSize" :loading="loading" @prev="prevPage" @next="nextPage" />
+    </div>
   </div>
 </template>

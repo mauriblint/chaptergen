@@ -14,9 +14,11 @@ import { transcribeRouter } from './routes/transcribe.js'
 import { uploadsRouter } from './routes/uploads.js'
 import { stripeWebhookHandler } from './routes/stripeWebhook.js'
 import { cleanupExpiredSessions } from './services/chunkedUpload.js'
+import { sweepExpiredAudio } from './services/audioRetention.js'
 import { attachUser } from './auth/session.js'
 import './db/users.js'
 import './db/payments.js'
+import './db/aiUsage.js'
 
 dotenv.config()
 if (fs.existsSync(path.resolve('.env.production'))) {
@@ -92,4 +94,7 @@ app.listen(port, () => {
   console.log(`Backend running on http://localhost:${port}`)
   cleanupExpiredSessions()
   setInterval(cleanupExpiredSessions, 6 * 60 * 60 * 1000)
+  const sweepAudio = () => void sweepExpiredAudio().catch((err) => console.error('audio sweep error:', err))
+  sweepAudio()
+  setInterval(sweepAudio, 60 * 60 * 1000)
 })

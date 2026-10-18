@@ -12,6 +12,7 @@ import {
   listPayments,
 } from '../db/payments.js'
 import { getUserById, listUsers } from '../db/users.js'
+import { getCostOverview, listUsageByJob } from '../db/aiUsage.js'
 import { requireAdmin } from '../middleware/adminAuth.js'
 import { signAdminToken } from '../utils/adminToken.js'
 
@@ -73,7 +74,15 @@ adminRouter.get('/admin/jobs/:id', requireAdmin, (req: Request, res: Response) =
     res.status(404).json({ error: 'Job not found' })
     return
   }
-  res.json(job)
+  res.json({ job, usage: listUsageByJob(id) })
+})
+
+/** Jobs, AI cost and revenue for the last `days` days (default 30). */
+adminRouter.get('/admin/overview', requireAdmin, (req: Request, res: Response) => {
+  const days = Math.min(Math.max(Number(req.query.days) || 30, 1), 365)
+  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+  since.setUTCHours(0, 0, 0, 0)
+  res.json(getCostOverview(since.toISOString()))
 })
 
 adminRouter.get('/admin/users', requireAdmin, (req: Request, res: Response) => {

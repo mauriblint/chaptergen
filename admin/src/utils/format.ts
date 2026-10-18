@@ -35,5 +35,28 @@ export function formatMoney(amountCents: number): string {
 export function packLabel(pack: string): string {
   if (pack === 'starter') return 'Starter'
   if (pack === 'creator') return 'Creator'
+  if (pack === 'studio') return 'Studio'
   return pack
+}
+
+/** AI costs are often fractions of a cent, so small amounts keep more decimals. */
+export function formatUsd(value: number | null | undefined): string {
+  if (value == null) return '—'
+  if (value === 0) return '$0'
+  const digits = value >= 100 ? 0 : value >= 1 ? 2 : value >= 0.01 ? 3 : 4
+  return `$${value.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits })}`
+}
+
+export function formatCompact(value: number): string {
+  return new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(value)
+}
+
+export function formatMinutes(seconds: number | null | undefined): string {
+  if (seconds == null) return '—'
+  const minutes = seconds / 60
+  return `${minutes >= 10 ? Math.round(minutes).toLocaleString('en-US') : minutes.toFixed(1)} min`
+}
+
+export function formatPercent(value: number | null): string {
+  return value == null || !Number.isFinite(value) ? '—' : `${Math.round(value * 100)}%`
 }

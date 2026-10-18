@@ -4,6 +4,7 @@ import Section from '../ui/Section.vue'
 import type { UseCaseItem } from '../../content/home'
 
 defineProps<{
+  eyebrow?: string
   title: string
   items: UseCaseItem[]
 }>()
@@ -11,7 +12,10 @@ defineProps<{
 
 <template>
   <Section id="use-cases">
-    <h2 class="section-title">{{ title }}</h2>
+    <div class="section-head">
+      <span v-if="eyebrow" class="eyebrow">{{ eyebrow }}</span>
+      <h2 class="section-title">{{ title }}</h2>
+    </div>
     <div class="use-case-grid">
       <div v-for="(item, i) in items" :key="i" class="use-case-card">
         <h3 class="use-case-title">{{ item.title }}</h3>
@@ -25,49 +29,60 @@ defineProps<{
 </template>
 
 <style scoped>
-.section-title {
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin-bottom: 2.5rem;
-  text-align: center;
-}
-
 .use-case-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1.25rem;
 }
 
 .use-case-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.5rem;
-  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.75rem;
+  background: var(--bg);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
 }
 
 .use-case-title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
 }
 
 .use-case-desc {
-  font-size: 0.875rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
   color: var(--text-muted);
-  line-height: 1.5;
 }
 
 .use-case-link {
-  display: inline-block;
-  margin-top: 0.75rem;
-  font-size: 0.85rem;
-  font-weight: 500;
+  margin-top: auto;
+  padding-top: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
   color: var(--accent);
 }
 
 .use-case-link:hover {
-  opacity: 0.8;
+  text-decoration: underline;
+}
+
+@media (max-width: 960px) {
+  .use-case-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .use-case-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .use-case-card {
+    padding: 1.4rem;
+  }
 }
 </style>
