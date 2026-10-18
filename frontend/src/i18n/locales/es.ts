@@ -1,7 +1,6 @@
 export default {
   common: {
     nav: {
-      howItWorks: 'Cómo funciona',
       tryFree: 'Probar gratis',
       homeLabel: 'Inicio de ChapterGen',
       mainLabel: 'Navegación principal',
@@ -11,8 +10,6 @@ export default {
       product: 'Producto',
       tryFreeShort: 'Probar',
       tryFreeMobile: 'Generar capítulos gratis',
-      promo: '2 videos gratis, solo confirma tu email',
-      promoCta: 'Probar ahora →',
       productMenu: {
         youtube: {
           title: 'Generador de capítulos de YouTube',
@@ -533,33 +530,88 @@ export default {
   },
   pricing: {
     meta: {
-      title: 'Precios — Packs de créditos de ChapterGen',
+      title: 'Precios — Paquetes de créditos de ChapterGen',
       description:
-        'Prueba 2 videos gratis y compra créditos cuando necesites más. Sin suscripción. Starter $5 / 5 videos, Creator $12 / 15 videos.',
+        'Prueba 2 videos gratis y compra créditos cuando necesites más. Sin suscripción. Starter $5 por 5 videos, Creator $12 por 15. Cada video incluye capítulos, transcripción y subtítulos.',
     },
-    title: 'Packs de créditos simples',
-    subtitle:
-      'Dos videos gratis para probar el flujo. Pagás solo cuando necesitás más — los créditos no vencen.',
-    free: {
-      name: 'Gratis',
-      jobs: '2 videos',
-      minutes: 'Hasta 20 minutos cada uno',
-      signup: 'Solo confirma tu email',
-    },
-    packs: {
+    eyebrow: 'Precios',
+    title: 'Pagas por video. Sin suscripción.',
+    subtitle: 'Empieza con 2 videos gratis. Compra créditos solo cuando necesites más; no vencen.',
+    bestValue: 'Mejor valor',
+    oneTime: 'pago único',
+    unit: '{n} videos · {price} por video',
+    buy: 'Comprar {name}',
+    plans: {
+      free: {
+        name: 'Gratis',
+        unit: '2 videos para probarlo',
+        cta: 'Empezar gratis',
+        features: [
+          '2 videos, de hasta 20 minutos cada uno',
+          'Capítulos, transcripción y subtítulos',
+          '2 mejoras de títulos con IA por video',
+          'Sin tarjeta, solo confirma tu email',
+        ],
+      },
       starter: {
-        name: 'Starter',
-        blurb: 'Para un lote corto de subidas.',
+        features: [
+          '5 videos de cualquier duración, hasta 500 MB',
+          'Capítulos, transcripción y subtítulos',
+          'Mejoras de títulos con IA ilimitadas',
+          'Descargas: .txt, .docx, SRT, VTT, .zip',
+          'Los créditos no vencen',
+        ],
       },
       creator: {
-        name: 'Creator',
-        blurb: 'Mejor valor si publicás todas las semanas.',
+        features: [
+          '15 videos de cualquier duración, hasta 500 MB',
+          'Capítulos, transcripción y subtítulos',
+          'Mejoras de títulos con IA ilimitadas',
+          'Descargas: .txt, .docx, SRT, VTT, .zip',
+          'Los créditos no vencen',
+        ],
       },
     },
-    credits: '{count} videos',
-    minuteRule: '1 crédito = 1 video. Los créditos no vencen',
-    refineIncluded: 'Refine ilimitado en videos pagos',
-    buy: 'Comprar créditos',
+    packs: {
+      starter: { name: 'Starter' },
+      creator: { name: 'Creator' },
+    },
+    included: {
+      title: 'Cada video incluye',
+      chapters: {
+        title: 'Capítulos',
+        description: 'Marcas de tiempo listas para YouTube con títulos descriptivos, editables y verificadas con las reglas de YouTube.',
+      },
+      transcript: {
+        title: 'Transcripción',
+        description: 'El texto completo con marcas de tiempo, con buscador y agrupado por capítulo. Descárgala en .txt o .docx.',
+      },
+      subtitles: {
+        title: 'Subtítulos',
+        description: 'Archivos SRT y VTT con líneas fáciles de leer, listos para YouTube, Vimeo y editores de video.',
+      },
+    },
+    faq: {
+      title: 'Preguntas sobre precios',
+      items: [
+        {
+          question: '¿Qué cuenta como un video?',
+          answer: 'Un archivo subido, de cualquier duración hasta 500 MB. Usa un crédito y te da capítulos, transcripción y subtítulos.',
+        },
+        {
+          question: '¿Los créditos vencen?',
+          answer: 'No. Compras una vez y los usas cuando quieras.',
+        },
+        {
+          question: '¿Hay suscripción?',
+          answer: 'No. Cada paquete es un pago único, procesado de forma segura por Stripe.',
+        },
+        {
+          question: '¿Qué pasa si un video falla?',
+          answer: 'Si el procesamiento falla, el crédito vuelve a tu cuenta automáticamente.',
+        },
+      ],
+    },
     loadError: 'No se pudieron cargar los precios.',
     checkoutError: 'No se pudo iniciar el pago. Intenta de nuevo.',
   },

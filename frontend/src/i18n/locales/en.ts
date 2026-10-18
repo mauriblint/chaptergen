@@ -1,7 +1,6 @@
 export default {
   common: {
     nav: {
-      howItWorks: 'How it works',
       tryFree: 'Try it free',
       homeLabel: 'ChapterGen home',
       mainLabel: 'Main navigation',
@@ -11,8 +10,6 @@ export default {
       product: 'Product',
       tryFreeShort: 'Try free',
       tryFreeMobile: 'Generate chapters free',
-      promo: '2 free videos, just confirm your email',
-      promoCta: 'Try it now →',
       productMenu: {
         youtube: {
           title: 'YouTube chapter generator',
@@ -535,31 +532,86 @@ export default {
     meta: {
       title: 'Pricing — ChapterGen credit packs',
       description:
-        'Try 2 videos free, then buy credits when you need more. No subscription. Starter $5 / 5 videos, Creator $12 / 15 videos.',
+        'Try 2 videos free, then buy credits when you need more. No subscription. Starter $5 for 5 videos, Creator $12 for 15. Each video includes chapters, a transcript and subtitles.',
     },
-    title: 'Simple credit packs',
-    subtitle:
-      'Two free videos to try the workflow. Pay only when you need more — credits never expire.',
-    free: {
-      name: 'Free',
-      jobs: '2 videos',
-      minutes: 'Up to 20 minutes each',
-      signup: 'Just confirm your email',
-    },
-    packs: {
+    eyebrow: 'Pricing',
+    title: 'Pay per video. No subscription.',
+    subtitle: 'Start with 2 free videos. Buy credits only when you need more; they never expire.',
+    bestValue: 'Best value',
+    oneTime: 'one-time',
+    unit: '{n} videos · {price} per video',
+    buy: 'Buy {name}',
+    plans: {
+      free: {
+        name: 'Free',
+        unit: '2 videos to try it',
+        cta: 'Start free',
+        features: [
+          '2 videos, up to 20 minutes each',
+          'Chapters, transcript and subtitles',
+          '2 AI title refinements per video',
+          'No card, just confirm your email',
+        ],
+      },
       starter: {
-        name: 'Starter',
-        blurb: 'For a short batch of uploads.',
+        features: [
+          '5 videos of any length, up to 500 MB',
+          'Chapters, transcript and subtitles',
+          'Unlimited AI title refinements',
+          'Downloads: .txt, .docx, SRT, VTT, .zip',
+          'Credits never expire',
+        ],
       },
       creator: {
-        name: 'Creator',
-        blurb: 'Best value if you publish every week.',
+        features: [
+          '15 videos of any length, up to 500 MB',
+          'Chapters, transcript and subtitles',
+          'Unlimited AI title refinements',
+          'Downloads: .txt, .docx, SRT, VTT, .zip',
+          'Credits never expire',
+        ],
       },
     },
-    credits: '{count} videos',
-    minuteRule: '1 credit = 1 video. Credits never expire',
-    refineIncluded: 'Unlimited refine on paid videos',
-    buy: 'Buy credits',
+    packs: {
+      starter: { name: 'Starter' },
+      creator: { name: 'Creator' },
+    },
+    included: {
+      title: 'Every video includes',
+      chapters: {
+        title: 'Chapters',
+        description: 'YouTube-ready timestamps with descriptive titles, editable and checked against YouTube’s rules.',
+      },
+      transcript: {
+        title: 'Transcript',
+        description: 'The full text with timestamps, searchable and grouped by chapter. Download as .txt or .docx.',
+      },
+      subtitles: {
+        title: 'Subtitles',
+        description: 'SRT and VTT files with readable line lengths, ready for YouTube, Vimeo and video editors.',
+      },
+    },
+    faq: {
+      title: 'Pricing questions',
+      items: [
+        {
+          question: 'What counts as one video?',
+          answer: 'One uploaded file, of any length up to 500 MB. It uses one credit and gives you chapters, a transcript and subtitles.',
+        },
+        {
+          question: 'Do credits expire?',
+          answer: 'No. Buy once and use them whenever you want.',
+        },
+        {
+          question: 'Is there a subscription?',
+          answer: 'No. Each pack is a one-time payment, processed securely by Stripe.',
+        },
+        {
+          question: 'What if a video fails?',
+          answer: 'If processing fails, the credit goes back to your account automatically.',
+        },
+      ],
+    },
     loadError: 'Could not load pricing.',
     checkoutError: 'Could not start checkout. Try again.',
   },

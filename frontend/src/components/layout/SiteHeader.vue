@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import Logo from '../ui/Logo.vue'
 import AccountMenu from '../app/AccountMenu.vue'
 import LanguageMenu from './LanguageMenu.vue'
-import { isAppPath, localizedPath, type Locale } from '../../i18n/routing'
+import { localizedPath, type Locale } from '../../i18n/routing'
 import { useAuth } from '../../composables/useAuth'
 
 const route = useRoute()
@@ -24,7 +24,6 @@ function path(en: string) {
 const homePath = computed(() => path('/'))
 const logoPath = computed(() => (user.value ? '/library' : homePath.value))
 const pricingPath = computed(() => path('/pricing'))
-const onApp = computed(() => isAppPath(route.path))
 const loggedIn = computed(() => !!user.value)
 
 function navHref(hash: string) {
@@ -154,15 +153,9 @@ onBeforeUnmount(() => {
                 <span class="product-desc">{{ item.description }}</span>
               </span>
             </RouterLink>
-            <div class="product-promo">
-              <span>{{ t('common.nav.promo') }}</span>
-              <a :href="navHref('#start')" @click="productOpen = false">{{ t('common.nav.promoCta') }}</a>
-            </div>
           </div>
         </div>
-        <a v-if="!onApp" :href="navHref('#use-cases')" class="nav-item">{{ t('common.nav.useCases') }}</a>
         <RouterLink :to="pricingPath" class="nav-item">{{ t('common.nav.pricing') }}</RouterLink>
-        <a v-if="!onApp" :href="navHref('#faq')" class="nav-item">{{ t('common.nav.faq') }}</a>
       </nav>
 
       <div class="header-right">
@@ -212,10 +205,7 @@ onBeforeUnmount(() => {
       </div>
 
       <div class="mobile-list">
-        <a :href="navHref('#how')" class="mobile-row" @click="menuOpen = false">{{ t('common.nav.howItWorks') }}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg></a>
-        <a :href="navHref('#use-cases')" class="mobile-row" @click="menuOpen = false">{{ t('common.nav.useCases') }}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg></a>
         <RouterLink :to="pricingPath" class="mobile-row" @click="menuOpen = false">{{ t('common.nav.pricing') }}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg></RouterLink>
-        <a :href="navHref('#faq')" class="mobile-row" @click="menuOpen = false">{{ t('common.nav.faq') }}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg></a>
       </div>
 
       <div class="mobile-group">
@@ -370,24 +360,6 @@ onBeforeUnmount(() => {
   font-size: 0.8rem;
   line-height: 1.45;
   color: var(--text-muted);
-}
-
-.product-promo {
-  grid-column: span 2;
-  margin-top: 6px;
-  padding: 14px 16px;
-  border-radius: 12px;
-  background: var(--ink);
-  color: #fff;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.875rem;
-}
-
-.product-promo a {
-  color: var(--accent-on-ink);
-  font-weight: 600;
 }
 
 .header-right {

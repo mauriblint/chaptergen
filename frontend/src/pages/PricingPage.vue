@@ -3,21 +3,27 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useHead } from '@unhead/vue'
 import MarketingLayout from '../layouts/MarketingLayout.vue'
-import Card from '../components/ui/Card.vue'
-import Button from '../components/ui/Button.vue'
+import FAQ from '../components/marketing/FAQ.vue'
 import { useAuth, type Pack } from '../composables/useAuth'
 import { DEFAULT_PACKS } from '../billing/packs'
-import { SITE_URL } from '../content/home'
-import { hreflangLinks } from '../utils/schema'
+import { SITE_URL, SUPPORT_EMAIL, type FAQItem } from '../content/home'
+import { faqSchema, hreflangLinks } from '../utils/schema'
 import { localizedPath, type Locale } from '../i18n/routing'
 
-const { t, locale } = useI18n()
-const { startCheckout, fetchPacks } = useAuth()
+const { t, tm, locale } = useI18n()
+const { startCheckout, fetchPacks, user } = useAuth()
 const packs = ref<Pack[]>(DEFAULT_PACKS)
 const error = ref<string | null>(null)
 const pendingPack = ref<Pack['id'] | null>(null)
 
 const canonical = computed(() => `${SITE_URL}${localizedPath('/pricing', locale.value as Locale)}`)
+const startHref = computed(() => (user.value ? '/new' : `${localizedPath('/', locale.value as Locale)}#start`))
+const faqs = computed(() => tm('pricing.faq.items') as FAQItem[])
+const included = ['chapters', 'transcript', 'subtitles'] as const
+
+function features(plan: 'free' | Pack['id']): string[] {
+  return tm(`pricing.plans.${plan}.features`) as string[]
+}
 
 useHead(
   computed(() => ({
@@ -28,27 +34,32 @@ useHead(
       { rel: 'canonical', href: canonical.value },
       ...hreflangLinks('/pricing', '/es/precios', SITE_URL),
     ],
+    script: [{ type: 'application/ld+json', innerHTML: JSON.stringify(faqSchema(faqs.value)) }],
   }))
 )
 
 onMounted(async () => {
   try {
     packs.value = await fetchPacks()
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : t('pricing.loadError')
+  } catch {
+    // Defaults already match the server packs.
   }
 })
 
-function formatPrice(cents: number) {
+function price(cents: number) {
   return `$${(cents / 100).toFixed(0)}`
+}
+
+function perVideo(pack: Pack) {
+  const value = (pack.amountCents / 100 / pack.credits).toFixed(2)
+  return `$${locale.value === 'es' ? value.replace('.', ',') : value}`
 }
 
 async function buy(pack: Pack['id']) {
   pendingPack.value = pack
   error.value = null
   try {
-    const url = await startCheckout(pack, locale.value as Locale)
-    window.location.href = url
+    window.location.href = await startCheckout(pack, locale.value as Locale)
   } catch (err) {
     error.value = err instanceof Error ? err.message : t('pricing.checkoutError')
     pendingPack.value = null
@@ -58,159 +69,275 @@ async function buy(pack: Pack['id']) {
 
 <template>
   <MarketingLayout>
-    <div class="wrap">
-      <h1>{{ t('pricing.title') }}</h1>
-      <p class="lead">{{ t('pricing.subtitle') }}</p>
+    <section class="pricing">
+      <header class="head">
+        <span class="eyebrow">{{ t('pricing.eyebrow') }}</span>
+        <h1 class="display-title title">{{ t('pricing.title') }}</h1>
+        <p class="lead">{{ t('pricing.subtitle') }}</p>
+      </header>
 
-      <div class="grid">
-        <Card class="free">
-          <p class="name">{{ t('pricing.free.name') }}</p>
-          <p class="price">$0</p>
-          <ul>
-            <li>{{ t('pricing.free.jobs') }}</li>
-            <li>{{ t('pricing.free.minutes') }}</li>
-            <li>{{ t('pricing.free.signup') }}</li>
+      <div class="plans">
+        <article class="plan">
+          <h2 class="plan-name">{{ t('pricing.plans.free.name') }}</h2>
+          <p class="plan-price"><span class="amount">$0</span></p>
+          <p class="plan-unit">{{ t('pricing.plans.free.unit') }}</p>
+          <a :href="startHref" class="btn btn-outline plan-cta">{{ t('pricing.plans.free.cta') }}</a>
+          <ul class="features">
+            <li v-for="feature in features('free')" :key="feature">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+              {{ feature }}
+            </li>
           </ul>
-        </Card>
+        </article>
 
-        <Card
-          v-for="pack in packs"
-          :key="pack.id"
-          class="paid"
-          :class="{ featured: pack.id === 'creator' }"
-          shadow="lg"
-        >
-          <p class="name">{{ t(`pricing.packs.${pack.id}.name`) }}</p>
-          <p class="price">{{ formatPrice(pack.amountCents) }}</p>
-          <p class="blurb">{{ t(`pricing.packs.${pack.id}.blurb`) }}</p>
-          <ul>
-            <li>{{ t('pricing.credits', { count: pack.credits }) }}</li>
-            <li>{{ t('pricing.minuteRule') }}</li>
-            <li>{{ t('pricing.refineIncluded') }}</li>
-          </ul>
-          <Button
+        <article v-for="pack in packs" :key="pack.id" class="plan" :class="{ featured: pack.id === 'creator' }">
+          <div class="plan-top">
+            <h2 class="plan-name">{{ t(`pricing.packs.${pack.id}.name`) }}</h2>
+            <span v-if="pack.id === 'creator'" class="badge">{{ t('pricing.bestValue') }}</span>
+          </div>
+          <p class="plan-price">
+            <span class="amount">{{ price(pack.amountCents) }}</span>
+            <span class="once">{{ t('pricing.oneTime') }}</span>
+          </p>
+          <p class="plan-unit">{{ t('pricing.unit', { n: pack.credits, price: perVideo(pack) }) }}</p>
+          <button
             type="button"
+            class="btn plan-cta"
+            :class="pack.id === 'creator' ? 'btn-light' : 'btn-ink'"
             :disabled="pendingPack !== null"
             @click="buy(pack.id)"
           >
-            {{ pendingPack === pack.id ? t('paywall.redirecting') : t('pricing.buy') }}
-          </Button>
-        </Card>
+            {{ pendingPack === pack.id ? t('paywall.redirecting') : t('pricing.buy', { name: t(`pricing.packs.${pack.id}.name`) }) }}
+          </button>
+          <ul class="features">
+            <li v-for="feature in features(pack.id)" :key="feature">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+              {{ feature }}
+            </li>
+          </ul>
+        </article>
       </div>
 
-      <p v-if="error" class="error">{{ error }}</p>
-    </div>
+      <p v-if="error" class="error" role="alert">{{ error }}</p>
+
+      <section class="included">
+        <h2 class="included-title">{{ t('pricing.included.title') }}</h2>
+        <div class="included-grid">
+          <div v-for="key in included" :key="key" class="included-item">
+            <strong>{{ t(`pricing.included.${key}.title`) }}</strong>
+            <span>{{ t(`pricing.included.${key}.description`) }}</span>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <FAQ
+      :eyebrow="t('home.faq.eyebrow')"
+      :title="t('pricing.faq.title')"
+      :aside="t('home.faq.aside')"
+      :contact-label="t('home.faq.contact')"
+      :contact-href="`mailto:${SUPPORT_EMAIL}`"
+      :faqs="faqs"
+    />
   </MarketingLayout>
 </template>
 
 <style scoped>
-.wrap {
-  max-width: 1040px;
+.pricing {
+  max-width: 1120px;
   margin: 0 auto;
-  padding: 5rem 1.5rem 6rem;
+  padding: 4.5rem 1.5rem 2rem;
 }
 
-h1 {
-  font-family: var(--font-display);
+.head {
+  max-width: 640px;
+  margin: 0 auto 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  text-align: center;
+}
+
+.title {
   font-size: clamp(2.25rem, 5vw, 3.5rem);
-  font-weight: 800;
-  letter-spacing: -0.035em;
-  line-height: 1.05;
-  margin-bottom: 0.9rem;
 }
 
 .lead {
   font-size: 1.1rem;
   line-height: 1.6;
   color: var(--text-muted);
-  margin-bottom: 3rem;
-  max-width: 36rem;
 }
 
-.grid {
+.plans {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.25rem;
+  align-items: stretch;
 }
 
-.grid :deep(.card) {
+.plan {
+  padding: 2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
   display: flex;
   flex-direction: column;
-  padding: 2rem;
-  border-radius: var(--radius-lg);
-  box-shadow: none;
+  gap: 0.6rem;
 }
 
-.paid.featured {
-  background: var(--ink);
+.plan.featured {
   border-color: var(--ink);
+  background: var(--ink);
   color: var(--on-ink);
 }
 
-.name {
-  font-weight: 600;
-  margin-bottom: 0.75rem;
+.plan-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.price {
+.plan-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.badge {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--accent-on-ink);
+  color: var(--ink);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.plan-price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.amount {
   font-family: var(--font-display);
   font-size: 3.25rem;
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1;
-  margin-bottom: 0.9rem;
 }
 
-.blurb {
+.once {
+  font-size: 0.85rem;
   color: var(--text-muted);
-  font-size: 0.95rem;
-  margin-bottom: 1rem;
 }
 
-.featured .blurb,
-.featured ul {
-  color: #d5d8dd;
+.plan-unit {
+  font-size: 0.9rem;
+  color: var(--text-muted);
 }
 
-ul {
-  list-style: none;
-  margin: 0 0 1.5rem;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-  color: #3c3f45;
-  font-size: 0.95rem;
+.featured .once,
+.featured .plan-unit {
+  color: var(--on-ink-muted);
 }
 
-.paid :deep(.btn) {
-  margin-top: auto;
-  justify-content: center;
+.plan-cta {
+  margin: 0.9rem 0 0.4rem;
   min-height: 48px;
 }
 
-.featured :deep(.btn-primary) {
-  background: var(--on-ink);
-  color: var(--ink);
+.plan-cta:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.featured :deep(.btn-primary:hover:not(:disabled)) {
-  background: #fff;
+.features {
+  list-style: none;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  font-size: 0.9rem;
+}
+
+.featured .features {
+  border-top-color: var(--ink-line);
+}
+
+.features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.features svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--accent);
+}
+
+.featured .features svg {
+  color: var(--accent-on-ink);
 }
 
 .error {
-  color: #dc2626;
   margin-top: 1rem;
+  text-align: center;
+  color: #b42318;
 }
 
-@media (max-width: 860px) {
-  .grid {
+.included {
+  margin-top: 4rem;
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.included-title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.included-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.included-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.included-item strong {
+  font-size: 1rem;
+  color: var(--text);
+}
+
+@media (max-width: 900px) {
+  .plans,
+  .included-grid {
     grid-template-columns: minmax(0, 1fr);
-    max-width: 440px;
   }
 
-  .wrap {
-    padding: 3rem 1rem 4rem;
+  .plans {
+    max-width: 460px;
+    margin: 0 auto;
+  }
+
+  .pricing {
+    padding: 3rem 1rem 1rem;
   }
 }
 </style>
