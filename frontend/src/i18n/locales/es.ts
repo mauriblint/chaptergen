@@ -563,7 +563,7 @@ export default {
     checkoutError: 'No se pudo iniciar el pago. Intenta de nuevo.',
   },
   paywall: {
-    title: 'Seguí generando capítulos',
+    title: 'Sigue generando capítulos',
     lead: 'Carga créditos una vez y úsalos cuando quieras.',
     bulletExpire: '1 crédito = 1 video. Los créditos no vencen',
     bulletSize: 'Archivos de hasta 500 MB, video o audio',

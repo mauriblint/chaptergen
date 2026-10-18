@@ -5,6 +5,7 @@ import { useAuth, type Pack } from '../composables/useAuth'
 import type { Locale } from '../i18n/routing'
 import { DEFAULT_PACKS } from '../billing/packs'
 import { trackUpgrade } from '../utils/analytics'
+import Logo from './ui/Logo.vue'
 import type { PaywallReason } from '../utils/api'
 
 const emit = defineEmits<{ close: [] }>()
@@ -87,16 +88,7 @@ async function buy() {
     <div class="overlay" @click.self="emit('close')">
       <div class="modal" role="dialog" aria-modal="true" :aria-label="t('paywall.title')">
         <aside class="intro">
-          <p class="brand">
-            <span class="brand-mark" aria-hidden="true">
-              <svg width="18" height="18" viewBox="0 0 40 40" fill="none">
-                <rect x="8" y="18" width="4" height="14" rx="1" fill="white" opacity="0.7" />
-                <rect x="16" y="12" width="4" height="20" rx="1" fill="white" />
-                <rect x="24" y="8" width="4" height="24" rx="1" fill="white" />
-              </svg>
-            </span>
-            ChapterGen
-          </p>
+          <Logo :size="28" inverted class="brand" />
           <p v-if="props.reason !== 'buy'" class="reason-tag">
             {{ t(`paywall.reasonLabel.${props.reason}`) }}
           </p>
@@ -114,7 +106,7 @@ async function buy() {
           <div class="panel-head">
             <p class="choose">{{ t('paywall.choose') }}</p>
             <button class="close" type="button" :aria-label="t('paywall.close')" @click="emit('close')">
-              ×
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
             </button>
           </div>
 
@@ -170,7 +162,7 @@ async function buy() {
           <p v-if="error" class="error">{{ error }}</p>
 
           <p class="ssl">
-            <span aria-hidden="true">✓</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 11h12v9H6zM8 11V8a4 4 0 0 1 8 0v3" /></svg>
             {{ t('paywall.ssl') }}
           </p>
         </div>
@@ -183,214 +175,227 @@ async function buy() {
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.55);
-  z-index: 100;
+  z-index: 110;
+  background: rgba(17, 19, 24, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
+  padding: 1rem;
 }
 
 .modal {
+  width: 100%;
+  max-width: 820px;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
-  width: min(820px, 100%);
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  border-radius: 22px;
   background: var(--surface);
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+  box-shadow: 0 30px 80px rgba(17, 19, 24, 0.3);
 }
 
 .intro {
-  background: #0f172a;
-  color: #e2e8f0;
-  padding: 1.75rem 1.5rem 1.4rem;
+  padding: 2rem;
+  background: var(--ink);
+  color: var(--on-ink);
   display: flex;
   flex-direction: column;
+  gap: 1rem;
 }
 
 .brand {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 700;
-  color: white;
-  margin-bottom: 1.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.brand :deep(.logo-text) {
+  font-size: 1.2rem;
 }
 
 .reason-tag {
   align-self: flex-start;
-  margin-bottom: 0.7rem;
-  padding: 0.2rem 0.55rem;
+  padding: 3px 10px;
   border-radius: 999px;
-  background: rgba(129, 140, 248, 0.18);
-  color: #c7d2fe;
-  font-size: 0.7rem;
+  background: rgba(169, 156, 249, 0.18);
+  color: var(--accent-on-ink);
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.brand-mark {
-  display: flex;
-  width: 28px;
-  height: 28px;
-  align-items: center;
-  justify-content: center;
 }
 
 .intro h2 {
-  font-size: 1.7rem;
-  line-height: 1.15;
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  line-height: 1.1;
+  font-weight: 800;
   letter-spacing: -0.03em;
-  color: white;
-  margin-bottom: 0.7rem;
 }
 
 .lead {
-  color: #cbd5e1;
-  font-size: 0.95rem;
-  line-height: 1.45;
-  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--on-ink-muted);
 }
 
 .bullets {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
-  font-size: 0.9rem;
-  line-height: 1.4;
+  gap: 0.6rem;
+  font-size: 0.875rem;
 }
 
 .bullets li {
-  padding-left: 1.35rem;
   position: relative;
+  padding-left: 1.5rem;
 }
 
 .bullets li::before {
-  content: '✓';
+  content: '';
   position: absolute;
   left: 0;
-  color: #818cf8;
-  font-weight: 700;
+  top: 0.3em;
+  width: 12px;
+  height: 7px;
+  border-left: 2px solid var(--accent-on-ink);
+  border-bottom: 2px solid var(--accent-on-ink);
+  transform: rotate(-45deg);
 }
 
 .one-time {
   margin-top: auto;
-  padding-top: 1.5rem;
-  font-size: 0.8rem;
-  color: #94a3b8;
+  font-size: 0.75rem;
+  color: var(--on-ink-muted);
 }
 
 .panel {
-  padding: 1.35rem 1.5rem 1.2rem;
+  padding: 1.75rem 2rem 2rem;
   display: flex;
   flex-direction: column;
+  gap: 1rem;
 }
 
 .panel-head {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  align-items: center;
 }
 
 .choose {
-  font-size: 0.72rem;
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-muted);
 }
 
 .close {
-  border: none;
-  background: none;
-  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
   color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  line-height: 1;
+}
+
+.close:hover {
+  background: var(--bg);
+  color: var(--text);
 }
 
 .packs {
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 10px;
 }
 
 .pack {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
-  gap: 0.75rem;
-  text-align: left;
+  gap: 14px;
+  padding: 16px;
   border: 1.5px solid var(--border);
   border-radius: 14px;
-  padding: 0.85rem 1rem;
-  background: white;
+  background: var(--surface);
+  font: inherit;
+  text-align: left;
+  color: var(--text);
   cursor: pointer;
 }
 
+.pack:hover {
+  border-color: #c9cad2;
+}
+
 .pack.selected {
-  border-color: var(--accent);
-  background: #eef2ff;
-  box-shadow: 0 0 0 1px var(--accent);
+  border-color: var(--ink);
+  box-shadow: 0 0 0 1px var(--ink);
 }
 
 .radio {
   width: 18px;
   height: 18px;
+  flex-shrink: 0;
+  border: 2px solid #c9cad2;
   border-radius: 50%;
-  border: 2px solid #cbd5e1;
-  box-sizing: border-box;
 }
 
 .pack.selected .radio {
-  border: 5px solid var(--accent);
+  border: 5px solid var(--ink);
+}
+
+.pack-copy {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .pack-title {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  font-weight: 700;
-  color: var(--text);
+  gap: 8px;
+  font-weight: 600;
 }
 
 .save {
-  font-size: 0.65rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--accent-soft);
   color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 700;
 }
 
 .pack-meta {
-  display: block;
-  margin-top: 0.15rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
-  font-size: 0.82rem;
 }
 
 .pack-price {
-  font-size: 1.45rem;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
   font-weight: 800;
-  color: var(--text);
+  letter-spacing: -0.02em;
 }
 
 .continue {
-  margin-top: 1rem;
-  width: 100%;
-  border: none;
+  min-height: 52px;
+  border: 0;
   border-radius: 12px;
-  background: var(--accent);
-  color: white;
-  font-size: 1.05rem;
-  font-weight: 700;
-  padding: 0.9rem 1rem;
+  background: var(--ink);
+  color: #fff;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
+}
+
+.continue:hover {
+  background: #2a2e36;
 }
 
 .continue:disabled {
@@ -399,45 +404,44 @@ async function buy() {
 }
 
 .summary {
-  margin-top: 0.65rem;
+  font-size: 0.8rem;
   text-align: center;
   color: var(--text-muted);
-  font-size: 0.85rem;
 }
 
 .error {
-  color: #dc2626;
-  margin-top: 0.75rem;
-  font-size: 0.9rem;
-  text-align: center;
+  font-size: 0.85rem;
+  color: #b42318;
 }
 
 .ssl {
-  margin-top: 1.1rem;
-  padding-top: 0.9rem;
-  border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  color: #059669;
-  font-size: 0.8rem;
-  font-weight: 600;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-soft);
+  font-size: 0.75rem;
+  color: var(--text-muted);
 }
 
 @media (max-width: 720px) {
   .modal {
-    grid-template-columns: 1fr;
-    max-height: min(92vh, 820px);
-    overflow: auto;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .intro {
-    padding-bottom: 1.2rem;
+    padding: 1.5rem;
   }
 
+  .bullets,
   .one-time {
-    padding-top: 1rem;
+    display: none;
+  }
+
+  .panel {
+    padding: 1.25rem 1.25rem 1.5rem;
   }
 }
 </style>
