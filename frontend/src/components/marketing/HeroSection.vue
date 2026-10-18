@@ -33,7 +33,7 @@ const ChapterTool = defineAsyncComponent(
 }
 
 .hero-inner {
-  max-width: 880px;
+  max-width: 1080px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -54,8 +54,9 @@ const ChapterTool = defineAsyncComponent(
 }
 
 .hero-title {
+  max-width: 1040px;
   font-family: var(--font-display);
-  font-size: clamp(2.4rem, 5.6vw, 4.5rem);
+  font-size: clamp(2.3rem, 5.2vw, 4.1rem);
   font-weight: 800;
   letter-spacing: -0.04em;
   line-height: 1.02;

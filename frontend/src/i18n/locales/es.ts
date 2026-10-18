@@ -72,7 +72,7 @@ export default {
     },
     hero: {
       badge: 'Funciona con videos privados y sin publicar',
-      title: 'Generador de capítulos de YouTube con IA, antes de publicar',
+      title: 'Generador de capítulos de YouTube con IA: marcas de tiempo antes de publicar',
       subtitle:
         'Sube un video o audio y obtén marcas de tiempo limpias y optimizadas para SEO, en el formato exacto de YouTube. Sin URL pública.',
     },
