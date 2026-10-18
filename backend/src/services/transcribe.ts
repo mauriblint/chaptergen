@@ -15,6 +15,33 @@ import {
   type AudioSlice,
   type ChunkTranscript,
 } from './whisperChunks.js'
+import { recordUsage, type UsageContext } from '../db/aiUsage.js'
+
+const TRANSCRIBE_MODEL = 'whisper-1'
+
+/** Token usage the gpt-4o transcribe models report; whisper-1 reports seconds or nothing. */
+interface TranscriptionUsage {
+  type?: 'tokens' | 'duration'
+  input_tokens?: number
+  output_tokens?: number
+  input_token_details?: { text_tokens?: number; audio_tokens?: number }
+  seconds?: number
+}
+
+function recordTranscription(
+  usageContext: UsageContext | undefined,
+  response: { duration?: number; usage?: TranscriptionUsage },
+  fallbackSeconds: number | null
+): void {
+  const usage = response.usage
+  const details = usage?.input_token_details
+  recordUsage(usageContext, 'transcription', TRANSCRIBE_MODEL, {
+    inputTokens: details ? (details.text_tokens ?? 0) : 0,
+    audioInputTokens: details ? (details.audio_tokens ?? 0) : (usage?.input_tokens ?? 0),
+    outputTokens: usage?.output_tokens ?? 0,
+    audioSeconds: usage?.seconds ?? response.duration ?? fallbackSeconds ?? undefined,
+  })
+}
 
 export interface TranscriptionResult {
   segments: TranscriptSegment[]
@@ -52,17 +79,23 @@ function sizeMb(bytes: number): string {
 }
 
 /** `language` is an ISO-639-1 code; without it Whisper guesses from the first ~30 seconds. */
-async function transcribeFile(audioPath: string, language?: string | null): Promise<TranscriptionResult> {
+async function transcribeFile(
+  audioPath: string,
+  language?: string | null,
+  usage?: UsageContext,
+  durationSeconds: number | null = null
+): Promise<TranscriptionResult> {
   const openai = getOpenAI()
 
   const transcription = await openai.audio.transcriptions.create({
     file: fs.createReadStream(audioPath),
-    model: 'whisper-1',
+    model: TRANSCRIBE_MODEL,
     response_format: 'verbose_json',
     timestamp_granularities: ['segment'],
     ...(language ? { language } : {}),
   })
 
+  recordTranscription(usage, transcription as { duration?: number; usage?: TranscriptionUsage }, durationSeconds)
   const segments = (transcription as { segments?: TranscriptSegment[] }).segments ?? []
 
   return {
@@ -99,7 +132,8 @@ async function transcribeInChunks(
   audioPath: string,
   fileSizeBytes: number,
   durationSeconds: number,
-  language?: string | null
+  language?: string | null,
+  usage?: UsageContext
 ): Promise<TranscriptionResult> {
   const slices = planWhisperChunks({ fileSizeBytes, durationSeconds })
   if (slices.length <= 1) {
@@ -124,7 +158,7 @@ async function transcribeInChunks(
     }
 
     const transcripts = await mapPool(prepared, 2, async ({ slice, chunkPath }) => {
-      const result = await transcribeFile(chunkPath, language)
+      const result = await transcribeFile(chunkPath, language, usage, slice.duration)
       const chunk: ChunkTranscript = {
         offset: slice.start,
         segments: result.segments,
@@ -142,10 +176,14 @@ async function transcribeInChunks(
   }
 }
 
-export async function transcribe(audioPath: string, language?: string | null): Promise<TranscriptionResult> {
+export async function transcribe(
+  audioPath: string,
+  language?: string | null,
+  usage?: UsageContext
+): Promise<TranscriptionResult> {
   const fileSizeBytes = fs.statSync(audioPath).size
   if (fileSizeBytes <= AUDIO_MAX_UPLOAD_BYTES) {
-    return transcribeFile(audioPath, language)
+    return transcribeFile(audioPath, language, usage)
   }
 
   const durationSeconds = await getMediaDurationSeconds(audioPath)
@@ -153,5 +191,5 @@ export async function transcribe(audioPath: string, language?: string | null): P
     throw new AudioTooLargeError(sizeMb(fileSizeBytes))
   }
 
-  return transcribeInChunks(audioPath, fileSizeBytes, durationSeconds, language)
+  return transcribeInChunks(audioPath, fileSizeBytes, durationSeconds, language, usage)
 }

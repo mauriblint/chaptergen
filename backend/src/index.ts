@@ -18,6 +18,7 @@ import { sweepExpiredAudio } from './services/audioRetention.js'
 import { attachUser } from './auth/session.js'
 import './db/users.js'
 import './db/payments.js'
+import './db/aiUsage.js'
 
 dotenv.config()
 if (fs.existsSync(path.resolve('.env.production'))) {

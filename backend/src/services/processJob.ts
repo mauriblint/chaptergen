@@ -128,7 +128,7 @@ export async function processJob(jobId: string): Promise<void> {
       updateJobStatus(jobId, 'transcribing')
     }
 
-    const { segments, language } = await transcribe(audioPath, job.audioLanguage)
+    const { segments, language } = await transcribe(audioPath, job.audioLanguage, { jobId, reason: 'initial' })
     // Silence or music comes back as nothing or a single garbled token.
     if (countWords(segments) < 3) {
       failJob(jobId, 'No speech was detected in this file.', 'no_speech')
@@ -139,6 +139,7 @@ export async function processJob(jobId: string): Promise<void> {
     const chapters = await generateChapters(segments, {
       chapterCount: chapterCountFor(job),
       language,
+      usage: { jobId, reason: 'initial' },
     })
     const formatted = formatChapters(chapters)
     updateJobResult(jobId, chapters, formatted, segments)
@@ -179,6 +180,7 @@ export async function refineJobChapters(
       chapterCount: count,
       refine: options,
       language: job.transcriptLanguage,
+      usage: { jobId, reason: 'refine' },
       existingChapters:
         options.mode === 'titles'
           ? (existingChapters ?? job.chapters ?? undefined)
@@ -211,7 +213,7 @@ async function retranscribeJob(jobId: string, language: string): Promise<void> {
   }
 
   try {
-    const { segments, language: reported } = await transcribe(job.audioPath, language)
+    const { segments, language: reported } = await transcribe(job.audioPath, language, { jobId, reason: 'retranscribe' })
     if (countWords(segments) < 3) {
       throw new Error('No speech was detected in this language.')
     }
@@ -220,6 +222,7 @@ async function retranscribeJob(jobId: string, language: string): Promise<void> {
     const chapters = await generateChapters(segments, {
       chapterCount: chapterCountFor(job),
       language: transcriptLanguage,
+      usage: { jobId, reason: 'retranscribe' },
     })
     replaceJobTranscript(jobId, {
       segments,

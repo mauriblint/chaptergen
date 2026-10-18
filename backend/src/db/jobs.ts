@@ -281,7 +281,13 @@ export interface JobSummary {
   userId: string | null
   userEmail: string | null
   transcriptLanguage: string | null
+  audioLanguage: string | null
+  creditSource: 'free' | 'paid' | null
   creditsRefunded: boolean
+  refineCount: number
+  retranscribed: boolean
+  /** Sum of the recorded OpenAI calls; null for jobs from before tracking. */
+  aiCostUsd: number | null
   errorMessage: string | null
   failureReason: string | null
   createdAt: string
@@ -309,7 +315,12 @@ interface JobSummaryRow {
   user_id: string | null
   user_email: string | null
   transcript_language: string | null
+  audio_language: string | null
+  credit_source: string | null
   credits_refunded: number | null
+  refine_count: number | null
+  retranscribed: number | null
+  ai_cost_usd: number | null
   error_message: string | null
   failure_reason: string | null
   created_at: string
@@ -339,7 +350,12 @@ function rowToJobSummary(row: JobSummaryRow): JobSummary {
     userId: row.user_id,
     userEmail: row.user_email,
     transcriptLanguage: row.transcript_language,
+    audioLanguage: row.audio_language,
+    creditSource: row.credit_source === 'free' || row.credit_source === 'paid' ? row.credit_source : null,
     creditsRefunded: row.credits_refunded === 1,
+    refineCount: row.refine_count ?? 0,
+    retranscribed: row.retranscribed === 1,
+    aiCostUsd: row.ai_cost_usd,
     errorMessage: row.error_message,
     failureReason: row.failure_reason,
     createdAt: row.created_at,
@@ -354,7 +370,9 @@ const jobSummarySelect = `
     jobs.file_type, jobs.file_extension, jobs.media_type, jobs.client_ip,
     jobs.country, jobs.user_agent, jobs.accept_language, jobs.referer,
     jobs.client_id, jobs.user_id, users.email AS user_email,
-    jobs.transcript_language, jobs.credits_refunded,
+    jobs.transcript_language, jobs.audio_language, jobs.credit_source, jobs.credits_refunded,
+    jobs.refine_count, jobs.retranscribed,
+    (SELECT SUM(cost_usd) FROM ai_usage WHERE ai_usage.job_id = jobs.id) AS ai_cost_usd,
     jobs.error_message, jobs.failure_reason, jobs.created_at, jobs.updated_at
   FROM jobs
   LEFT JOIN users ON users.id = jobs.user_id
