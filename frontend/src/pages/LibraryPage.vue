@@ -115,7 +115,7 @@ function isAudio(job: JobSummary) {
       {{ t('app.library.purchased', { n: purchased }) }}
     </div>
 
-    <NewVideoPanel v-if="firstVideo" first @choose="layout?.openPicker()" @pick="layout?.pickFile($event)" />
+    <NewVideoPanel v-if="firstVideo" first @pick="layout?.pickFile($event)" />
 
     <template v-else>
       <div class="page-head">
