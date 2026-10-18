@@ -16,7 +16,7 @@ async function handleSubmit() {
   error.value = null
   try {
     await login(password.value)
-    await router.push({ name: 'users' })
+    await router.push({ name: 'overview' })
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Could not sign in'
   } finally {
@@ -26,39 +26,30 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="flex min-h-screen items-center justify-center px-4">
-    <div class="w-full max-w-sm rounded-xl border border-border bg-surface p-8 shadow-lg">
-      <div class="mb-6 flex items-center gap-2.5">
-        <img src="/logo.svg" alt="" width="28" height="28" class="block" />
-        <div>
-          <h1 class="text-lg font-semibold leading-tight text-text">ChapterGen</h1>
-          <p class="text-sm text-muted">Admin</p>
-        </div>
+  <div class="flex min-h-screen items-center justify-center bg-bg px-4">
+    <div class="card w-full max-w-sm p-8 shadow-[0_24px_60px_rgba(17,19,24,0.08)]">
+      <div class="mb-7 flex items-center gap-2.5">
+        <img src="/logo.svg" alt="" width="34" height="34" />
+        <span class="font-display text-[1.35rem] font-extrabold tracking-tight">chapter<span class="text-primary">gen</span></span>
+        <span class="ml-auto rounded-md bg-primary-soft px-1.5 py-0.5 text-[0.7rem] font-semibold text-primary">Admin</span>
       </div>
-      <p class="mb-6 text-sm text-muted">Enter the admin password to continue.</p>
 
-      <form class="space-y-4" @submit.prevent="handleSubmit">
-        <div>
-          <label for="password" class="mb-1.5 block text-sm font-medium text-text">
-            Password
-          </label>
+      <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
+        <label class="flex flex-col gap-1.5">
+          <span class="text-sm font-medium">Password</span>
           <input
             id="password"
             v-model="password"
             type="password"
             autocomplete="current-password"
-            class="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text outline-none focus:border-primary"
-            placeholder="••••••••"
+            autofocus
+            class="h-11 w-full rounded-xl border border-border bg-surface px-3.5 text-sm outline-none transition focus:border-primary"
           />
-        </div>
+        </label>
 
         <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
 
-        <button
-          type="submit"
-          :disabled="loading || !password"
-          class="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
-        >
+        <button type="submit" :disabled="loading || !password" class="btn btn-ink h-11 w-full">
           {{ loading ? 'Signing in…' : 'Sign in' }}
         </button>
       </form>

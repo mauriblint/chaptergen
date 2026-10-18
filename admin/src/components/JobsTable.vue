@@ -1,123 +1,79 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { JobStatus, JobSummary } from '../types/job'
-import { formatDate, formatDuration, formatSize } from '../utils/format'
+import { useRouter } from 'vue-router'
+import StatusBadge from './StatusBadge.vue'
+import type { JobSummary } from '../types/job'
+import { formatDate, formatDuration, formatUsd } from '../utils/format'
 
-const props = defineProps<{
-  jobs: JobSummary[]
-  loading: boolean
-}>()
+const props = withDefaults(defineProps<{ jobs: JobSummary[]; loading: boolean; showUser?: boolean }>(), {
+  showUser: true,
+})
 
-const SITE_URL = 'https://chaptergen.com'
-
-const statusLabels: Record<JobStatus, string> = {
-  pending: 'Pending',
-  extracting: 'Extracting',
-  transcribing: 'Transcribing',
-  generating: 'Generating',
-  regenerating: 'Regenerating',
-  completed: 'Completed',
-  failed: 'Failed',
-}
-
-const statusColors: Record<JobStatus, string> = {
-  pending: 'bg-slate-100 text-slate-700',
-  extracting: 'bg-blue-100 text-blue-700',
-  transcribing: 'bg-blue-100 text-blue-700',
-  generating: 'bg-indigo-100 text-indigo-700',
-  regenerating: 'bg-indigo-100 text-indigo-700',
-  completed: 'bg-green-100 text-green-700',
-  failed: 'bg-red-100 text-red-700',
-}
-
+const router = useRouter()
 const hasJobs = computed(() => props.jobs.length > 0)
+const columns = computed(() => (props.showUser ? 8 : 7))
+
+function language(job: JobSummary): string {
+  const value = job.transcriptLanguage
+  return value ? value.charAt(0).toUpperCase() + value.slice(1) : '—'
+}
 </script>
 
 <template>
-  <div class="overflow-x-auto rounded-xl border border-border bg-surface">
-    <table class="w-full min-w-[980px] text-left text-sm">
+  <div class="card overflow-x-auto">
+    <table class="table min-w-[920px]">
       <thead>
-        <tr class="border-b border-border bg-bg text-xs uppercase tracking-wide text-muted">
-          <th class="px-4 py-3 font-medium">Date</th>
-          <th class="px-4 py-3 font-medium">File</th>
-          <th class="px-4 py-3 font-medium">Status</th>
-          <th class="px-4 py-3 font-medium">User</th>
-          <th class="px-4 py-3 font-medium">Country</th>
-          <th class="px-4 py-3 font-medium">IP</th>
-          <th class="px-4 py-3 font-medium">Chapters</th>
-          <th class="px-4 py-3 font-medium">Size</th>
-          <th class="px-4 py-3 font-medium">Duration</th>
-          <th class="px-4 py-3 font-medium">ID</th>
+        <tr>
+          <th>File</th>
+          <th>Status</th>
+          <th v-if="showUser">User</th>
+          <th class="text-right">Duration</th>
+          <th>Language</th>
+          <th>Credit</th>
+          <th class="text-right">AI cost</th>
+          <th>Created</th>
         </tr>
       </thead>
       <tbody>
         <tr v-if="loading && !hasJobs">
-          <td colspan="10" class="px-4 py-8 text-center text-muted">Loading jobs…</td>
+          <td :colspan="columns" class="py-10 text-center text-muted">Loading jobs…</td>
         </tr>
         <tr v-else-if="!hasJobs">
-          <td colspan="10" class="px-4 py-8 text-center text-muted">No jobs</td>
+          <td :colspan="columns" class="py-10 text-center text-muted">No jobs</td>
         </tr>
-        <tr
-          v-for="job in jobs"
-          :key="job.id"
-          class="border-b border-border last:border-0 hover:bg-bg/60"
-        >
-          <td class="whitespace-nowrap px-4 py-3 text-muted">
-            {{ formatDate(job.createdAt) }}
+        <tr v-for="job in jobs" :key="job.id" class="row-link" @click="router.push(`/jobs/${job.id}`)">
+          <td class="max-w-[240px]">
+            <p class="truncate font-medium" :title="job.fileName">{{ job.fileName }}</p>
+            <p class="font-mono text-[0.7rem] text-muted">{{ job.id.slice(0, 10) }}</p>
           </td>
-          <td class="max-w-[200px] truncate px-4 py-3 font-medium" :title="job.fileName">
-            {{ job.fileName }}
-          </td>
-          <td class="px-4 py-3">
-            <span
-              class="inline-block rounded-full px-2.5 py-0.5 text-xs font-medium"
-              :class="statusColors[job.status]"
-            >
-              {{ statusLabels[job.status] }}
-            </span>
-            <span
-              v-if="job.failureReason === 'audio_too_large'"
-              class="mt-1 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700"
-            >
-              Audio &gt;25MB
-            </span>
-            <p
-              v-if="job.errorMessage"
-              class="mt-1 max-w-[180px] truncate text-xs text-red-600"
-              :title="job.errorMessage"
-            >
-              {{ job.errorMessage }}
+          <td>
+            <StatusBadge :status="job.status" />
+            <p v-if="job.failureReason" class="mt-1 max-w-[180px] truncate text-xs text-red-600" :title="job.errorMessage ?? ''">
+              {{ job.failureReason }}
             </p>
           </td>
-          <td class="max-w-[180px] truncate px-4 py-3 text-muted">
+          <td v-if="showUser" class="max-w-[200px] truncate">
             <RouterLink
               v-if="job.userId && job.userEmail"
               :to="`/users/${job.userId}`"
               class="text-primary hover:underline"
+              @click.stop
             >
               {{ job.userEmail }}
             </RouterLink>
-            <span v-else>—</span>
+            <span v-else class="text-muted">Anonymous</span>
           </td>
-          <td class="px-4 py-3 text-muted">{{ job.country ?? '—' }}</td>
-          <td class="px-4 py-3 font-mono text-xs text-muted">{{ job.clientIp ?? '—' }}</td>
-          <td class="px-4 py-3 text-muted">
-            {{ job.chaptersGenerated ?? '—' }}
+          <td class="num text-right text-muted">{{ formatDuration(job.durationSeconds) }}</td>
+          <td class="text-muted">{{ language(job) }}</td>
+          <td>
+            <span v-if="job.creditsRefunded" class="text-xs font-medium text-amber-700">Refunded</span>
+            <span v-else-if="job.creditSource" class="text-xs font-medium capitalize" :class="job.creditSource === 'paid' ? 'text-text' : 'text-muted'">
+              {{ job.creditSource }}
+            </span>
+            <span v-else class="text-muted">—</span>
           </td>
-          <td class="px-4 py-3 text-muted">{{ formatSize(job.fileSizeBytes) }}</td>
-          <td class="whitespace-nowrap px-4 py-3 text-muted">
-            {{ formatDuration(job.durationSeconds) }}
-          </td>
-          <td class="px-4 py-3">
-            <a
-              :href="`${SITE_URL}/jobs/${job.id}`"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="font-mono text-xs text-primary hover:underline"
-            >
-              {{ job.id.slice(0, 8) }}…
-            </a>
-          </td>
+          <td class="num text-right font-medium">{{ formatUsd(job.aiCostUsd) }}</td>
+          <td class="whitespace-nowrap text-muted">{{ formatDate(job.createdAt) }}</td>
         </tr>
       </tbody>
     </table>
