@@ -30,7 +30,7 @@ import { isAudioFile } from '../utils/media.js'
 import { refundJobCredit, settleJobBilling } from '../billing/quota.js'
 import { getUserById } from '../db/users.js'
 import { sendJobReadyEmail } from './email.js'
-import { forgetJob, isJobWatched } from './jobWatchers.js'
+import { forgetJob, wasJobSeenSince } from './jobWatchers.js'
 import { discardJobAudio, keepAudioForRetranscribe } from './audioRetention.js'
 import { AUDIO_LANGUAGES } from '../utils/languages.js'
 
@@ -42,9 +42,18 @@ function chapterCountFor(job: { autoMode: boolean; chapterCount: number | null }
   return job.autoMode ? null : Math.min(20, Math.max(3, job.chapterCount ?? 10))
 }
 
+// An open job page polls every 2 seconds (slower in a background tab), so it
+// picks up the result well within this.
+const SEEN_GRACE_MS = 8_000
+
+/** Emails the result unless the open job page picked it up after it finished. */
 async function notifyIfUnwatched(jobId: string): Promise<void> {
+  const finishedAt = Date.now()
+  await new Promise((resolve) => setTimeout(resolve, SEEN_GRACE_MS))
+  const seen = wasJobSeenSince(jobId, finishedAt)
+  forgetJob(jobId)
   const job = getJob(jobId)
-  if (!job?.userId || isJobWatched(jobId)) return
+  if (!job?.userId || seen) return
   const user = getUserById(job.userId)
   if (!user) return
   await sendJobReadyEmail({
@@ -146,8 +155,7 @@ export async function processJob(jobId: string): Promise<void> {
   } finally {
     await cleanupFiles(filePath, ...(audioPath ? [audioPath] : []))
     clearJobFilePath(jobId)
-    await notifyIfUnwatched(jobId).catch((err) => console.error('ready email error:', err))
-    forgetJob(jobId)
+    void notifyIfUnwatched(jobId).catch((err) => console.error('ready email error:', err))
   }
 }
 
