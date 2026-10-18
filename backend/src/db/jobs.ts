@@ -391,13 +391,14 @@ export function countQuotaJobsByClientId(clientId: string): number {
   return row.count
 }
 
-export function countQuotaJobsByClientIp(clientIp: string): number {
+/** Anonymous free jobs from this IP, optionally only those created after `since` (ISO date). */
+export function countQuotaJobsByClientIp(clientIp: string, since?: string): number {
   const placeholders = QUOTA_STATUSES.map(() => '?').join(',')
   const row = db
     .prepare(
-      `SELECT COUNT(*) AS count FROM jobs WHERE client_ip = ? AND user_id IS NULL AND status IN (${placeholders})`
+      `SELECT COUNT(*) AS count FROM jobs WHERE client_ip = ? AND user_id IS NULL AND status IN (${placeholders}) AND created_at >= ?`
     )
-    .get(clientIp, ...QUOTA_STATUSES) as { count: number }
+    .get(clientIp, ...QUOTA_STATUSES, since ?? '') as { count: number }
   return row.count
 }
 

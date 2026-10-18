@@ -213,24 +213,31 @@ export function addFreeCredits(userId: string, amount: number): void {
 }
 
 /**
- * Free credits already handed to other accounts created from this IP or device.
- * Uses the larger of the two so switching networks or browsers alone does not reset it.
+ * Free credits already handed to other accounts created from this device or,
+ * within `ipSince`, from this IP. Uses the larger of the two so switching
+ * networks or browsers alone does not reset it.
  */
 export function countFreeGrantsBySignup(input: {
   ip: string | null
   clientId: string | null
   excludeUserId: string
+  ipSince: string
 }): number {
-  const sum = (column: 'signup_ip' | 'signup_client_id', value: string | null): number => {
-    if (!value) return 0
-    const row = db
-      .prepare(
-        `SELECT COALESCE(SUM(free_credits_granted), 0) AS total FROM users WHERE ${column} = ? AND id != ?`
-      )
-      .get(value, input.excludeUserId) as { total: number }
-    return row.total
-  }
-  return Math.max(sum('signup_ip', input.ip), sum('signup_client_id', input.clientId))
+  const byDevice = input.clientId
+    ? (db
+        .prepare(
+          'SELECT COALESCE(SUM(free_credits_granted), 0) AS total FROM users WHERE signup_client_id = ? AND id != ?'
+        )
+        .get(input.clientId, input.excludeUserId) as { total: number }).total
+    : 0
+  const byIp = input.ip
+    ? (db
+        .prepare(
+          'SELECT COALESCE(SUM(free_credits_granted), 0) AS total FROM users WHERE signup_ip = ? AND id != ? AND created_at >= ?'
+        )
+        .get(input.ip, input.excludeUserId, input.ipSince) as { total: number }).total
+    : 0
+  return Math.max(byDevice, byIp)
 }
 
 export function updateUserLocale(userId: string, locale: AppLocale): void {

@@ -50,16 +50,21 @@ export function totalCredits(user: UserRecord): number {
   return user.creditsRemaining + user.freeCredits
 }
 
+/** IPs are shared and reassigned, so they only count for a while; devices count forever. */
+const FREE_IP_WINDOW_MS = 30 * 24 * 60 * 60 * 1000
+
 /**
  * How many free videos a newly verified account gets. Anything already used
- * from the same IP or device counts against it: anonymous jobs from before
- * email verification existed, and free credits granted to other accounts.
+ * from the same device, or from the same IP in the last 30 days, counts
+ * against it: anonymous jobs from before email verification existed, and free
+ * credits granted to other accounts.
  */
 export function freeAllowanceFor(meta: RequestMeta, userId: string): number {
+  const ipSince = new Date(Date.now() - FREE_IP_WINDOW_MS).toISOString()
   const used = Math.max(
     meta.clientId ? countQuotaJobsByClientId(meta.clientId) : 0,
-    meta.clientIp ? countQuotaJobsByClientIp(meta.clientIp) : 0,
-    countFreeGrantsBySignup({ ip: meta.clientIp, clientId: meta.clientId, excludeUserId: userId })
+    meta.clientIp ? countQuotaJobsByClientIp(meta.clientIp, ipSince) : 0,
+    countFreeGrantsBySignup({ ip: meta.clientIp, clientId: meta.clientId, excludeUserId: userId, ipSince })
   )
   return Math.max(0, FREE_JOB_LIMIT - used)
 }
