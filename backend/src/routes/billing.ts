@@ -47,7 +47,7 @@ billingRouter.post('/billing/checkout', async (req: Request, res: Response) => {
     const session = await getStripe().checkout.sessions.create({
       mode: 'payment',
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${site}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${site}/library?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${site}/pricing`,
       customer: user?.stripeCustomerId ?? undefined,
       customer_email: user && !user.stripeCustomerId ? user.email : undefined,
@@ -93,6 +93,9 @@ billingRouter.post('/billing/claim', async (req: Request, res: Response) => {
         id: result.user.id,
         email: result.user.email,
         credits: result.user.creditsRemaining,
+        freeCredits: result.user.freeCredits,
+        totalCredits: result.user.creditsRemaining + result.user.freeCredits,
+        hasPaid: true,
         locale: result.user.locale,
         googleId: result.user.googleId,
       },

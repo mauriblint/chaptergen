@@ -18,11 +18,37 @@ import {
   updateJobError,
   updateJobResult,
   updateJobSegments,
+  updateJobRefineError,
   updateJobStatus,
 } from '../db/jobs.js'
 import { formatChapters } from '../types.js'
 import { isAudioFile } from '../utils/media.js'
-import { settleJobBilling } from '../billing/quota.js'
+import { refundJobCredit, settleJobBilling } from '../billing/quota.js'
+import { getUserById } from '../db/users.js'
+import { sendJobReadyEmail } from './email.js'
+import { forgetJob, isJobWatched } from './jobWatchers.js'
+
+async function notifyIfUnwatched(jobId: string): Promise<void> {
+  const job = getJob(jobId)
+  if (!job?.userId || isJobWatched(jobId)) return
+  const user = getUserById(job.userId)
+  if (!user) return
+  await sendJobReadyEmail({
+    email: user.email,
+    locale: user.locale,
+    userId: user.id,
+    jobId: job.id,
+    fileName: job.fileName,
+    ok: job.status === 'completed',
+  })
+}
+
+/** Fails the job and gives back its credit if one was already charged. */
+function failJob(jobId: string, message: string, reason: string | null = null): void {
+  updateJobError(jobId, message, reason)
+  const job = getJob(jobId)
+  if (job) refundJobCredit(job)
+}
 
 const uploadsDir = path.resolve('uploads')
 
@@ -71,6 +97,12 @@ export async function processJob(jobId: string): Promise<void> {
     }
 
     const { segments, language } = await transcribe(audioPath)
+    // Silence or music comes back as nothing or a single garbled token.
+    const words = segments.reduce((n, seg) => n + seg.text.trim().split(/\s+/).filter(Boolean).length, 0)
+    if (words < 3) {
+      failJob(jobId, 'No speech was detected in this file.', 'no_speech')
+      return
+    }
     updateJobSegments(jobId, segments, language)
 
     const count = job.autoMode
@@ -85,14 +117,16 @@ export async function processJob(jobId: string): Promise<void> {
     updateJobResult(jobId, chapters, formatted, segments)
   } catch (err) {
     if (err instanceof AudioTooLargeError) {
-      updateJobError(jobId, err.message, err.reason)
-      return
+      failJob(jobId, err.message, err.reason)
+    } else {
+      const message = err instanceof Error ? err.message : 'Unknown error'
+      failJob(jobId, message)
     }
-    const message = err instanceof Error ? err.message : 'Unknown error'
-    updateJobError(jobId, message)
   } finally {
     await cleanupFiles(filePath, ...(audioPath ? [audioPath] : []))
     clearJobFilePath(jobId)
+    await notifyIfUnwatched(jobId).catch((err) => console.error('ready email error:', err))
+    forgetJob(jobId)
   }
 }
 
@@ -126,6 +160,6 @@ export async function refineJobChapters(
     incrementRefineCount(jobId)
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
-    updateJobError(jobId, message)
+    updateJobRefineError(jobId, message)
   }
 }

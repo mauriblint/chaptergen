@@ -36,6 +36,8 @@ export interface JobRecord {
   userId: string | null
   refineCount: number
   creditsCharged: number | null
+  creditSource: 'free' | 'paid' | null
+  creditsRefunded: boolean
   transcriptLanguage: string | null
   segments: TranscriptSegment[] | null
   chapters: Chapter[] | null
@@ -68,6 +70,8 @@ interface JobRow {
   user_id: string | null
   refine_count: number | null
   credits_charged: number | null
+  credit_source: string | null
+  credits_refunded: number | null
   transcript_language: string | null
   segments_json: string | null
   chapters_json: string | null
@@ -122,6 +126,8 @@ const columnMigrations = [
   'ALTER TABLE jobs ADD COLUMN user_id TEXT',
   'ALTER TABLE jobs ADD COLUMN refine_count INTEGER DEFAULT 0',
   'ALTER TABLE jobs ADD COLUMN credits_charged INTEGER',
+  'ALTER TABLE jobs ADD COLUMN credit_source TEXT',
+  'ALTER TABLE jobs ADD COLUMN credits_refunded INTEGER NOT NULL DEFAULT 0',
 ]
 
 for (const sql of columnMigrations) {
@@ -162,6 +168,8 @@ function rowToJob(row: JobRow): JobRecord {
     userId: row.user_id,
     refineCount: row.refine_count ?? 0,
     creditsCharged: row.credits_charged,
+    creditSource: row.credit_source === 'free' || row.credit_source === 'paid' ? row.credit_source : null,
+    creditsRefunded: row.credits_refunded === 1,
     transcriptLanguage: row.transcript_language,
     segments: row.segments_json ? JSON.parse(row.segments_json) : null,
     chapters: row.chapters_json ? JSON.parse(row.chapters_json) : null,
@@ -252,6 +260,8 @@ export interface JobSummary {
   clientId: string | null
   userId: string | null
   userEmail: string | null
+  transcriptLanguage: string | null
+  creditsRefunded: boolean
   errorMessage: string | null
   failureReason: string | null
   createdAt: string
@@ -278,6 +288,8 @@ interface JobSummaryRow {
   client_id: string | null
   user_id: string | null
   user_email: string | null
+  transcript_language: string | null
+  credits_refunded: number | null
   error_message: string | null
   failure_reason: string | null
   created_at: string
@@ -306,6 +318,8 @@ function rowToJobSummary(row: JobSummaryRow): JobSummary {
     clientId: row.client_id,
     userId: row.user_id,
     userEmail: row.user_email,
+    transcriptLanguage: row.transcript_language,
+    creditsRefunded: row.credits_refunded === 1,
     errorMessage: row.error_message,
     failureReason: row.failure_reason,
     createdAt: row.created_at,
@@ -320,6 +334,7 @@ const jobSummarySelect = `
     jobs.file_type, jobs.file_extension, jobs.media_type, jobs.client_ip,
     jobs.country, jobs.user_agent, jobs.accept_language, jobs.referer,
     jobs.client_id, jobs.user_id, users.email AS user_email,
+    jobs.transcript_language, jobs.credits_refunded,
     jobs.error_message, jobs.failure_reason, jobs.created_at, jobs.updated_at
   FROM jobs
   LEFT JOIN users ON users.id = jobs.user_id
@@ -406,8 +421,24 @@ export function incrementRefineCount(id: string): void {
   db.prepare('UPDATE jobs SET refine_count = COALESCE(refine_count, 0) + 1 WHERE id = ?').run(id)
 }
 
-export function updateJobCreditsCharged(id: string, creditsCharged: number): void {
-  db.prepare('UPDATE jobs SET credits_charged = ? WHERE id = ?').run(creditsCharged, id)
+export function updateJobCreditsCharged(
+  id: string,
+  creditsCharged: number,
+  source: 'free' | 'paid' | null = null
+): void {
+  db.prepare('UPDATE jobs SET credits_charged = ?, credit_source = ? WHERE id = ?').run(
+    creditsCharged,
+    source,
+    id
+  )
+}
+
+/** Returns true only the first time, so a credit is never refunded twice. */
+export function markJobCreditsRefunded(id: string): boolean {
+  const result = db
+    .prepare('UPDATE jobs SET credits_refunded = 1 WHERE id = ? AND credits_refunded = 0')
+    .run(id)
+  return result.changes === 1
 }
 
 export function updateJobStatus(id: string, status: JobStatus): void {
@@ -472,6 +503,15 @@ export function updateJobError(
       updated_at = ?, file_path = NULL
     WHERE id = ?
   `).run(message, failureReason, now, id)
+}
+
+/** A failed refine keeps the previous chapters; the job stays usable. */
+export function updateJobRefineError(id: string, message: string): void {
+  const now = new Date().toISOString()
+  db.prepare(`
+    UPDATE jobs SET status = 'completed', error_message = ?, failure_reason = 'refine_failed', updated_at = ?
+    WHERE id = ?
+  `).run(message, now, id)
 }
 
 export function updateJobDuration(id: string, durationSeconds: number): void {

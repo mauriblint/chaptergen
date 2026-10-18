@@ -1,15 +1,30 @@
 import { Router, type Request, type Response } from 'express'
-import { getUserByEmail, getUserById, updateUserLocale } from '../db/users.js'
+import {
+  getOrCreateUserByEmail,
+  getUserByEmail,
+  getUserById,
+  grantFreeCredits,
+  markEmailVerified,
+  markFreeGrantConsidered,
+  normalizeEmail,
+  updateUserLocale,
+} from '../db/users.js'
+import { countRecentCodes, createEmailCode, generateCode, verifyEmailCode } from '../db/emailCodes.js'
+import { isDisposableEmail, isValidEmail } from '../utils/disposableEmail.js'
 import { listPaymentsByUserId } from '../db/payments.js'
 import { listJobsByUserId } from '../db/jobs.js'
 import { signMagicToken, verifyToken } from '../auth/jwt.js'
 import { clearSessionCookie } from '../auth/cookies.js'
 import { establishSession, requireUser } from '../auth/session.js'
-import { sendMagicLinkEmail, sendSupportEmail } from '../services/email.js'
+import {
+  sendMagicLinkEmail,
+  sendSupportEmail,
+  sendVerificationCodeEmail,
+} from '../services/email.js'
 import { extractRequestMeta } from '../utils/requestMeta.js'
 import { FREE_JOB_LIMIT, FREE_MAX_MINUTES } from '../billing/packs.js'
-import { getFreeUsage } from '../billing/quota.js'
-import { isAppLocale } from '../types/locale.js'
+import { freeAllowanceFor, totalCredits } from '../billing/quota.js'
+import { isAppLocale, parseAppLocale } from '../types/locale.js'
 
 export const authRouter = Router()
 
@@ -18,6 +33,9 @@ function userPayload(user: NonNullable<Request['user']>) {
     id: user.id,
     email: user.email,
     credits: user.creditsRemaining,
+    freeCredits: user.freeCredits,
+    totalCredits: totalCredits(user),
+    hasPaid: user.creditsRemaining > 0 || !!user.stripeCustomerId,
     locale: user.locale,
     googleId: user.googleId,
     pictureUrl: null as string | null,
@@ -27,15 +45,102 @@ function userPayload(user: NonNullable<Request['user']>) {
 }
 
 authRouter.get('/auth/me', (req: Request, res: Response) => {
-  const meta = extractRequestMeta(req)
-  const free = getFreeUsage(meta)
   const user = req.user ? getUserById(req.user.id) : null
   res.json({
     user: user ? userPayload(user) : null,
-    freeUsed: free.used,
     freeLimit: FREE_JOB_LIMIT,
     freeMaxMinutes: FREE_MAX_MINUTES,
   })
+})
+
+// Email verification by 6-digit code. Used both to start the first free video
+// and to sign in, so there is a single way into an account.
+authRouter.post('/auth/code/request', async (req: Request, res: Response) => {
+  const email = typeof req.body?.email === 'string' ? normalizeEmail(req.body.email) : ''
+  const locale = parseAppLocale(req.body?.locale)
+  const meta = extractRequestMeta(req)
+
+  if (!isValidEmail(email)) {
+    res.status(400).json({ error: 'Enter a valid email address', code: 'invalid_email' })
+    return
+  }
+  if (isDisposableEmail(email)) {
+    res.status(400).json({ error: 'Please use a permanent email address', code: 'disposable_email' })
+    return
+  }
+  const minute = 60 * 1000
+  if (countRecentCodes({ email, windowMs: minute }) >= 1) {
+    res.status(429).json({ error: 'Wait a minute before requesting another code', code: 'rate_limited' })
+    return
+  }
+  if (
+    countRecentCodes({ email, windowMs: 60 * minute }) >= 5 ||
+    countRecentCodes({ clientIp: meta.clientIp, windowMs: 60 * minute }) >= 15
+  ) {
+    res.status(429).json({ error: 'Too many codes requested. Try again later.', code: 'rate_limited' })
+    return
+  }
+
+  const code = generateCode()
+  createEmailCode({
+    email,
+    code,
+    clientIp: meta.clientIp,
+    clientId: meta.clientId,
+    userAgent: meta.userAgent,
+  })
+  try {
+    const existing = getUserByEmail(email)
+    await sendVerificationCodeEmail({ email, locale: existing?.locale ?? locale, code })
+  } catch (err) {
+    console.error('verification email error:', err)
+    res.status(502).json({ error: 'Could not send the email. Try again.', code: 'email_failed' })
+    return
+  }
+  res.json({ ok: true })
+})
+
+authRouter.post('/auth/code/verify', async (req: Request, res: Response) => {
+  const email = typeof req.body?.email === 'string' ? normalizeEmail(req.body.email) : ''
+  const code = typeof req.body?.code === 'string' ? req.body.code.replace(/\D/g, '') : ''
+  const locale = parseAppLocale(req.body?.locale)
+  const meta = extractRequestMeta(req)
+
+  if (!email || code.length !== 6) {
+    res.status(400).json({ error: 'Enter the 6-digit code', code: 'invalid_code' })
+    return
+  }
+  const result = verifyEmailCode(email, code)
+  if (result !== 'ok') {
+    const messages = {
+      invalid: 'That code is not right',
+      expired: 'That code has expired. Request a new one.',
+      too_many_attempts: 'Too many attempts. Request a new code.',
+    } as const
+    res.status(400).json({ error: messages[result], code: result })
+    return
+  }
+
+  const { user, created } = getOrCreateUserByEmail({ email, locale })
+  markEmailVerified(user.id, {
+    ip: meta.clientIp,
+    clientId: meta.clientId,
+    userAgent: meta.userAgent,
+    country: meta.country,
+  })
+
+  // Free videos only for brand-new accounts, minus what this IP or device
+  // already used. Existing customers keep their balance as it is.
+  let freeGranted = 0
+  if (created) {
+    freeGranted = freeAllowanceFor(meta, user.id)
+    if (freeGranted > 0) grantFreeCredits(user.id, freeGranted)
+    else markFreeGrantConsidered(user.id)
+  }
+
+  const fresh = getUserById(user.id)!
+  await establishSession(res, fresh)
+  res.json({ user: userPayload(fresh), created, freeGranted })
 })
 
 authRouter.patch('/auth/me', requireUser, (req: Request, res: Response) => {

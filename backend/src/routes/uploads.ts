@@ -28,9 +28,11 @@ function handleUploadError(err: unknown, res: Response): void {
   res.status(500).json({ error: message })
 }
 
+// Uploading is allowed before the email is verified so the file can travel
+// while the user types the code. Processing only starts at /complete.
 uploadsRouter.post('/uploads/init', (req: Request, res: Response) => {
   try {
-    assertCanStartJob(req.user, extractRequestMeta(req))
+    if (req.user) assertCanStartJob(req.user)
     const { fileName, fileSize, chunkSize } = req.body ?? {}
 
     if (!fileName || typeof fileName !== 'string') {
@@ -97,7 +99,7 @@ uploadsRouter.post('/uploads/:uploadId/complete', async (req: Request, res: Resp
 
   try {
     const requestMeta = extractRequestMeta(req)
-    assertCanStartJob(req.user, requestMeta)
+    assertCanStartJob(req.user)
 
     const meta = getSession(uploadId)
     const body = req.body ?? {}
@@ -117,7 +119,7 @@ uploadsRouter.post('/uploads/:uploadId/complete', async (req: Request, res: Resp
       autoMode,
       chapterCount: autoMode ? null : chapterCount,
       meta: requestMeta,
-      userId: req.user?.id ?? null,
+      userId: req.user!.id,
     })
 
     cleanupSession(uploadId)

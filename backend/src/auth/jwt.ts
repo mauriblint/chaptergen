@@ -30,8 +30,8 @@ export function signSessionToken(userId: string): Promise<string> {
   return signToken({ userId, typ: 'session', expiresIn: '30d' })
 }
 
-export function signMagicToken(userId: string, email: string): Promise<string> {
-  return signToken({ userId, email, typ: 'magic', expiresIn: '20m' })
+export function signMagicToken(userId: string, email: string, expiresIn = '20m'): Promise<string> {
+  return signToken({ userId, email, typ: 'magic', expiresIn })
 }
 
 export async function verifyToken(

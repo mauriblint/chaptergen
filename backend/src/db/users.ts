@@ -8,6 +8,9 @@ export interface UserRecord {
   googleId: string | null
   stripeCustomerId: string | null
   creditsRemaining: number
+  freeCredits: number
+  freeGranted: boolean
+  emailVerifiedAt: string | null
   locale: AppLocale
   createdAt: string
   lastLoginAt: string | null
@@ -19,6 +22,9 @@ interface UserRow {
   google_id: string | null
   stripe_customer_id: string | null
   credits_remaining: number
+  free_credits: number | null
+  free_granted: number | null
+  email_verified_at: string | null
   locale: string
   created_at: string
   last_login_at: string | null
@@ -37,6 +43,30 @@ db.exec(`
   )
 `)
 
+const userColumnMigrations = [
+  'ALTER TABLE users ADD COLUMN free_credits INTEGER NOT NULL DEFAULT 0',
+  'ALTER TABLE users ADD COLUMN free_granted INTEGER NOT NULL DEFAULT 0',
+  'ALTER TABLE users ADD COLUMN free_credits_granted INTEGER NOT NULL DEFAULT 0',
+  'ALTER TABLE users ADD COLUMN email_verified_at TEXT',
+  'ALTER TABLE users ADD COLUMN signup_ip TEXT',
+  'ALTER TABLE users ADD COLUMN signup_client_id TEXT',
+  'ALTER TABLE users ADD COLUMN signup_user_agent TEXT',
+  'ALTER TABLE users ADD COLUMN signup_country TEXT',
+]
+
+for (const sql of userColumnMigrations) {
+  try {
+    db.exec(sql)
+  } catch {
+    // column already exists
+  }
+}
+
+db.exec(`
+  CREATE INDEX IF NOT EXISTS idx_users_signup_ip ON users(signup_ip);
+  CREATE INDEX IF NOT EXISTS idx_users_signup_client_id ON users(signup_client_id);
+`)
+
 function rowToUser(row: UserRow): UserRecord {
   return {
     id: row.id,
@@ -44,6 +74,9 @@ function rowToUser(row: UserRow): UserRecord {
     googleId: row.google_id,
     stripeCustomerId: row.stripe_customer_id,
     creditsRemaining: row.credits_remaining,
+    freeCredits: row.free_credits ?? 0,
+    freeGranted: row.free_granted === 1,
+    emailVerifiedAt: row.email_verified_at,
     locale: parseAppLocale(row.locale),
     createdAt: row.created_at,
     lastLoginAt: row.last_login_at,
@@ -136,6 +169,68 @@ export function subtractCreditsFloorZero(userId: string, amount: number): void {
   db.prepare(
     'UPDATE users SET credits_remaining = MAX(0, credits_remaining - ?) WHERE id = ?'
   ).run(amount, userId)
+}
+
+/**
+ * Marks the email as verified and stores where the account was created from,
+ * so later free-credit grants can be checked against the same IP or device.
+ */
+export function markEmailVerified(
+  userId: string,
+  signup: { ip: string | null; clientId: string | null; userAgent: string | null; country: string | null }
+): void {
+  db.prepare(`
+    UPDATE users SET
+      email_verified_at = COALESCE(email_verified_at, ?),
+      signup_ip = COALESCE(signup_ip, ?),
+      signup_client_id = COALESCE(signup_client_id, ?),
+      signup_user_agent = COALESCE(signup_user_agent, ?),
+      signup_country = COALESCE(signup_country, ?)
+    WHERE id = ?
+  `).run(new Date().toISOString(), signup.ip, signup.clientId, signup.userAgent, signup.country, userId)
+}
+
+export function grantFreeCredits(userId: string, amount: number): void {
+  db.prepare(
+    'UPDATE users SET free_credits = free_credits + ?, free_credits_granted = ?, free_granted = 1 WHERE id = ? AND free_granted = 0'
+  ).run(amount, amount, userId)
+}
+
+/** Records that the free grant was considered, even when nothing was granted. */
+export function markFreeGrantConsidered(userId: string): void {
+  db.prepare('UPDATE users SET free_granted = 1 WHERE id = ?').run(userId)
+}
+
+export function debitFreeCredit(userId: string): boolean {
+  const result = db
+    .prepare('UPDATE users SET free_credits = free_credits - 1 WHERE id = ? AND free_credits >= 1')
+    .run(userId)
+  return result.changes === 1
+}
+
+export function addFreeCredits(userId: string, amount: number): void {
+  db.prepare('UPDATE users SET free_credits = free_credits + ? WHERE id = ?').run(amount, userId)
+}
+
+/**
+ * Free credits already handed to other accounts created from this IP or device.
+ * Uses the larger of the two so switching networks or browsers alone does not reset it.
+ */
+export function countFreeGrantsBySignup(input: {
+  ip: string | null
+  clientId: string | null
+  excludeUserId: string
+}): number {
+  const sum = (column: 'signup_ip' | 'signup_client_id', value: string | null): number => {
+    if (!value) return 0
+    const row = db
+      .prepare(
+        `SELECT COALESCE(SUM(free_credits_granted), 0) AS total FROM users WHERE ${column} = ? AND id != ?`
+      )
+      .get(value, input.excludeUserId) as { total: number }
+    return row.total
+  }
+  return Math.max(sum('signup_ip', input.ip), sum('signup_client_id', input.clientId))
 }
 
 export function updateUserLocale(userId: string, locale: AppLocale): void {
