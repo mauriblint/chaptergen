@@ -71,7 +71,6 @@ onMounted(async () => {
           </tbody>
         </table>
       </div>
-      <p class="secure">{{ t('paywall.ssl') }}</p>
     </section>
 
     <PaywallModal v-if="showPaywall" reason="buy" @close="showPaywall = false" />
@@ -150,11 +149,6 @@ onMounted(async () => {
   border-radius: 14px;
   text-align: center;
   font-size: 0.9rem;
-  color: var(--text-muted);
-}
-
-.secure {
-  font-size: 0.8rem;
   color: var(--text-muted);
 }
 

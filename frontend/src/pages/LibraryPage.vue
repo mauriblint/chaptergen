@@ -25,7 +25,6 @@ const loading = ref(true)
 const error = ref<string | null>(null)
 const filter = ref<'all' | 'ready' | 'processing' | 'failed'>('all')
 const query = ref('')
-const dragging = ref(false)
 const purchased = ref<number | null>(null)
 let timer: ReturnType<typeof setInterval> | null = null
 
@@ -104,12 +103,6 @@ onBeforeUnmount(() => {
   if (timer) clearInterval(timer)
 })
 
-function onDrop(event: DragEvent) {
-  dragging.value = false
-  const file = event.dataTransfer?.files[0]
-  if (file) layout.value?.pickFile(file)
-}
-
 function isAudio(job: JobSummary) {
   return job.mediaType === 'audio' || isAudioFile(job.fileName)
 }
@@ -127,23 +120,6 @@ function isAudio(job: JobSummary) {
     <template v-else>
       <div class="page-head">
         <h1 class="page-title">{{ t('app.nav.library') }}</h1>
-      </div>
-
-      <div
-        class="drop"
-        :class="{ dragging }"
-        @dragover.prevent="dragging = true"
-        @dragleave.prevent="dragging = false"
-        @drop.prevent="onDrop"
-      >
-        <span class="drop-icon small" aria-hidden="true">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" /></svg>
-        </span>
-        <div class="drop-copy">
-          <span class="drop-row-title">{{ t('app.upload.dropRowTitle') }}</span>
-          <span class="drop-hint">{{ t('app.upload.formatsCredit') }}</span>
-        </div>
-        <button type="button" class="btn btn-ink" @click="layout?.openPicker()">{{ t('app.upload.choose') }}</button>
       </div>
 
       <div class="tools">
@@ -235,57 +211,6 @@ function isAudio(job: JobSummary) {
   font-size: 1.9rem;
   font-weight: 800;
   letter-spacing: -0.03em;
-}
-
-.drop {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px 20px;
-  border: 1.5px dashed #c9cad2;
-  border-radius: 16px;
-  background: #fbfbfc;
-  transition: border-color 0.15s, background 0.15s;
-}
-
-.drop.dragging {
-  border-color: var(--accent);
-  background: #fbfbff;
-}
-
-.drop-icon {
-  width: 60px;
-  height: 60px;
-  flex-shrink: 0;
-  border-radius: 16px;
-  background: var(--accent-soft);
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.drop-icon.small {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-}
-
-.drop-copy {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.drop-row-title {
-  font-weight: 600;
-}
-
-.drop-hint {
-  font-size: 0.8rem;
-  color: var(--text-muted);
 }
 
 .tools {
@@ -450,14 +375,6 @@ function isAudio(job: JobSummary) {
 @media (max-width: 720px) {
   .hide-sm {
     display: none;
-  }
-
-  .drop {
-    flex-wrap: wrap;
-  }
-
-  .drop .btn {
-    width: 100%;
   }
 
   .search {

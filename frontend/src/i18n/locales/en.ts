@@ -571,7 +571,7 @@ export default {
     bulletSubtitles: 'Subtitles (SRT, VTT)',
     bulletExpire: '1 credit = 1 video. Credits never expire',
     bulletSize: 'Files up to 500 MB, video or audio',
-    oneTime: 'One-time payment. No subscription or recurring charges.',
+    oneTime: 'One-time payment. No subscription.',
     choose: 'Choose your pack',
     creditsLabel: '{count} credits',
     perCredit: '{price} each',

@@ -571,7 +571,7 @@ export default {
     bulletSubtitles: 'Subtítulos (SRT, VTT)',
     bulletExpire: '1 crédito = 1 video. Los créditos no vencen',
     bulletSize: 'Archivos de hasta 500 MB, video o audio',
-    oneTime: 'Pago único. Sin suscripción ni cargos recurrentes.',
+    oneTime: 'Pago único. Sin suscripción.',
     choose: 'Elige tu paquete',
     creditsLabel: '{count} créditos',
     perCredit: '{price} c/u',

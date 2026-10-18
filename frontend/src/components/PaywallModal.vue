@@ -93,7 +93,6 @@ async function buy() {
             {{ t(`paywall.reasonLabel.${props.reason}`) }}
           </p>
           <h2>{{ t('paywall.title') }}</h2>
-          <p class="lead">{{ t(`paywall.reason.${props.reason}`) }}</p>
           <ul class="bullets">
             <li>{{ t('paywall.bulletChapters') }}</li>
             <li>{{ t('paywall.bulletTranscript') }}</li>
@@ -230,12 +229,6 @@ async function buy() {
   line-height: 1.1;
   font-weight: 800;
   letter-spacing: -0.03em;
-}
-
-.lead {
-  font-size: 0.9rem;
-  line-height: 1.55;
-  color: var(--on-ink-muted);
 }
 
 .bullets {

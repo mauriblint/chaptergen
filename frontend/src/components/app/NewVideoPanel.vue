@@ -15,7 +15,7 @@ const dragging = ref(false)
 
 const balance = computed(() => {
   const u = user.value
-  if (!u) return ''
+  if (!u || u.totalCredits < 1) return ''
   if (!u.hasPaid) return t('app.newVideo.freeLeft', { n: u.freeCredits }, u.freeCredits)
   return t('app.newVideo.creditsLeft', { n: u.totalCredits }, u.totalCredits)
 })
@@ -33,7 +33,7 @@ const outputs = ['chapters', 'transcript', 'subtitles'] as const
   <section class="panel">
     <header class="head">
       <h1 class="title">{{ first ? t('app.newVideo.firstTitle') : t('app.newVideo.title') }}</h1>
-      <p class="lead">{{ balance }}</p>
+      <p v-if="balance" class="lead">{{ balance }}</p>
     </header>
 
     <div
