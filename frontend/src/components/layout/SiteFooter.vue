@@ -15,6 +15,8 @@ function path(en: string) {
 
 const homePath = computed(() => path('/'))
 const podcastPath = computed(() => path('/podcast-chapters'))
+const transcriptPath = computed(() => path('/video-to-text'))
+const subtitlesPath = computed(() => path('/subtitle-generator'))
 const pricingPath = computed(() => path('/pricing'))
 const aboutPath = computed(() => path('/about'))
 const privacyPath = computed(() => path('/privacy'))
@@ -43,6 +45,12 @@ function localeLinkPath(target: Locale) {
           </RouterLink>
           <RouterLink :to="podcastPath" class="footer-link">
             {{ t('common.footer.podcastChapters') }}
+          </RouterLink>
+          <RouterLink :to="transcriptPath" class="footer-link">
+            {{ t('common.footer.videoToText') }}
+          </RouterLink>
+          <RouterLink :to="subtitlesPath" class="footer-link">
+            {{ t('common.footer.subtitleGenerator') }}
           </RouterLink>
           <RouterLink :to="pricingPath" class="footer-link">
             {{ t('common.nav.pricing') }}

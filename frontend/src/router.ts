@@ -38,6 +38,30 @@ export const routes: RouteRecordRaw[] = [
     meta: { locale: 'es' },
   },
   {
+    path: '/video-to-text',
+    name: 'transcript-landing',
+    component: () => import('./pages/ToolLandingPage.vue'),
+    meta: { locale: 'en', landing: 'transcript' },
+  },
+  {
+    path: '/es/video-a-texto',
+    name: 'transcript-landing-es',
+    component: () => import('./pages/ToolLandingPage.vue'),
+    meta: { locale: 'es', landing: 'transcript' },
+  },
+  {
+    path: '/subtitle-generator',
+    name: 'subtitles-landing',
+    component: () => import('./pages/ToolLandingPage.vue'),
+    meta: { locale: 'en', landing: 'subtitles' },
+  },
+  {
+    path: '/es/generador-de-subtitulos',
+    name: 'subtitles-landing-es',
+    component: () => import('./pages/ToolLandingPage.vue'),
+    meta: { locale: 'es', landing: 'subtitles' },
+  },
+  {
     path: '/about',
     name: 'about',
     component: () => import('./pages/ProsePage.vue'),

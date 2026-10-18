@@ -9,6 +9,7 @@ const props = withDefaults(
   defineProps<{
     variant?: 'video' | 'audio'
     compact?: boolean
+    buttonLabel?: string
   }>(),
   { variant: 'video', compact: false }
 )
@@ -30,7 +31,7 @@ function onFileSelect(file: File) {
 <template>
   <Card class="chapter-tool" :class="{ compact }" :shadow="compact ? 'lg' : 'none'">
     <div class="controls">
-      <VideoUploader :variant="variant" :compact="compact" @select="onFileSelect" />
+      <VideoUploader :variant="variant" :compact="compact" :button-label="buttonLabel" @select="onFileSelect" />
 
       <ul v-if="!props.compact" class="trust-strip">
         <li v-for="item in trustItems" :key="item" class="trust-item">

@@ -6,7 +6,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://chaptergen.com/" />
     <xhtml:link rel="alternate" hreflang="es" href="https://chaptergen.com/es" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://chaptergen.com/" />
-    <lastmod>2026-10-17</lastmod>
+    <lastmod>2026-10-18</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
@@ -14,7 +14,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://chaptergen.com/" />
     <xhtml:link rel="alternate" hreflang="es" href="https://chaptergen.com/es" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://chaptergen.com/" />
-    <lastmod>2026-10-17</lastmod>
+    <lastmod>2026-10-18</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
@@ -22,7 +22,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://chaptergen.com/podcast-chapters" />
     <xhtml:link rel="alternate" hreflang="es" href="https://chaptergen.com/es/capitulos-podcast" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://chaptergen.com/podcast-chapters" />
-    <lastmod>2026-10-17</lastmod>
+    <lastmod>2026-10-18</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
@@ -30,7 +30,39 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://chaptergen.com/podcast-chapters" />
     <xhtml:link rel="alternate" hreflang="es" href="https://chaptergen.com/es/capitulos-podcast" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://chaptergen.com/podcast-chapters" />
-    <lastmod>2026-10-17</lastmod>
+    <lastmod>2026-10-18</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://chaptergen.com/video-to-text</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://chaptergen.com/video-to-text" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://chaptergen.com/es/video-a-texto" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://chaptergen.com/video-to-text" />
+    <lastmod>2026-10-18</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://chaptergen.com/es/video-a-texto</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://chaptergen.com/video-to-text" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://chaptergen.com/es/video-a-texto" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://chaptergen.com/video-to-text" />
+    <lastmod>2026-10-18</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://chaptergen.com/subtitle-generator</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://chaptergen.com/subtitle-generator" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://chaptergen.com/es/generador-de-subtitulos" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://chaptergen.com/subtitle-generator" />
+    <lastmod>2026-10-18</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://chaptergen.com/es/generador-de-subtitulos</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://chaptergen.com/subtitle-generator" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://chaptergen.com/es/generador-de-subtitulos" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://chaptergen.com/subtitle-generator" />
+    <lastmod>2026-10-18</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
@@ -38,7 +70,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://chaptergen.com/pricing" />
     <xhtml:link rel="alternate" hreflang="es" href="https://chaptergen.com/es/precios" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://chaptergen.com/pricing" />
-    <lastmod>2026-10-17</lastmod>
+    <lastmod>2026-10-18</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
@@ -46,7 +78,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://chaptergen.com/pricing" />
     <xhtml:link rel="alternate" hreflang="es" href="https://chaptergen.com/es/precios" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://chaptergen.com/pricing" />
-    <lastmod>2026-10-17</lastmod>
+    <lastmod>2026-10-18</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
@@ -54,7 +86,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://chaptergen.com/about" />
     <xhtml:link rel="alternate" hreflang="es" href="https://chaptergen.com/es/acerca-de" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://chaptergen.com/about" />
-    <lastmod>2026-10-17</lastmod>
+    <lastmod>2026-10-18</lastmod>
     <priority>0.5</priority>
   </url>
   <url>
@@ -62,7 +94,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://chaptergen.com/about" />
     <xhtml:link rel="alternate" hreflang="es" href="https://chaptergen.com/es/acerca-de" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://chaptergen.com/about" />
-    <lastmod>2026-10-17</lastmod>
+    <lastmod>2026-10-18</lastmod>
     <priority>0.5</priority>
   </url>
   <url>
@@ -70,7 +102,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://chaptergen.com/privacy" />
     <xhtml:link rel="alternate" hreflang="es" href="https://chaptergen.com/es/privacidad" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://chaptergen.com/privacy" />
-    <lastmod>2026-10-17</lastmod>
+    <lastmod>2026-10-18</lastmod>
     <priority>0.2</priority>
   </url>
   <url>
@@ -78,7 +110,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://chaptergen.com/privacy" />
     <xhtml:link rel="alternate" hreflang="es" href="https://chaptergen.com/es/privacidad" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://chaptergen.com/privacy" />
-    <lastmod>2026-10-17</lastmod>
+    <lastmod>2026-10-18</lastmod>
     <priority>0.2</priority>
   </url>
   <url>
@@ -86,7 +118,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://chaptergen.com/terms" />
     <xhtml:link rel="alternate" hreflang="es" href="https://chaptergen.com/es/terminos" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://chaptergen.com/terms" />
-    <lastmod>2026-10-17</lastmod>
+    <lastmod>2026-10-18</lastmod>
     <priority>0.2</priority>
   </url>
   <url>
@@ -94,7 +126,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://chaptergen.com/terms" />
     <xhtml:link rel="alternate" hreflang="es" href="https://chaptergen.com/es/terminos" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://chaptergen.com/terms" />
-    <lastmod>2026-10-17</lastmod>
+    <lastmod>2026-10-18</lastmod>
     <priority>0.2</priority>
   </url>
 </urlset>

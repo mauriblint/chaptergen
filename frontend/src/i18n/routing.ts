@@ -12,6 +12,8 @@ const PATH_PAIRS: PathPair[] = [
   { en: '/', es: '/es' },
   { en: '/podcast-chapters', es: '/es/capitulos-podcast' },
   { en: '/pricing', es: '/es/precios' },
+  { en: '/video-to-text', es: '/es/video-a-texto' },
+  { en: '/subtitle-generator', es: '/es/generador-de-subtitulos' },
   { en: '/about', es: '/es/acerca-de' },
   { en: '/privacy', es: '/es/privacidad' },
   { en: '/terms', es: '/es/terminos' },

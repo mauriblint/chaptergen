@@ -8,7 +8,8 @@ defineProps<{
   title: string
   intro: string
   bullets: string[]
-  preview: PreviewContent
+  /** Chapter example; other outputs pass their own preview in the slot. */
+  preview?: PreviewContent
 }>()
 </script>
 
@@ -26,7 +27,9 @@ defineProps<{
           </li>
         </ul>
       </div>
-      <ChapterPreview :preview="preview" />
+      <slot>
+        <ChapterPreview v-if="preview" :preview="preview" />
+      </slot>
     </div>
   </Section>
 </template>

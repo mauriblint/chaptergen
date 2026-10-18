@@ -6,6 +6,7 @@ defineProps<{
   title: string
   subtitle: string
   variant?: 'video' | 'audio'
+  cta?: string
 }>()
 
 const ChapterTool = defineAsyncComponent(
@@ -20,7 +21,7 @@ const ChapterTool = defineAsyncComponent(
       <h1 class="hero-title">{{ title }}</h1>
       <p class="hero-subtitle">{{ subtitle }}</p>
       <div class="hero-tool">
-        <ChapterTool :variant="variant ?? 'video'" />
+        <ChapterTool :variant="variant ?? 'video'" :button-label="cta" />
       </div>
     </div>
   </section>

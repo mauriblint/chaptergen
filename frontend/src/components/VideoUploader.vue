@@ -6,6 +6,7 @@ const props = withDefaults(
   defineProps<{
     variant?: 'video' | 'audio'
     compact?: boolean
+    buttonLabel?: string
   }>(),
   { variant: 'video', compact: false }
 )
@@ -77,7 +78,7 @@ function openPicker() {
       <p class="uploader-hint">{{ hint }}</p>
     </div>
     <button type="button" class="uploader-btn" @click.stop="openPicker">
-      {{ t('tool.uploader.button') }}
+      {{ buttonLabel ?? t('tool.uploader.button') }}
     </button>
   </div>
 </template>

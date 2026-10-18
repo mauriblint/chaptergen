@@ -46,16 +46,16 @@ const productItems = computed(() => [
     icon: 'mic',
   },
   {
-    to: navHref('#how'),
-    title: t('common.nav.productMenu.how.title'),
-    description: t('common.nav.productMenu.how.description'),
+    to: path('/video-to-text'),
+    title: t('common.nav.productMenu.transcript.title'),
+    description: t('common.nav.productMenu.transcript.description'),
     icon: 'list',
   },
   {
-    to: path('/about'),
-    title: t('common.nav.productMenu.about.title'),
-    description: t('common.nav.productMenu.about.description'),
-    icon: 'info',
+    to: path('/subtitle-generator'),
+    title: t('common.nav.productMenu.subtitles.title'),
+    description: t('common.nav.productMenu.subtitles.description'),
+    icon: 'captions',
   },
 ])
 
@@ -141,12 +141,12 @@ onBeforeUnmount(() => {
               class="product-item"
               @click="productOpen = false"
             >
-              <span class="product-icon" :class="{ muted: item.icon === 'list' || item.icon === 'info' }" aria-hidden="true">
+              <span class="product-icon" aria-hidden="true">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
                   <template v-if="item.icon === 'video'"><rect x="3" y="5" width="18" height="14" rx="3" /><path d="M10 9.5l4.5 2.5-4.5 2.5z" /></template>
                   <template v-else-if="item.icon === 'mic'"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></template>
                   <template v-else-if="item.icon === 'list'"><path d="M4 6h16M4 12h10M4 18h13" /></template>
-                  <template v-else><circle cx="12" cy="12" r="9" /><path d="M12 8v4M12 16h.01" /></template>
+                  <template v-else><rect x="3" y="5" width="18" height="14" rx="3" /><path d="M7 15h4M13 15h4M7 11h10" /></template>
                 </svg>
               </span>
               <span class="product-copy">
@@ -193,7 +193,7 @@ onBeforeUnmount(() => {
       <div class="mobile-group">
         <p class="mobile-label mono">{{ t('common.nav.product') }}</p>
         <RouterLink
-          v-for="item in productItems.slice(0, 2)"
+          v-for="item in productItems"
           :key="item.title"
           :to="item.to"
           class="mobile-product"
@@ -202,7 +202,9 @@ onBeforeUnmount(() => {
           <span class="product-icon" aria-hidden="true">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
               <template v-if="item.icon === 'video'"><rect x="3" y="5" width="18" height="14" rx="3" /><path d="M10 9.5l4.5 2.5-4.5 2.5z" /></template>
-              <template v-else><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></template>
+              <template v-else-if="item.icon === 'mic'"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></template>
+              <template v-else-if="item.icon === 'list'"><path d="M4 6h16M4 12h10M4 18h13" /></template>
+              <template v-else><rect x="3" y="5" width="18" height="14" rx="3" /><path d="M7 15h4M13 15h4M7 11h10" /></template>
             </svg>
           </span>
           {{ item.title }}

@@ -11,7 +11,7 @@ export default {
       product: 'Producto',
       tryFreeShort: 'Probar',
       tryFreeMobile: 'Generar capítulos gratis',
-      promo: '2 videos gratis, sin registro',
+      promo: '2 videos gratis, solo confirma tu email',
       promoCta: 'Probar ahora →',
       productMenu: {
         youtube: {
@@ -22,13 +22,13 @@ export default {
           title: 'Generador de capítulos de podcast',
           description: 'Capítulos desde el audio para YouTube, Spotify y notas del episodio.',
         },
-        how: {
-          title: 'Cómo funciona',
-          description: 'Subes, transcribimos, copias. Tres pasos.',
+        transcript: {
+          title: 'Video a texto',
+          description: 'Transcribe cualquier video o audio, con marcas de tiempo.',
         },
-        about: {
-          title: 'Acerca de ChapterGen',
-          description: 'Por qué lo creamos y cómo tratamos tus archivos.',
+        subtitles: {
+          title: 'Generador de subtítulos',
+          description: 'Subtítulos SRT y VTT con líneas fáciles de leer.',
         },
       },
       useCases: 'Casos de uso',
@@ -51,6 +51,8 @@ export default {
       productHeading: 'Producto',
       youtubeChapters: 'Capítulos de YouTube',
       podcastChapters: 'Capítulos de Podcast',
+      videoToText: 'Video a Texto',
+      subtitleGenerator: 'Generador de Subtítulos',
       companyHeading: 'Empresa',
       about: 'Acerca de',
       privacy: 'Privacidad',
@@ -69,7 +71,7 @@ export default {
     meta: {
       title: 'Generador de Capítulos de YouTube con IA — Marcas de Tiempo desde tu Archivo',
       description:
-        'Sube un video o audio y obtén capítulos de YouTube con marcas de tiempo y títulos optimizados para SEO. Sin URL pública — funciona antes de publicar. 2 videos gratis, sin registro.',
+        'Sube un video o audio y obtén capítulos de YouTube con marcas de tiempo y títulos optimizados para SEO. Sin URL pública — funciona antes de publicar. 2 videos gratis, sin contraseña.',
     },
     hero: {
       badge: 'Funciona con videos privados y sin publicar',
@@ -227,7 +229,7 @@ export default {
         {
           name: 'Gratis',
           price: '$0',
-          features: ['2 videos', 'Hasta 20 minutos cada uno', 'Sin registro'],
+          features: ['2 videos', 'Hasta 20 minutos cada uno', 'Solo confirma tu email'],
           cta: 'Empezar gratis',
         },
         {
@@ -287,7 +289,7 @@ export default {
         {
           question: '¿Es gratis?',
           answer:
-            'Tienes 2 videos gratis (hasta 20 minutos cada uno) sin registro. Después, compras un paquete de créditos — Starter cuesta $5 por 5 videos y Creator $12 por 15. Sin suscripción.',
+            'Tienes 2 videos gratis (hasta 20 minutos cada uno) al confirmar tu email. Sin contraseña ni tarjeta. Después, compras un paquete de créditos — Starter cuesta $5 por 5 videos y Creator $12 por 15. Sin suscripción.',
         },
         {
           question: '¿Puedo editar los capítulos antes de usarlos?',
@@ -302,7 +304,7 @@ export default {
     },
     finalCta: {
       title: 'Tu próximo video merece capítulos.',
-      subtitle: 'Pruébalo gratis con 2 videos. Sin crear cuenta.',
+      subtitle: 'Pruébalo gratis con 2 videos. Sin contraseña ni tarjeta.',
       cta: 'Generar capítulos',
     },
     schema: {
@@ -442,11 +444,11 @@ export default {
       titleAudioCompact: 'Arrastra un audio, o haz clic para buscar',
       hintVideo: 'MP4, MOV, WebM, MP3, WAV, M4A — hasta 500 MB',
       hintAudio: 'MP3, WAV, M4A, AAC, OGG, FLAC — hasta 500 MB',
-      button: 'Generar Capítulos',
+      button: 'Generar capítulos',
     },
     chapterTool: {
       filesDeleted: 'Archivos eliminados tras procesarlos',
-      noSignup: '2 videos gratis, sin registro',
+      noSignup: '2 videos gratis, sin tarjeta',
       languages: 'Más de 90 idiomas',
       uploading: 'Subiendo el archivo e iniciando el procesamiento…',
       uploadProgress: 'Subiendo archivo… {percent}%',
@@ -543,7 +545,7 @@ export default {
       name: 'Gratis',
       jobs: '2 videos',
       minutes: 'Hasta 20 minutos cada uno',
-      signup: 'Sin registro',
+      signup: 'Solo confirma tu email',
     },
     packs: {
       starter: {
@@ -704,7 +706,7 @@ export default {
           heading: 'Qué lo hace distinto',
           paragraphs: [
             'La mayoría de las herramientas de capítulos necesitan una URL pública de YouTube. ChapterGen trabaja con el archivo, así que puedes agregar capítulos a borradores, videos privados u ocultos y podcasts de solo audio antes de publicar nada.',
-            'Funciona en más de 90 idiomas, con archivos de hasta 500 MB, y puedes probarlo gratis con 2 videos sin crear cuenta.',
+            'Funciona en más de 90 idiomas, con archivos de hasta 500 MB, y puedes probarlo gratis con 2 videos solo con tu email.',
           ],
         },
         {
@@ -1072,6 +1074,202 @@ export default {
       deleteCta: 'Pedir el borrado',
       deleteSubject: 'Borrar mi cuenta de ChapterGen',
       deleteBody: 'Por favor borren mi cuenta de ChapterGen ({email}) y todos sus datos.',
+    },
+  },
+  landings: {
+    transcript: {
+      meta: {
+        title: 'Video a Texto — Transcribe Video y Audio con IA',
+        description:
+          'Transcribe cualquier video o audio a texto: MP4, MOV, MP3, WAV y más, en más de 90 idiomas. Con marcas de tiempo, buscador y exportación a .docx. Sin URL pública. 2 videos gratis.',
+      },
+      hero: {
+        badge: 'Funciona con archivos privados y sin publicar',
+        title: 'Transcribe video a texto, directo desde el archivo',
+        subtitle:
+          'Sube un video o audio y obtén la transcripción completa con marcas de tiempo, lista para copiar o descargar en .txt o .docx. Incluye capítulos y subtítulos.',
+      },
+      showcase: {
+        eyebrow: 'Lo que obtienes',
+        title: 'Una transcripción que se lee bien',
+        intro: 'Cada palabra sale del audio real, dividida en párrafos y agrupada bajo títulos de capítulo.',
+        bullets: [
+          'Marcas de tiempo en cada línea, o párrafos limpios',
+          'Busca en toda la transcripción en un segundo',
+          'Descárgala en .txt o .docx para Google Docs y Word',
+        ],
+      },
+      sample: {
+        fileName: 'entrevista-maria.mp4',
+        label: 'Ejemplo de transcripción',
+        lines: [
+          ['0:00', 'Gracias por invitarme. Empecé la empresa casi por accidente, hace cinco años.'],
+          ['0:07', 'Éramos tres personas trabajando en una mesa de cocina, y nuestro primer producto fracasó.'],
+          ['0:14', 'Lo que nos salvó fue hablar con clientes todas las semanas, aunque doliera.'],
+          ['0:21', 'Ese hábito sigue siendo lo más importante que hacemos hoy.'],
+        ],
+      },
+      howItWorks: {
+        eyebrow: 'Cómo funciona',
+        title: 'Cómo transcribir un video a texto',
+        intro: 'Sin enlace de YouTube y sin instalar nada. Funciona con archivos de tu computadora.',
+        steps: [
+          {
+            title: 'Sube tu archivo',
+            description: 'MP4, MOV, WebM, MKV, MP3, WAV, M4A y más, hasta 500 MB.',
+          },
+          {
+            title: 'La IA lo transcribe',
+            description:
+              'Transcribimos el audio con Whisper de OpenAI. El idioma se detecta solo, entre más de 90.',
+          },
+          {
+            title: 'Copia o descarga',
+            description: 'Copia el texto, búscalo o descárgalo en .txt o .docx. Incluye capítulos y subtítulos.',
+          },
+        ],
+      },
+      useCases: {
+        eyebrow: 'Casos de uso',
+        title: 'Qué transcribe la gente',
+        items: [
+          { title: 'Entrevistas', description: 'Cita a tus invitados palabra por palabra y encuentra cualquier respuesta con el buscador.' },
+          { title: 'Podcasts', description: 'Convierte cada episodio en notas, un post o un newsletter.' },
+          { title: 'Clases y cursos', description: 'Dales a tus alumnos una versión legible y buscable de cada clase.' },
+          { title: 'Reuniones y webinars', description: 'Guarda un registro escrito de lo que se dijo, con marcas de tiempo.' },
+        ],
+      },
+      faq: {
+        title: 'Transcripción — Preguntas frecuentes',
+        items: [
+          {
+            question: '¿Cómo paso un video a texto?',
+            answer:
+              'Sube el archivo de video a ChapterGen. Extraemos el audio, lo transcribimos y te damos el texto completo con marcas de tiempo. Puedes copiarlo o descargarlo en .txt o .docx.',
+          },
+          {
+            question: '¿Qué idiomas admite?',
+            answer: 'Más de 90, detectados automáticamente, entre ellos español, inglés, portugués, francés y alemán.',
+          },
+          {
+            question: '¿Puedo transcribir un video de YouTube privado o sin publicar?',
+            answer: 'Sí. Subes el archivo, así que el video nunca necesita ser público.',
+          },
+          {
+            question: '¿Funciona con archivos de audio?',
+            answer: 'Sí: MP3, WAV, M4A, AAC, OGG y FLAC funcionan igual que un video.',
+          },
+          {
+            question: '¿Cuánto cuesta?',
+            answer:
+              'Tus primeros 2 videos son gratis (hasta 20 minutos cada uno) al confirmar tu email. Después, los paquetes de créditos empiezan en $5 por 5 videos, sin suscripción. Cada crédito incluye transcripción, capítulos y subtítulos.',
+          },
+          {
+            question: '¿Qué pasa con mi archivo?',
+            answer: 'El archivo se elimina de nuestros servidores después de procesarlo. La transcripción queda en tu biblioteca para que vuelvas cuando quieras.',
+          },
+        ],
+      },
+      finalCta: {
+        title: 'Convierte tu próximo video en texto.',
+        subtitle: 'Pruébalo gratis con 2 videos. Incluye capítulos y subtítulos.',
+        cta: 'Transcribir un archivo',
+      },
+    },
+    subtitles: {
+      meta: {
+        title: 'Generador de Subtítulos — Crea Subtítulos SRT y VTT desde tu Video con IA',
+        description:
+          'Genera subtítulos SRT y VTT desde cualquier video o audio. Líneas de largo legible, más de 90 idiomas, listos para YouTube, Vimeo, Premiere y CapCut. 2 videos gratis.',
+      },
+      hero: {
+        badge: 'SRT y VTT, listos para subir',
+        title: 'Genera subtítulos desde tu video con IA',
+        subtitle:
+          'Sube un video o audio y descarga subtítulos SRT o VTT con líneas fáciles de leer. Incluye capítulos y la transcripción completa.',
+      },
+      showcase: {
+        eyebrow: 'Lo que obtienes',
+        title: 'Subtítulos fáciles de leer',
+        intro: 'Los tiempos salen del audio real, y cada subtítulo se divide en líneas cortas y parejas.',
+        bullets: [
+          'SRT o VTT, en un clic',
+          'Elige caracteres por línea y líneas por subtítulo',
+          'Funcionan en YouTube, Vimeo, Premiere Pro y CapCut',
+        ],
+      },
+      sample: {
+        fileName: 'tutorial-color.srt',
+        label: 'Ejemplo de SRT',
+        lines: [
+          ['1', '00:00:00,000 --> 00:00:03,200', 'Bienvenidos. Hoy vamos a corregir\nel color de este clip desde cero.'],
+          ['2', '00:00:03,200 --> 00:00:06,450', 'Primero, ajusta el balance de blancos\nantes de tocar cualquier color.'],
+          ['3', '00:00:06,450 --> 00:00:09,900', 'Después, baja un poco\nlas sombras.'],
+        ],
+      },
+      howItWorks: {
+        eyebrow: 'Cómo funciona',
+        title: 'Cómo generar subtítulos para un video',
+        intro: 'Funciona con el archivo de tu computadora, antes o después de publicar.',
+        steps: [
+          {
+            title: 'Sube tu video',
+            description: 'MP4, MOV, WebM, MKV o archivos de audio, hasta 500 MB.',
+          },
+          {
+            title: 'La IA escribe los subtítulos',
+            description:
+              'Transcribimos el audio y lo dividimos en subtítulos con el largo de línea que elijas (42 caracteres y 2 líneas por defecto).',
+          },
+          {
+            title: 'Descarga SRT o VTT',
+            description: 'Súbelo a YouTube Studio, Vimeo o tu editor. Los tiempos ya están puestos.',
+          },
+        ],
+      },
+      useCases: {
+        eyebrow: 'Casos de uso',
+        title: 'Dónde ayudan los subtítulos',
+        items: [
+          { title: 'Videos de YouTube', description: 'Sube un SRT con tiempos para que se pueda ver sin sonido.' },
+          { title: 'Clips para redes', description: 'Quema los subtítulos en CapCut o Premiere para Reels, Shorts y TikTok.' },
+          { title: 'Cursos', description: 'Haz cada clase más accesible y fácil de seguir.' },
+          { title: 'Traducciones', description: 'Parte de un SRT preciso y tradúcelo, en lugar de escribir desde cero.' },
+        ],
+      },
+      faq: {
+        title: 'Subtítulos — Preguntas frecuentes',
+        items: [
+          {
+            question: '¿Cómo agrego subtítulos a un video de YouTube?',
+            answer:
+              'Descarga el SRT y ve a YouTube Studio → Subtítulos → Agregar idioma → Subir archivo → Con tiempos, y elige el archivo.',
+          },
+          {
+            question: '¿Qué diferencia hay entre SRT y VTT?',
+            answer:
+              'Los dos guardan subtítulos con sus tiempos. SRT es el formato más compatible; VTT es el estándar web que usan los reproductores HTML5. YouTube acepta ambos.',
+          },
+          {
+            question: '¿Puedo cambiar el largo de las líneas?',
+            answer: 'Sí. Elige el máximo de caracteres por línea y de líneas por subtítulo, y la vista previa se actualiza antes de descargar.',
+          },
+          {
+            question: '¿Qué idiomas admite?',
+            answer: 'Más de 90, detectados automáticamente. Los subtítulos salen en el idioma que se habla en el video.',
+          },
+          {
+            question: '¿Cuánto cuesta?',
+            answer:
+              'Tus primeros 2 videos son gratis (hasta 20 minutos cada uno) al confirmar tu email. Después, los paquetes de créditos empiezan en $5 por 5 videos. Cada crédito incluye subtítulos, transcripción y capítulos.',
+          },
+        ],
+      },
+      finalCta: {
+        title: 'Subtítulos para tu próximo video, en minutos.',
+        subtitle: 'Pruébalo gratis con 2 videos. Incluye transcripción y capítulos.',
+        cta: 'Generar subtítulos',
+      },
     },
   },
 }
