@@ -52,6 +52,7 @@ const userColumnMigrations = [
   'ALTER TABLE users ADD COLUMN signup_client_id TEXT',
   'ALTER TABLE users ADD COLUMN signup_user_agent TEXT',
   'ALTER TABLE users ADD COLUMN signup_country TEXT',
+  'ALTER TABLE users ADD COLUMN email_canonical TEXT',
 ]
 
 for (const sql of userColumnMigrations) {
@@ -63,6 +64,7 @@ for (const sql of userColumnMigrations) {
 }
 
 db.exec(`
+  CREATE INDEX IF NOT EXISTS idx_users_email_canonical ON users(email_canonical);
   CREATE INDEX IF NOT EXISTS idx_users_signup_ip ON users(signup_ip);
   CREATE INDEX IF NOT EXISTS idx_users_signup_client_id ON users(signup_client_id);
 `)
@@ -87,6 +89,30 @@ export function normalizeEmail(email: string): string {
   return email.trim().toLowerCase()
 }
 
+/**
+ * The mailbox an address really delivers to, used to find accounts: drops
+ * "+tag" aliases on any domain and, for Gmail, the dots it ignores. So
+ * name+1@gmail.com and n.ame@gmail.com both reach name@gmail.com's account.
+ */
+export function canonicalEmail(email: string): string {
+  const normalized = normalizeEmail(email)
+  const at = normalized.lastIndexOf('@')
+  if (at <= 0) return normalized
+  let local = normalized.slice(0, at)
+  let domain = normalized.slice(at + 1)
+  if (domain === 'googlemail.com') domain = 'gmail.com'
+  local = local.split('+')[0] || local
+  if (domain === 'gmail.com') local = local.replace(/\./g, '')
+  return `${local}@${domain}`
+}
+
+// Fill the canonical address for accounts created before it existed.
+for (const row of db
+  .prepare('SELECT id, email FROM users WHERE email_canonical IS NULL')
+  .all() as { id: string; email: string }[]) {
+  db.prepare('UPDATE users SET email_canonical = ? WHERE id = ?').run(canonicalEmail(row.email), row.id)
+}
+
 export function getUserById(id: string): UserRecord | null {
   const row = db.prepare('SELECT * FROM users WHERE id = ?').get(id) as UserRow | undefined
   return row ? rowToUser(row) : null
@@ -94,8 +120,8 @@ export function getUserById(id: string): UserRecord | null {
 
 export function getUserByEmail(email: string): UserRecord | null {
   const row = db
-    .prepare('SELECT * FROM users WHERE email = ?')
-    .get(normalizeEmail(email)) as UserRow | undefined
+    .prepare('SELECT * FROM users WHERE email_canonical = ? ORDER BY created_at LIMIT 1')
+    .get(canonicalEmail(email)) as UserRow | undefined
   return row ? rowToUser(row) : null
 }
 
@@ -114,11 +140,12 @@ export function createUser(input: {
   const now = new Date().toISOString()
   const id = crypto.randomBytes(16).toString('hex')
   db.prepare(`
-    INSERT INTO users (id, email, credits_remaining, locale, stripe_customer_id, created_at, last_login_at)
-    VALUES (?, ?, 0, ?, ?, ?, ?)
+    INSERT INTO users (id, email, email_canonical, credits_remaining, locale, stripe_customer_id, created_at, last_login_at)
+    VALUES (?, ?, ?, 0, ?, ?, ?, ?)
   `).run(
     id,
     normalizeEmail(input.email),
+    canonicalEmail(input.email),
     input.locale ?? 'en',
     input.stripeCustomerId ?? null,
     now,

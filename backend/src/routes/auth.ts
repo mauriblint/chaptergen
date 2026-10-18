@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express'
 import {
+  canonicalEmail,
   getOrCreateUserByEmail,
   getUserByEmail,
   getUserById,
@@ -68,13 +69,15 @@ authRouter.post('/auth/code/request', async (req: Request, res: Response) => {
     res.status(400).json({ error: 'Please use a permanent email address', code: 'disposable_email' })
     return
   }
+  // Codes and limits are keyed by the real mailbox, so "+tag" aliases share them.
+  const key = canonicalEmail(email)
   const minute = 60 * 1000
-  if (countRecentCodes({ email, windowMs: minute }) >= 1) {
+  if (countRecentCodes({ email: key, windowMs: minute }) >= 1) {
     res.status(429).json({ error: 'Wait a minute before requesting another code', code: 'rate_limited' })
     return
   }
   if (
-    countRecentCodes({ email, windowMs: 60 * minute }) >= 5 ||
+    countRecentCodes({ email: key, windowMs: 60 * minute }) >= 5 ||
     countRecentCodes({ clientIp: meta.clientIp, windowMs: 60 * minute }) >= 15
   ) {
     res.status(429).json({ error: 'Too many codes requested. Try again later.', code: 'rate_limited' })
@@ -83,7 +86,7 @@ authRouter.post('/auth/code/request', async (req: Request, res: Response) => {
 
   const code = generateCode()
   createEmailCode({
-    email,
+    email: key,
     code,
     clientIp: meta.clientIp,
     clientId: meta.clientId,
@@ -110,7 +113,7 @@ authRouter.post('/auth/code/verify', async (req: Request, res: Response) => {
     res.status(400).json({ error: 'Enter the 6-digit code', code: 'invalid_code' })
     return
   }
-  const result = verifyEmailCode(email, code)
+  const result = verifyEmailCode(canonicalEmail(email), code)
   if (result !== 'ok') {
     const messages = {
       invalid: 'That code is not right',
