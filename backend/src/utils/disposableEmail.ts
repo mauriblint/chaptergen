@@ -1,29 +1,31 @@
-// Common throwaway-inbox providers. Not exhaustive: it catches the casual
-// "new email for new free credits" case, which is most of the abuse.
-const DISPOSABLE_DOMAINS = new Set([
-  '10minutemail.com', '10minutemail.net', '20minutemail.com', 'anonaddy.me', 'burnermail.io',
-  'byom.de', 'cock.li', 'deadaddress.com', 'discard.email', 'discardmail.com', 'dispostable.com',
-  'dropmail.me', 'emailondeck.com', 'emailfake.com', 'fakeinbox.com', 'fakemail.net',
-  'getairmail.com', 'getnada.com', 'guerrillamail.biz', 'guerrillamail.com', 'guerrillamail.de',
-  'guerrillamail.info', 'guerrillamail.net', 'guerrillamail.org', 'guerrillamailblock.com',
-  'harakirimail.com', 'inboxbear.com', 'inboxkitten.com', 'jetable.org', 'mail-temp.com',
-  'mail.tm', 'mailcatch.com', 'maildrop.cc', 'mailinator.com', 'mailinator.net', 'mailinator2.com',
-  'mailnesia.com', 'mailpoof.com', 'mailsac.com', 'mintemail.com', 'mohmal.com', 'moakt.com',
-  'mytemp.email', 'nada.email', 'emlhub.com', 'one-time.email', 'sharklasers.com', 'spam4.me',
-  'spambox.us', 'spamgourmet.com', 'temp-mail.io', 'temp-mail.org', 'tempail.com', 'tempinbox.com',
-  'tempm.com', 'tempmail.com', 'tempmail.dev', 'tempmail.net', 'tempmail.plus', 'tempmailo.com',
-  'tempr.email', 'throwawaymail.com', 'tmail.ws', 'tmpmail.net', 'tmpmail.org', 'trashmail.com',
-  'trashmail.de', 'trashmail.net', 'wegwerfmail.de', 'yopmail.com', 'yopmail.fr', 'yopmail.net',
-  'zetmail.com', 'linshiyouxiang.net', 'minuteinbox.com', 'emailtemporal.org', 'correotemporal.org',
-  'luxusmail.org', 'smailpro.com', 'internxt.com', 'chitthi.in', 'grr.la', 'pokemail.net',
-])
+import { readFileSync } from 'node:fs'
 
+// ~100k throwaway-inbox domains, merged from public lists on GitHub by
+// scripts/update-disposable-domains.mjs (`npm run update:disposable`).
+// Resolved from this file so it works from both src/ and dist/.
+const LIST_URL = new URL('../../resources/disposable-domains.txt', import.meta.url)
+
+function loadDomains(): Set<string> {
+  try {
+    const lines = readFileSync(LIST_URL, 'utf8').split('\n')
+    return new Set(lines.map((l) => l.trim()).filter(Boolean))
+  } catch (err) {
+    console.error('Could not load the disposable email list:', err)
+    return new Set()
+  }
+}
+
+const DISPOSABLE_DOMAINS = loadDomains()
+
+/** True for listed domains and their subdomains (foo.mailinator.com). */
 export function isDisposableEmail(email: string): boolean {
   const domain = email.split('@')[1]?.toLowerCase()
   if (!domain) return false
-  if (DISPOSABLE_DOMAINS.has(domain)) return true
-  // Catch subdomains such as foo.mailinator.com
-  return [...DISPOSABLE_DOMAINS].some((d) => domain.endsWith(`.${d}`))
+  const labels = domain.split('.')
+  for (let i = 0; i < labels.length - 1; i++) {
+    if (DISPOSABLE_DOMAINS.has(labels.slice(i).join('.'))) return true
+  }
+  return false
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
