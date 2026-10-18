@@ -81,28 +81,68 @@ function wrapWords(words: string[], maxChars: number): string[] {
   return lines
 }
 
+/** Wraps into as few lines as needed, with similar lengths (no one-word last line). */
+function wrapBalanced(words: string[], maxChars: number): string[] {
+  const length = words.join(' ').length
+  const lineCount = Math.max(1, Math.ceil(length / maxChars))
+  if (lineCount === 1) return [words.join(' ')]
+  const target = length / lineCount
+  const lines: string[] = []
+  let current = ''
+  for (const word of words) {
+    const next = current ? `${current} ${word}` : word
+    const overTarget = current.length >= target && lines.length < lineCount - 1
+    if (current && (next.length > maxChars || overTarget)) {
+      lines.push(current)
+      current = word
+    } else {
+      current = next
+    }
+  }
+  if (current) lines.push(current)
+  return lines
+}
+
 /**
  * Whisper segments can run 20+ seconds. Each one is split into readable cues
- * (max chars per line, max lines per cue), and its time is shared out in
- * proportion to the characters in each cue.
+ * (max chars per line, max lines per cue) of similar size, so no cue is left
+ * with a single orphan word. Its time is shared out by characters.
  */
 export function buildCues(segments: TranscriptSegment[], options: SubtitleOptions): Cue[] {
   const cues: Cue[] = []
+  const capacity = options.maxCharsPerLine * options.maxLines
   for (const seg of segments) {
     const words = seg.text.trim().split(/\s+/).filter(Boolean)
     if (!words.length) continue
-    const lines = wrapWords(words, options.maxCharsPerLine)
+    const text = words.join(' ')
+    const cueCount = Math.max(1, Math.ceil(text.length / capacity))
+    const target = text.length / cueCount
+
+    // Fill each cue up to an even share of the text, never past its capacity.
     const groups: string[][] = []
-    for (let i = 0; i < lines.length; i += options.maxLines) {
-      groups.push(lines.slice(i, i + options.maxLines))
+    let current: string[] = []
+    let length = 0
+    for (const word of words) {
+      const next = length ? length + 1 + word.length : word.length
+      const full = next > capacity || (length >= target && groups.length < cueCount - 1)
+      if (current.length && full) {
+        groups.push(current)
+        current = []
+        length = 0
+      }
+      current.push(word)
+      length = length ? length + 1 + word.length : word.length
     }
+    if (current.length) groups.push(current)
+
+    const cueTexts = groups.map((g) => wrapBalanced(g, options.maxCharsPerLine))
     const totalChars = groups.reduce((n, g) => n + g.join(' ').length, 0) || 1
     const duration = Math.max(0.5, seg.end - seg.start)
     let cursor = seg.start
-    groups.forEach((group, index) => {
-      const share = (group.join(' ').length / totalChars) * duration
-      const end = index === groups.length - 1 ? seg.end : cursor + share
-      cues.push({ start: cursor, end: Math.max(end, cursor + 0.3), lines: group })
+    cueTexts.forEach((lines, index) => {
+      const share = (groups[index].join(' ').length / totalChars) * duration
+      const end = index === cueTexts.length - 1 ? seg.end : cursor + share
+      cues.push({ start: cursor, end: Math.max(end, cursor + 0.3), lines })
       cursor = end
     })
   }
