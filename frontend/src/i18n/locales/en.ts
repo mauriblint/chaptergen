@@ -895,6 +895,7 @@ export default {
       logout: 'Log out',
     },
     credits: {
+      freeLeft: '{left} of {total} free videos left',
       count: '{n} credits | {n} credit | {n} credits',
     },
     dates: {

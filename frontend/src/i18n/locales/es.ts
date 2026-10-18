@@ -895,6 +895,7 @@ export default {
       logout: 'Cerrar sesión',
     },
     credits: {
+      freeLeft: 'Te quedan {left} de {total} videos gratis',
       count: '{n} créditos | {n} crédito | {n} créditos',
     },
     dates: {
