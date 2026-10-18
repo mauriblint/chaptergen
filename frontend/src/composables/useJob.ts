@@ -35,6 +35,14 @@ export async function refineJob(id: string, options: RefineRequest): Promise<voi
   await apiFetch(`/jobs/${id}/refine`, { method: 'POST', body: JSON.stringify(options) })
 }
 
+/** Transcribes the video again in `language` (ISO code); free, once per video. */
+export function retranscribeJob(id: string, language: string): Promise<Job> {
+  return apiFetch<Job>(`/jobs/${id}/retranscribe`, {
+    method: 'POST',
+    body: JSON.stringify({ language }),
+  })
+}
+
 export function saveChapters(id: string, chapters: Chapter[]): Promise<Job> {
   return apiFetch<Job>(`/jobs/${id}/chapters`, {
     method: 'PATCH',

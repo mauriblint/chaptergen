@@ -18,6 +18,11 @@ export interface Job {
   fileSizeBytes: number | null
   durationSeconds: number | null
   language: string | null
+  /** ISO code picked at upload or for the re-transcription; null was auto-detect. */
+  audioLanguage: string | null
+  /** The one free re-transcription is still available (for a day after processing). */
+  canRetranscribe: boolean
+  retranscribed: boolean
   autoMode: boolean
   chapterCount: number | null
   chaptersGenerated: number | null

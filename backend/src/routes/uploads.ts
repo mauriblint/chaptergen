@@ -10,6 +10,7 @@ import {
   saveChunk,
 } from '../services/chunkedUpload.js'
 import { startJobFromFile } from '../services/startJobFromFile.js'
+import { parseAudioLanguage } from '../utils/languages.js'
 import { extractRequestMeta } from '../utils/requestMeta.js'
 import { assertCanStartJob, PaywallError, sendPaywall } from '../billing/quota.js'
 
@@ -120,6 +121,7 @@ uploadsRouter.post('/uploads/:uploadId/complete', async (req: Request, res: Resp
       chapterCount: autoMode ? null : chapterCount,
       meta: requestMeta,
       userId: req.user!.id,
+      audioLanguage: parseAudioLanguage(body.language),
     })
 
     cleanupSession(uploadId)

@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuth } from '../../composables/useAuth'
+import AudioLanguageSelect from './AudioLanguageSelect.vue'
 
 defineProps<{
   /** First video of the account: friendlier title. */
@@ -56,6 +57,7 @@ const outputs = ['chapters', 'transcript', 'subtitles'] as const
       <span class="drop-hint">{{ t('app.upload.formats') }}</span>
       <span class="btn btn-ink btn-lg">{{ t('app.upload.choose') }}</span>
     </div>
+    <AudioLanguageSelect align="center" />
 
     <!-- One credit fans out into the three results. -->
     <div class="explainer" :aria-label="t('app.newVideo.explainer')">

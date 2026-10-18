@@ -9,11 +9,14 @@ import {
 } from './extractAudio.js'
 import { generateChapters } from './generateChapters.js'
 import type { RefineOptions } from '../types/refine.js'
-import type { Chapter } from '../types.js'
+import type { Chapter, TranscriptSegment } from '../types.js'
 import { AudioTooLargeError, transcribe } from './transcribe.js'
 import {
+  claimRetranscribe,
   clearJobFilePath,
   getJob,
+  releaseRetranscribe,
+  replaceJobTranscript,
   incrementRefineCount,
   updateJobDuration,
   updateJobError,
@@ -28,6 +31,16 @@ import { refundJobCredit, settleJobBilling } from '../billing/quota.js'
 import { getUserById } from '../db/users.js'
 import { sendJobReadyEmail } from './email.js'
 import { forgetJob, isJobWatched } from './jobWatchers.js'
+import { discardJobAudio, keepAudioForRetranscribe } from './audioRetention.js'
+import { AUDIO_LANGUAGES } from '../utils/languages.js'
+
+function countWords(segments: TranscriptSegment[]): number {
+  return segments.reduce((n, seg) => n + seg.text.trim().split(/\s+/).filter(Boolean).length, 0)
+}
+
+function chapterCountFor(job: { autoMode: boolean; chapterCount: number | null }): number | null {
+  return job.autoMode ? null : Math.min(20, Math.max(3, job.chapterCount ?? 10))
+}
 
 async function notifyIfUnwatched(jobId: string): Promise<void> {
   const job = getJob(jobId)
@@ -106,25 +119,23 @@ export async function processJob(jobId: string): Promise<void> {
       updateJobStatus(jobId, 'transcribing')
     }
 
-    const { segments, language } = await transcribe(audioPath)
+    const { segments, language } = await transcribe(audioPath, job.audioLanguage)
     // Silence or music comes back as nothing or a single garbled token.
-    const words = segments.reduce((n, seg) => n + seg.text.trim().split(/\s+/).filter(Boolean).length, 0)
-    if (words < 3) {
+    if (countWords(segments) < 3) {
       failJob(jobId, 'No speech was detected in this file.', 'no_speech')
       return
     }
     updateJobSegments(jobId, segments, language)
 
-    const count = job.autoMode
-      ? null
-      : Math.min(20, Math.max(3, job.chapterCount ?? 10))
-
     const chapters = await generateChapters(segments, {
-      chapterCount: count,
+      chapterCount: chapterCountFor(job),
       language,
     })
     const formatted = formatChapters(chapters)
     updateJobResult(jobId, chapters, formatted, segments)
+    if (job.userId && keepAudioForRetranscribe(jobId, audioPath)) {
+      audioPath = null
+    }
   } catch (err) {
     if (err instanceof AudioTooLargeError) {
       failJob(jobId, err.message, err.reason)
@@ -171,5 +182,49 @@ export async function refineJobChapters(
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
     updateJobRefineError(jobId, message)
+  }
+}
+
+/** Throws when the job cannot be re-transcribed; otherwise claims the one retry and starts it. */
+export function startRetranscribe(jobId: string, language: string): void {
+  if (!claimRetranscribe(jobId)) {
+    throw new Error('This video was already re-transcribed')
+  }
+  updateJobStatus(jobId, 'transcribing')
+  void retranscribeJob(jobId, language)
+}
+
+async function retranscribeJob(jobId: string, language: string): Promise<void> {
+  const job = getJob(jobId)
+  if (!job?.audioPath) {
+    releaseRetranscribe(jobId)
+    updateJobRefineError(jobId, 'The audio of this video is no longer available', 'retranscribe_failed')
+    return
+  }
+
+  try {
+    const { segments, language: reported } = await transcribe(job.audioPath, language)
+    if (countWords(segments) < 3) {
+      throw new Error('No speech was detected in this language.')
+    }
+    updateJobStatus(jobId, 'generating')
+    const transcriptLanguage = reported ?? AUDIO_LANGUAGES[language] ?? null
+    const chapters = await generateChapters(segments, {
+      chapterCount: chapterCountFor(job),
+      language: transcriptLanguage,
+    })
+    replaceJobTranscript(jobId, {
+      segments,
+      transcriptLanguage,
+      audioLanguage: language,
+      chapters,
+      formatted: formatChapters(chapters),
+    })
+    await discardJobAudio(jobId, job.audioPath)
+  } catch (err) {
+    // The previous result stays and the retry is given back.
+    releaseRetranscribe(jobId)
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    updateJobRefineError(jobId, message, 'retranscribe_failed')
   }
 }

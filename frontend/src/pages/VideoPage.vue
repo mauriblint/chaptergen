@@ -11,9 +11,10 @@ import ChaptersTab from '../components/video/ChaptersTab.vue'
 import TranscriptTab from '../components/video/TranscriptTab.vue'
 import SubtitlesTab from '../components/video/SubtitlesTab.vue'
 import RefineModal from '../components/RefineModal.vue'
+import RetranscribeModal from '../components/video/RetranscribeModal.vue'
 import PaywallModal from '../components/PaywallModal.vue'
 import { useAuth } from '../composables/useAuth'
-import { downloadUrl, isJobActive, refineJob, useJobPoller } from '../composables/useJob'
+import { downloadUrl, isJobActive, refineJob, retranscribeJob, useJobPoller } from '../composables/useJob'
 import { PaywallError, type PaywallReason } from '../utils/api'
 import type { Job } from '../types/job'
 import type { RefineOptions } from '../types/refine'
@@ -35,6 +36,10 @@ const layout = ref<InstanceType<typeof AppLayout> | null>(null)
 const showRefine = ref(false)
 const paywallReason = ref<PaywallReason | null>(null)
 const refineRequested = ref(false)
+const showRetranscribe = ref(false)
+const retranscribePending = ref(false)
+const retranscribeError = ref<string | null>(null)
+const retranscribeTarget = ref<string | null>(null)
 
 const tab = computed<Tab>(() => {
   const value = route.query.tab
@@ -123,6 +128,27 @@ function onSaved(updated: Job) {
   if (job.value) job.value = { ...job.value, chapters: updated.chapters, youtube: updated.youtube }
 }
 
+function openRetranscribe() {
+  retranscribeError.value = null
+  showRetranscribe.value = true
+}
+
+async function onRetranscribe(language: string) {
+  if (!job.value) return
+  retranscribePending.value = true
+  retranscribeError.value = null
+  try {
+    job.value = await retranscribeJob(job.value.id, language)
+    retranscribeTarget.value = languageName(language, locale.value)
+    showRetranscribe.value = false
+    startPolling()
+  } catch (err) {
+    retranscribeError.value = err instanceof Error ? err.message : String(err)
+  } finally {
+    retranscribePending.value = false
+  }
+}
+
 async function onRefine(options: RefineOptions) {
   if (!job.value) return
   showRefine.value = false
@@ -162,7 +188,17 @@ async function onRefine(options: RefineOptions) {
               <h1 class="title">{{ job.fileName }}</h1>
               <StatusBadge :status="job.status === 'regenerating' ? 'completed' : job.status" :refunded="job.creditsRefunded" />
             </div>
-            <p class="muted">{{ meta }}</p>
+            <p class="muted">
+              {{ meta }}
+              <button
+                v-if="state === 'ready' && job.canRetranscribe && !refining"
+                type="button"
+                class="wrong-language"
+                @click="openRetranscribe"
+              >
+                {{ t('app.video.wrongLanguage') }}
+              </button>
+            </p>
           </div>
           <a v-if="state === 'ready'" class="btn btn-ghost" :href="downloadUrl(job.id, 'zip')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16" /></svg>
@@ -173,7 +209,10 @@ async function onRefine(options: RefineOptions) {
         <div v-if="state === 'processing'" class="processing">
           <div class="processing-main">
             <ProcessingSteps :status="job.status" :is-audio="isAudio" :language="language" />
-            <p v-if="user" class="note">
+            <p v-if="job.retranscribed && retranscribeTarget" class="note">
+              {{ t('app.video.retranscribing', { language: retranscribeTarget }) }}
+            </p>
+            <p v-else-if="user && !job.retranscribed" class="note">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16v12H4zM4 7l8 6 8-6" /></svg>
               <i18n-t keypath="app.processing.emailNote" tag="span">
                 <template #email><strong>{{ user.email }}</strong></template>
@@ -209,6 +248,9 @@ async function onRefine(options: RefineOptions) {
         </div>
 
         <template v-else>
+          <p v-if="job.failureReason === 'retranscribe_failed'" class="notice" role="status">
+            {{ t('app.video.retranscribeFailed', { error: job.error ?? '' }) }}
+          </p>
           <nav class="tabs" :aria-label="t('app.tabs.label')">
             <button
               v-for="item in tabs"
@@ -243,6 +285,14 @@ async function onRefine(options: RefineOptions) {
       :initial-chapter-count="job.chapterCount ?? job.chapters?.length ?? 10"
       @close="showRefine = false"
       @submit="onRefine"
+    />
+    <RetranscribeModal
+      v-if="showRetranscribe && job"
+      :current="job.language"
+      :pending="retranscribePending"
+      :error="retranscribeError"
+      @close="showRetranscribe = false"
+      @submit="onRetranscribe"
     />
     <PaywallModal v-if="paywallReason" :reason="paywallReason" @close="paywallReason = null" />
   </component>
@@ -306,6 +356,29 @@ async function onRefine(options: RefineOptions) {
 .muted {
   font-size: 0.875rem;
   color: var(--text-muted);
+}
+
+.wrong-language {
+  margin-left: 6px;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.wrong-language:hover {
+  text-decoration: underline;
+}
+
+.notice {
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #fff6e5;
+  color: #7a4d00;
+  font-size: 0.875rem;
 }
 
 .tabs {

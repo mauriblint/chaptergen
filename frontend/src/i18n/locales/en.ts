@@ -766,14 +766,14 @@ export default {
       },
       eyebrow: 'Legal',
       title: 'Privacy policy',
-      updatedDate: 'October 17, 2026',
+      updatedDate: 'October 18, 2026',
       intro:
         'This policy explains what ChapterGen collects when you use chaptergen.com, why, and what you can do about it. We collect as little as we can to run the service.',
       sections: [
         {
           heading: 'Files you upload',
           paragraphs: [
-            'Video and audio files are uploaded to our server only to extract the audio and generate chapters. The original file and the extracted audio are deleted after processing. Incomplete uploads are removed automatically.',
+            'Video and audio files are uploaded to our server only to extract the audio and generate chapters. The original file is deleted after processing. The extracted audio is kept for 24 hours so you can transcribe it again in another language, then deleted. Incomplete uploads are removed automatically.',
           ],
         },
         {
@@ -913,6 +913,10 @@ export default {
       transcript: { title: 'Transcript', description: 'Copy, search or download .docx' },
       subtitles: { title: 'Subtitles', description: 'SRT and VTT files' },
     },
+    audioLanguage: {
+      label: 'Audio language',
+      auto: 'Auto-detect',
+    },
     upload: {
       dropTitle: 'Drop your video or audio here',
       dropRowTitle: 'Drop a video or audio file to start',
@@ -1018,6 +1022,18 @@ export default {
       backToLibrary: 'Back to library',
       uploadAnother: 'Upload another file',
       creditReturned: 'The credit for this video was returned to your account.',
+      wrongLanguage: 'Wrong language?',
+      retranscribing: 'Transcribing again in {language}…',
+      retranscribeFailed: 'We could not transcribe it again: {error} Your previous result is still here.',
+      retranscribe: {
+        title: 'Transcribe again in another language',
+        lead: 'Pick the language spoken in the video. We replace the transcript, chapters and subtitles.',
+        language: 'Language spoken in the video',
+        choose: 'Choose a language',
+        free: 'Free, once per video.',
+        submit: 'Transcribe again',
+        cancel: 'Cancel',
+      },
       failure: {
         no_speech: {
           title: 'No speech detected',

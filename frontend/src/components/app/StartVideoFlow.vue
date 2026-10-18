@@ -4,11 +4,13 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import EmailGateModal from '../auth/EmailGateModal.vue'
 import FileChip from './FileChip.vue'
+import AudioLanguageSelect from './AudioLanguageSelect.vue'
 import PaywallModal from '../PaywallModal.vue'
 import { useAuth, type VerifyCodeResult } from '../../composables/useAuth'
 import { useChunkedUpload } from '../../composables/useChunkedUpload'
 import { PaywallError, type PaywallReason } from '../../utils/api'
 import { trackUpload, trackUploadError } from '../../utils/analytics'
+import { useAudioLanguage } from '../../utils/languages'
 
 /**
  * One flow for every "new video" entry point. Signed-in users upload and go
@@ -19,6 +21,7 @@ const { t } = useI18n()
 const router = useRouter()
 const { ensureLoaded } = useAuth()
 const { progress, startUpload, startJob } = useChunkedUpload()
+const audioLanguage = useAudioLanguage()
 
 const phase = ref<'idle' | 'gate' | 'working'>('idle')
 const file = ref<File | null>(null)
@@ -52,7 +55,8 @@ async function launch(uploadPromise: Promise<string | null>) {
     return
   }
   try {
-    const id = await startJob(uploadId)
+    // Read when processing starts, so a change made during the upload still counts.
+    const id = await startJob(uploadId, audioLanguage.value)
     phase.value = 'idle'
     await router.push(`/videos/${id}`)
   } catch (err) {
@@ -122,6 +126,7 @@ defineExpose({ pick, busy })
           <h2 class="title">{{ workError ? t('app.upload.failedTitle') : t('app.upload.startingTitle') }}</h2>
           <p class="lead">{{ workError ? t('app.upload.failedLead') : t('app.upload.startingLead') }}</p>
         </div>
+        <AudioLanguageSelect v-if="!workError" />
         <button v-if="workError" type="button" class="btn btn-ink" @click="cancel">{{ t('app.common.close') }}</button>
         <span v-else class="spinner" aria-hidden="true" />
       </div>

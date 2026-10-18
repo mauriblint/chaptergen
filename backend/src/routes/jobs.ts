@@ -1,7 +1,7 @@
 import { Router, type Request, type Response } from 'express'
 import { mediaUpload } from '../middleware/upload.js'
 import { getJob, listJobsByUserId, updateJobResult, type JobRecord } from '../db/jobs.js'
-import { refineJobChapters } from '../services/processJob.js'
+import { refineJobChapters, startRetranscribe } from '../services/processJob.js'
 import { startJobFromFile } from '../services/startJobFromFile.js'
 import { markJobWatched } from '../services/jobWatchers.js'
 import {
@@ -20,6 +20,7 @@ import { extractRequestMeta } from '../utils/requestMeta.js'
 import { assertCanRefine, assertCanStartJob, PaywallError, sendPaywall } from '../billing/quota.js'
 import { FREE_REFINE_LIMIT } from '../billing/packs.js'
 import { requireUser } from '../auth/session.js'
+import { isSameLanguage, parseAudioLanguage } from '../utils/languages.js'
 
 export const jobsRouter = Router()
 
@@ -41,6 +42,18 @@ function loadJob(req: Request, res: Response): JobRecord | null {
   return job
 }
 
+/** One free re-transcription, while the audio is still kept. */
+function canRetranscribe(job: JobRecord): boolean {
+  return (
+    job.status === 'completed' &&
+    !!job.userId &&
+    !job.retranscribed &&
+    !!job.audioPath &&
+    !!job.audioExpiresAt &&
+    new Date(job.audioExpiresAt).getTime() > Date.now()
+  )
+}
+
 function jobToResponse(job: JobRecord) {
   const finished = job.status === 'completed' || job.status === 'failed'
   const refineLimited = job.creditSource !== 'paid'
@@ -53,6 +66,9 @@ function jobToResponse(job: JobRecord) {
     fileSizeBytes: job.fileSizeBytes,
     durationSeconds: job.durationSeconds,
     language: job.transcriptLanguage,
+    audioLanguage: job.audioLanguage,
+    canRetranscribe: canRetranscribe(job),
+    retranscribed: job.retranscribed,
     autoMode: job.autoMode,
     chapterCount: job.chapterCount,
     chaptersGenerated: job.chaptersGenerated,
@@ -121,6 +137,7 @@ jobsRouter.post('/jobs', mediaUpload.single('video'), (req: Request, res: Respon
     chapterCount: autoMode ? null : chapterCount,
     meta: extractRequestMeta(req),
     userId: req.user!.id,
+    audioLanguage: parseAudioLanguage(req.body.language),
   })
 
   res.status(201).json({ id: job.id })
@@ -161,6 +178,32 @@ jobsRouter.patch('/jobs/:id/chapters', (req: Request, res: Response) => {
   }
   updateJobResult(job.id, chapters, formatChapters(chapters))
   res.json(jobToResponse(getJob(job.id)!))
+})
+
+/** Transcribes the kept audio again in the language the user says it is in. */
+jobsRouter.post('/jobs/:id/retranscribe', requireUser, (req: Request, res: Response) => {
+  const job = loadJob(req, res)
+  if (!job) return
+  const language = parseAudioLanguage(req.body?.language)
+  if (!language) {
+    res.status(400).json({ error: 'Unsupported language' })
+    return
+  }
+  if (!canRetranscribe(job)) {
+    res.status(409).json({ error: 'This video can no longer be re-transcribed' })
+    return
+  }
+  if (isSameLanguage(job.transcriptLanguage, language)) {
+    res.status(400).json({ error: 'The video is already in this language' })
+    return
+  }
+  try {
+    startRetranscribe(job.id, language)
+  } catch (err) {
+    res.status(409).json({ error: err instanceof Error ? err.message : 'Already re-transcribed' })
+    return
+  }
+  res.status(202).json(jobToResponse(getJob(job.id)!))
 })
 
 jobsRouter.post('/jobs/:id/refine', async (req: Request, res: Response) => {

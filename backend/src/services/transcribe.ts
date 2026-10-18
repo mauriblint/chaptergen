@@ -51,7 +51,8 @@ function sizeMb(bytes: number): string {
   return (bytes / (1024 * 1024)).toFixed(1)
 }
 
-async function transcribeFile(audioPath: string): Promise<TranscriptionResult> {
+/** `language` is an ISO-639-1 code; without it Whisper guesses from the first ~30 seconds. */
+async function transcribeFile(audioPath: string, language?: string | null): Promise<TranscriptionResult> {
   const openai = getOpenAI()
 
   const transcription = await openai.audio.transcriptions.create({
@@ -59,6 +60,7 @@ async function transcribeFile(audioPath: string): Promise<TranscriptionResult> {
     model: 'whisper-1',
     response_format: 'verbose_json',
     timestamp_granularities: ['segment'],
+    ...(language ? { language } : {}),
   })
 
   const segments = (transcription as { segments?: TranscriptSegment[] }).segments ?? []
@@ -96,7 +98,8 @@ async function mapPool<T, R>(
 async function transcribeInChunks(
   audioPath: string,
   fileSizeBytes: number,
-  durationSeconds: number
+  durationSeconds: number,
+  language?: string | null
 ): Promise<TranscriptionResult> {
   const slices = planWhisperChunks({ fileSizeBytes, durationSeconds })
   if (slices.length <= 1) {
@@ -121,7 +124,7 @@ async function transcribeInChunks(
     }
 
     const transcripts = await mapPool(prepared, 2, async ({ slice, chunkPath }) => {
-      const result = await transcribeFile(chunkPath)
+      const result = await transcribeFile(chunkPath, language)
       const chunk: ChunkTranscript = {
         offset: slice.start,
         segments: result.segments,
@@ -139,10 +142,10 @@ async function transcribeInChunks(
   }
 }
 
-export async function transcribe(audioPath: string): Promise<TranscriptionResult> {
+export async function transcribe(audioPath: string, language?: string | null): Promise<TranscriptionResult> {
   const fileSizeBytes = fs.statSync(audioPath).size
   if (fileSizeBytes <= AUDIO_MAX_UPLOAD_BYTES) {
-    return transcribeFile(audioPath)
+    return transcribeFile(audioPath, language)
   }
 
   const durationSeconds = await getMediaDurationSeconds(audioPath)
@@ -150,5 +153,5 @@ export async function transcribe(audioPath: string): Promise<TranscriptionResult
     throw new AudioTooLargeError(sizeMb(fileSizeBytes))
   }
 
-  return transcribeInChunks(audioPath, fileSizeBytes, durationSeconds)
+  return transcribeInChunks(audioPath, fileSizeBytes, durationSeconds, language)
 }

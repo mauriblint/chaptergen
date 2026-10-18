@@ -18,6 +18,8 @@ export interface StartJobInput {
   chapterCount: number | null
   meta: RequestMeta
   userId?: string | null
+  /** ISO code picked by the user; null lets Whisper detect it. */
+  audioLanguage?: string | null
 }
 
 export function startJobFromFile(input: StartJobInput): JobRecord {
@@ -39,6 +41,7 @@ export function startJobFromFile(input: StartJobInput): JobRecord {
     referer: input.meta.referer,
     clientId: input.meta.clientId,
     userId: input.userId ?? null,
+    audioLanguage: input.audioLanguage ?? null,
   })
 
   updateJobStatus(id, 'pending')

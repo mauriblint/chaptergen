@@ -39,6 +39,12 @@ export interface JobRecord {
   creditSource: 'free' | 'paid' | null
   creditsRefunded: boolean
   transcriptLanguage: string | null
+  /** ISO code the user picked for the audio; null means auto-detect. */
+  audioLanguage: string | null
+  /** Compressed audio kept for a while so the video can be re-transcribed. */
+  audioPath: string | null
+  audioExpiresAt: string | null
+  retranscribed: boolean
   segments: TranscriptSegment[] | null
   chapters: Chapter[] | null
   formatted: string | null
@@ -73,6 +79,10 @@ interface JobRow {
   credit_source: string | null
   credits_refunded: number | null
   transcript_language: string | null
+  audio_language: string | null
+  audio_path: string | null
+  audio_expires_at: string | null
+  retranscribed: number | null
   segments_json: string | null
   chapters_json: string | null
   formatted_text: string | null
@@ -128,6 +138,10 @@ const columnMigrations = [
   'ALTER TABLE jobs ADD COLUMN credits_charged INTEGER',
   'ALTER TABLE jobs ADD COLUMN credit_source TEXT',
   'ALTER TABLE jobs ADD COLUMN credits_refunded INTEGER NOT NULL DEFAULT 0',
+  'ALTER TABLE jobs ADD COLUMN audio_language TEXT',
+  'ALTER TABLE jobs ADD COLUMN audio_path TEXT',
+  'ALTER TABLE jobs ADD COLUMN audio_expires_at TEXT',
+  'ALTER TABLE jobs ADD COLUMN retranscribed INTEGER NOT NULL DEFAULT 0',
 ]
 
 for (const sql of columnMigrations) {
@@ -171,6 +185,10 @@ function rowToJob(row: JobRow): JobRecord {
     creditSource: row.credit_source === 'free' || row.credit_source === 'paid' ? row.credit_source : null,
     creditsRefunded: row.credits_refunded === 1,
     transcriptLanguage: row.transcript_language,
+    audioLanguage: row.audio_language,
+    audioPath: row.audio_path,
+    audioExpiresAt: row.audio_expires_at,
+    retranscribed: row.retranscribed === 1,
     segments: row.segments_json ? JSON.parse(row.segments_json) : null,
     chapters: row.chapters_json ? JSON.parse(row.chapters_json) : null,
     formatted: row.formatted_text,
@@ -202,6 +220,7 @@ export function createJob(input: {
   referer: string | null
   clientId: string | null
   userId?: string | null
+  audioLanguage?: string | null
 }): JobRecord {
   const now = new Date().toISOString()
   db.prepare(`
@@ -209,9 +228,9 @@ export function createJob(input: {
       id, status, file_name, file_path, auto_mode, chapter_count,
       file_size_bytes, file_type, file_extension, media_type,
       client_ip, country, user_agent, accept_language, referer, client_id,
-      user_id, refine_count, created_at, updated_at
+      user_id, audio_language, refine_count, created_at, updated_at
     )
-    VALUES (?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)
+    VALUES (?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)
   `).run(
     input.id,
     input.fileName,
@@ -229,6 +248,7 @@ export function createJob(input: {
     input.referer,
     input.clientId,
     input.userId ?? null,
+    input.audioLanguage ?? null,
     now,
     now
   )
@@ -506,17 +526,73 @@ export function updateJobError(
   `).run(message, failureReason, now, id)
 }
 
-/** A failed refine keeps the previous chapters; the job stays usable. */
-export function updateJobRefineError(id: string, message: string): void {
+/** A failed refine or re-transcription keeps the previous result; the job stays usable. */
+export function updateJobRefineError(id: string, message: string, failureReason = 'refine_failed'): void {
   const now = new Date().toISOString()
   db.prepare(`
-    UPDATE jobs SET status = 'completed', error_message = ?, failure_reason = 'refine_failed', updated_at = ?
+    UPDATE jobs SET status = 'completed', error_message = ?, failure_reason = ?, updated_at = ?
     WHERE id = ?
-  `).run(message, now, id)
+  `).run(message, failureReason, now, id)
+}
+
+/** Swaps in a new transcript and its chapters in one write, so a failure halfway leaves the old ones. */
+export function replaceJobTranscript(
+  id: string,
+  input: {
+    segments: TranscriptSegment[]
+    transcriptLanguage: string | null
+    audioLanguage: string
+    chapters: Chapter[]
+    formatted: string
+  }
+): void {
+  const now = new Date().toISOString()
+  db.prepare(`
+    UPDATE jobs SET segments_json = ?, transcript_language = ?, audio_language = ?,
+      chapters_json = ?, formatted_text = ?, chapters_generated = ?, status = 'completed',
+      updated_at = ?, error_message = NULL, failure_reason = NULL
+    WHERE id = ?
+  `).run(
+    JSON.stringify(input.segments),
+    input.transcriptLanguage,
+    input.audioLanguage,
+    JSON.stringify(input.chapters),
+    input.formatted,
+    input.chapters.length,
+    now,
+    id
+  )
 }
 
 export function updateJobDuration(id: string, durationSeconds: number): void {
   db.prepare('UPDATE jobs SET duration_seconds = ? WHERE id = ?').run(durationSeconds, id)
+}
+
+export function keepJobAudio(id: string, audioPath: string, expiresAt: string): void {
+  db.prepare('UPDATE jobs SET audio_path = ?, audio_expires_at = ? WHERE id = ?').run(audioPath, expiresAt, id)
+}
+
+export function clearJobAudio(id: string): void {
+  db.prepare('UPDATE jobs SET audio_path = NULL, audio_expires_at = NULL WHERE id = ?').run(id)
+}
+
+export function listExpiredJobAudio(now: string): { id: string; audioPath: string }[] {
+  const rows = db
+    .prepare('SELECT id, audio_path FROM jobs WHERE audio_path IS NOT NULL AND audio_expires_at < ?')
+    .all(now) as { id: string; audio_path: string }[]
+  return rows.map((row) => ({ id: row.id, audioPath: row.audio_path }))
+}
+
+/** Claims the one free re-transcription; false if it was already used. */
+export function claimRetranscribe(id: string): boolean {
+  const result = db
+    .prepare('UPDATE jobs SET retranscribed = 1 WHERE id = ? AND retranscribed = 0')
+    .run(id)
+  return result.changes === 1
+}
+
+export function releaseRetranscribe(id: string): void {
+  db.prepare('UPDATE jobs SET retranscribed = 0 WHERE id = ?').run(id)
 }
 
 export function clearJobFilePath(id: string): void {

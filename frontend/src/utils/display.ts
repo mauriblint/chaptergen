@@ -1,29 +1,11 @@
-type Translate = (key: string, values?: Record<string, unknown>) => string
+import { languageCode } from './languages'
 
-/** Whisper reports languages as English names ("spanish") or ISO codes. */
-const WHISPER_NAMES: Record<string, string> = {
-  english: 'en',
-  spanish: 'es',
-  portuguese: 'pt',
-  french: 'fr',
-  german: 'de',
-  italian: 'it',
-  dutch: 'nl',
-  japanese: 'ja',
-  korean: 'ko',
-  chinese: 'zh',
-  russian: 'ru',
-  hindi: 'hi',
-  arabic: 'ar',
-  turkish: 'tr',
-  polish: 'pl',
-  vietnamese: 'vi',
-  indonesian: 'id',
-}
+type Translate = (key: string, values?: Record<string, unknown>) => string
 
 export function languageName(code: string | null | undefined, locale: string): string | null {
   if (!code) return null
-  const iso = WHISPER_NAMES[code.toLowerCase()] ?? code.toLowerCase()
+  // Whisper reports languages as English names ("spanish") or ISO codes.
+  const iso = languageCode(code) ?? code.toLowerCase()
   try {
     const name = new Intl.DisplayNames([locale], { type: 'language' }).of(iso)
     return name ? name.charAt(0).toUpperCase() + name.slice(1) : code

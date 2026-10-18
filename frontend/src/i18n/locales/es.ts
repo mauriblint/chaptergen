@@ -766,14 +766,14 @@ export default {
       },
       eyebrow: 'Legal',
       title: 'Política de privacidad',
-      updatedDate: '17 de octubre de 2026',
+      updatedDate: '18 de octubre de 2026',
       intro:
         'Esta política explica qué datos recopila ChapterGen cuando usas chaptergen.com, para qué, y qué puedes hacer al respecto. Recopilamos lo mínimo necesario para que el servicio funcione.',
       sections: [
         {
           heading: 'Archivos que subes',
           paragraphs: [
-            'Los archivos de video y audio se suben a nuestro servidor solo para extraer el audio y generar los capítulos. El archivo original y el audio extraído se eliminan después de procesarlos. Las subidas incompletas se borran automáticamente.',
+            'Los archivos de video y audio se suben a nuestro servidor solo para extraer el audio y generar los capítulos. El archivo original se elimina después de procesarlo. El audio extraído se guarda 24 horas para que puedas transcribirlo de nuevo en otro idioma y luego se elimina. Las subidas incompletas se borran automáticamente.',
           ],
         },
         {
@@ -913,6 +913,10 @@ export default {
       transcript: { title: 'Transcripción', description: 'Copia, busca o descarga en .docx' },
       subtitles: { title: 'Subtítulos', description: 'Archivos SRT y VTT' },
     },
+    audioLanguage: {
+      label: 'Idioma del audio',
+      auto: 'Detectar automáticamente',
+    },
     upload: {
       dropTitle: 'Suelta aquí tu video o audio',
       dropRowTitle: 'Suelta un video o audio para empezar',
@@ -1018,6 +1022,18 @@ export default {
       backToLibrary: 'Volver a la biblioteca',
       uploadAnother: 'Subir otro archivo',
       creditReturned: 'El crédito de este video volvió a tu cuenta.',
+      wrongLanguage: '¿Idioma incorrecto?',
+      retranscribing: 'Transcribiendo de nuevo en {language}…',
+      retranscribeFailed: 'No pudimos transcribirlo de nuevo: {error} Tu resultado anterior sigue aquí.',
+      retranscribe: {
+        title: 'Transcribir de nuevo en otro idioma',
+        lead: 'Elige el idioma que se habla en el video. Reemplazamos la transcripción, los capítulos y los subtítulos.',
+        language: 'Idioma que se habla en el video',
+        choose: 'Elige un idioma',
+        free: 'Gratis, una vez por video.',
+        submit: 'Transcribir de nuevo',
+        cancel: 'Cancelar',
+      },
       failure: {
         no_speech: {
           title: 'No detectamos voz',

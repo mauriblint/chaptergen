@@ -105,11 +105,15 @@ async function uploadChunkWithRetry(
 export async function completeUpload(
   uploadId: string,
   autoMode: boolean,
-  chapterCount?: number
+  chapterCount?: number,
+  language?: string
 ): Promise<string> {
   const body: Record<string, unknown> = { auto: autoMode }
   if (!autoMode && chapterCount != null) {
     body.chapterCount = chapterCount
+  }
+  if (language) {
+    body.language = language
   }
 
   const response = await fetch(`${API_BASE}/uploads/${uploadId}/complete`, {
@@ -186,8 +190,9 @@ export function useChunkedUpload() {
     return uploadFile(file, callbacks)
   }
 
-  function startJob(uploadId: string): Promise<string> {
-    return completeUpload(uploadId, true)
+  /** `language` is the ISO code of the audio; empty lets the server detect it. */
+  function startJob(uploadId: string, language = ''): Promise<string> {
+    return completeUpload(uploadId, true, undefined, language)
   }
 
   return { progress, retryingChunk, startUpload, startJob }
