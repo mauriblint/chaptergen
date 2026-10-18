@@ -50,7 +50,7 @@ async function onLogout() {
 </script>
 
 <template>
-  <AppLayout :crumbs="[{ label: t('app.nav.settings') }]">
+  <AppLayout>
     <h1 class="page-title">{{ t('app.nav.settings') }}</h1>
 
     <div v-if="user" class="sections">

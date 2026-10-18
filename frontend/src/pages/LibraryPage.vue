@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useHead } from '@unhead/vue'
 import AppLayout from '../layouts/AppLayout.vue'
 import StatusBadge from '../components/app/StatusBadge.vue'
+import NewVideoPanel from '../components/app/NewVideoPanel.vue'
 import { useAuth } from '../composables/useAuth'
 import { isJobActive, listJobs } from '../composables/useJob'
 import type { JobSummary } from '../types/job'
@@ -115,48 +116,17 @@ function isAudio(job: JobSummary) {
 </script>
 
 <template>
-  <AppLayout ref="layout" :crumbs="[{ label: t('app.nav.library') }]">
+  <AppLayout ref="layout">
     <div v-if="purchased" class="notice" role="status">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
       {{ t('app.library.purchased', { n: purchased }) }}
     </div>
 
-    <section v-if="firstVideo" class="welcome">
-      <h1 class="welcome-title">{{ t('app.library.welcomeTitle') }}</h1>
-      <p class="welcome-lead">
-        {{ user && !user.hasPaid ? t('app.library.welcomeLeadFree', { n: user.freeCredits }) : t('app.library.welcomeLead') }}
-      </p>
-      <div
-        class="big-drop"
-        :class="{ dragging }"
-        role="button"
-        tabindex="0"
-        @click="layout?.openPicker()"
-        @keydown.enter.prevent="layout?.openPicker()"
-        @keydown.space.prevent="layout?.openPicker()"
-        @dragover.prevent="dragging = true"
-        @dragleave.prevent="dragging = false"
-        @drop.prevent="onDrop"
-      >
-        <span class="drop-icon" aria-hidden="true">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" /></svg>
-        </span>
-        <span class="drop-title">{{ t('app.upload.dropTitle') }}</span>
-        <span class="drop-hint">{{ t('app.upload.formats') }}</span>
-        <span class="btn btn-ink btn-lg">{{ t('app.upload.choose') }}</span>
-      </div>
-      <ul class="outputs">
-        <li v-for="key in ['chapters', 'transcript', 'subtitles']" :key="key">
-          <strong>{{ t(`app.outputs.${key}.title`) }}</strong>
-          <span>{{ t(`app.outputs.${key}.description`) }}</span>
-        </li>
-      </ul>
-    </section>
+    <NewVideoPanel v-if="firstVideo" first @choose="layout?.openPicker()" @pick="layout?.pickFile($event)" />
 
     <template v-else>
       <div class="page-head">
         <h1 class="page-title">{{ t('app.nav.library') }}</h1>
-        <p class="page-sub">{{ t('app.library.subtitle', { n: jobs.length }, jobs.length) }}</p>
       </div>
 
       <div
@@ -267,11 +237,6 @@ function isAudio(job: JobSummary) {
   letter-spacing: -0.03em;
 }
 
-.page-sub {
-  font-size: 0.875rem;
-  color: var(--text-muted);
-}
-
 .drop {
   display: flex;
   align-items: center;
@@ -283,9 +248,7 @@ function isAudio(job: JobSummary) {
   transition: border-color 0.15s, background 0.15s;
 }
 
-.drop.dragging,
-.big-drop.dragging,
-.big-drop:hover {
+.drop.dragging {
   border-color: var(--accent);
   background: #fbfbff;
 }
@@ -478,78 +441,6 @@ function isAudio(job: JobSummary) {
   background: var(--bg);
 }
 
-.welcome {
-  max-width: 640px;
-  margin: 3rem auto 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  text-align: center;
-}
-
-.welcome-title {
-  font-family: var(--font-display);
-  font-size: clamp(1.7rem, 4vw, 2.2rem);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  text-wrap: balance;
-}
-
-.welcome-lead {
-  color: var(--text-muted);
-}
-
-.big-drop {
-  width: 100%;
-  margin-top: 0.5rem;
-  padding: 2.75rem 2rem;
-  border: 1.5px dashed #c9cad2;
-  border-radius: 22px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  box-shadow: 0 18px 50px rgba(17, 19, 24, 0.06);
-  transition: border-color 0.15s, background 0.15s;
-}
-
-.big-drop .btn {
-  margin-top: 10px;
-}
-
-.drop-title {
-  font-size: 1.15rem;
-  font-weight: 600;
-}
-
-.outputs {
-  width: 100%;
-  margin-top: 0.5rem;
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.outputs li {
-  padding: 16px;
-  border-radius: 14px;
-  background: var(--bg);
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-.outputs strong {
-  font-size: 0.875rem;
-  color: var(--text);
-}
-
 @media (max-width: 1100px) {
   .hide-md {
     display: none;
@@ -575,10 +466,6 @@ function isAudio(job: JobSummary) {
 
   .file-name {
     max-width: 180px;
-  }
-
-  .outputs {
-    grid-template-columns: minmax(0, 1fr);
   }
 }
 </style>

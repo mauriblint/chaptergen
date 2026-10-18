@@ -85,11 +85,6 @@ const failure = computed(() => {
   return reason && known.includes(reason) ? reason : 'generic'
 })
 
-const crumbs = computed(() => [
-  { label: t('app.nav.library'), to: '/library' },
-  { label: job.value?.fileName ?? '…' },
-])
-
 useHead(
   computed(() => ({
     title: job.value ? `${job.value.fileName} — ChapterGen` : 'ChapterGen',
@@ -145,7 +140,6 @@ async function onRefine(options: RefineOptions) {
 <template>
   <component
     :is="user ? AppLayout : MarketingLayout"
-    v-bind="user ? { crumbs } : {}"
     :ref="(el: unknown) => (layout = user ? (el as InstanceType<typeof AppLayout>) : null)"
   >
     <div class="video" :class="{ standalone: !user }">
@@ -163,6 +157,7 @@ async function onRefine(options: RefineOptions) {
       <template v-else-if="job">
         <header class="head">
           <div class="head-main">
+            <RouterLink v-if="user" to="/library" class="back">← {{ t('app.nav.library') }}</RouterLink>
             <div class="title-row">
               <h1 class="title">{{ job.fileName }}</h1>
               <StatusBadge :status="job.status === 'regenerating' ? 'completed' : job.status" :refunded="job.creditsRefunded" />
@@ -281,6 +276,15 @@ async function onRefine(options: RefineOptions) {
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.back {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.back:hover {
+  color: var(--text);
 }
 
 .title-row {

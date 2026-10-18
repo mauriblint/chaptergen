@@ -4,20 +4,18 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useHead } from '@unhead/vue'
 import AppLayout from '../layouts/AppLayout.vue'
-import { useAuth, type AccountPayment, type Pack } from '../composables/useAuth'
-import { DEFAULT_PACKS } from '../billing/packs'
-import type { Locale } from '../i18n/routing'
+import PaywallModal from '../components/PaywallModal.vue'
+import { useAuth, type AccountPayment } from '../composables/useAuth'
 import { formatDate, formatMoney } from '../utils/format'
 
 const { t, locale } = useI18n()
 const router = useRouter()
-const { user, fetchAccount, fetchPacks, ensureLoaded, startCheckout } = useAuth()
+const { fetchAccount, ensureLoaded } = useAuth()
 
 const loading = ref(true)
 const error = ref<string | null>(null)
 const payments = ref<AccountPayment[]>([])
-const packs = ref<Pack[]>(DEFAULT_PACKS)
-const pending = ref<Pack['id'] | null>(null)
+const showPaywall = ref(false)
 
 useHead(computed(() => ({ title: t('app.billing.metaTitle'), htmlAttrs: { lang: locale.value } })))
 
@@ -28,59 +26,20 @@ onMounted(async () => {
     return
   }
   try {
-    const [account, list] = await Promise.all([fetchAccount(), fetchPacks().catch(() => DEFAULT_PACKS)])
-    payments.value = account.payments
-    packs.value = list
+    payments.value = (await fetchAccount()).payments
   } catch (err) {
     error.value = err instanceof Error ? err.message : t('app.common.loadError')
   } finally {
     loading.value = false
   }
 })
-
-function perVideo(pack: Pack) {
-  const value = (pack.amountCents / 100 / pack.credits).toFixed(2)
-  return `$${locale.value === 'es' ? value.replace('.', ',') : value}`
-}
-
-async function buy(pack: Pack) {
-  if (pending.value) return
-  pending.value = pack.id
-  error.value = null
-  try {
-    window.location.href = await startCheckout(pack.id, locale.value as Locale)
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : t('paywall.checkoutError')
-    pending.value = null
-  }
-}
 </script>
 
 <template>
-  <AppLayout :crumbs="[{ label: t('app.nav.billing') }]">
-    <h1 class="page-title">{{ t('app.nav.billing') }}</h1>
-
-    <div class="grid">
-      <div class="balance">
-        <span class="label">{{ t('app.billing.available') }}</span>
-        <span class="amount">{{ user?.totalCredits ?? 0 }}</span>
-        <span v-if="user && user.freeCredits > 0" class="note">
-          {{ t('app.billing.includesFree', { n: user.freeCredits }, user.freeCredits) }}
-        </span>
-        <span class="note">{{ t('app.billing.rule') }}</span>
-      </div>
-
-      <div v-for="pack in packs" :key="pack.id" class="pack" :class="{ featured: pack.id === 'creator' }">
-        <div class="pack-top">
-          <span class="pack-name">{{ t(`pricing.packs.${pack.id}.name`) }}</span>
-          <span v-if="pack.id === 'creator'" class="badge">{{ t('app.billing.bestValue') }}</span>
-        </div>
-        <span class="price">${{ (pack.amountCents / 100).toFixed(0) }}</span>
-        <span class="pack-meta">{{ t('app.billing.packMeta', { n: pack.credits, price: perVideo(pack) }) }}</span>
-        <button type="button" class="btn" :class="pack.id === 'creator' ? 'btn-light' : 'btn-ink'" :disabled="!!pending" @click="buy(pack)">
-          {{ pending === pack.id ? t('paywall.redirecting') : t('app.billing.buy', { name: t(`pricing.packs.${pack.id}.name`) }) }}
-        </button>
-      </div>
+  <AppLayout>
+    <div class="head">
+      <h1 class="page-title">{{ t('app.nav.billing') }}</h1>
+      <button type="button" class="btn btn-ink" @click="showPaywall = true">{{ t('app.nav.buyCredits') }}</button>
     </div>
 
     <p v-if="error" class="error" role="alert">{{ error }}</p>
@@ -114,113 +73,34 @@ async function buy(pack: Pack) {
       </div>
       <p class="secure">{{ t('paywall.ssl') }}</p>
     </section>
+
+    <PaywallModal v-if="showPaywall" reason="buy" @close="showPaywall = false" />
   </AppLayout>
 </template>
 
 <style scoped>
-.page-title {
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
   margin-bottom: 1.5rem;
+}
+
+.page-title {
   font-family: var(--font-display);
   font-size: 1.9rem;
   font-weight: 800;
   letter-spacing: -0.03em;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: 300px repeat(2, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.balance,
-.pack {
-  padding: 22px;
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.balance {
-  background: var(--bg);
-}
-
-.label,
-.note {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-.amount {
-  font-family: var(--font-display);
-  font-size: 3.25rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1;
-}
-
-.pack {
-  border: 1px solid var(--border);
-}
-
-.pack.featured {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--on-ink);
-}
-
-.pack-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.pack-name {
-  font-weight: 600;
-}
-
-.badge {
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: var(--accent-on-ink);
-  color: var(--ink);
-  font-size: 0.7rem;
-  font-weight: 700;
-}
-
-.price {
-  font-family: var(--font-display);
-  font-size: 2.5rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-}
-
-.pack-meta {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-.featured .pack-meta {
-  color: var(--on-ink-muted);
-}
-
-.pack .btn {
-  margin-top: auto;
-  min-height: 44px;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 .error {
-  margin-top: 1rem;
+  margin-bottom: 1rem;
   color: #b42318;
 }
 
 .history {
-  margin-top: 2.5rem;
+  max-width: 900px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -264,9 +144,17 @@ async function buy(pack: Pack) {
   color: #b42318;
 }
 
-.empty,
+.empty {
+  padding: 2.5rem 1rem;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
 .secure {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
 }
 
@@ -274,11 +162,5 @@ async function buy(pack: Pack) {
   height: 120px;
   border-radius: 14px;
   background: var(--bg);
-}
-
-@media (max-width: 1100px) {
-  .grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
 </style>

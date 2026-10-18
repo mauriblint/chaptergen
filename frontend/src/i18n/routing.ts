@@ -25,10 +25,10 @@ export function pathPair(path: string): PathPair | undefined {
   return PATH_PAIRS.find((p) => p.en === normalized || p.es === normalized)
 }
 
-export const APP_PATHS = ['/library', '/login', '/settings', '/billing'] as const
+export const APP_PATHS = ['/library', '/new', '/login', '/settings', '/billing'] as const
 
 export function isAuthPath(path: string): boolean {
-  return path === '/library' || path === '/settings' || path === '/billing'
+  return path === '/library' || path === '/new' || path === '/settings' || path === '/billing'
 }
 
 /** App screens share one URL for both languages; the locale comes from the account. */

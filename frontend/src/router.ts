@@ -109,6 +109,12 @@ export const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/new',
+    name: 'new-video',
+    component: () => import('./pages/NewVideoPage.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/videos/:id',
     name: 'video',
     component: () => import('./pages/VideoPage.vue'),

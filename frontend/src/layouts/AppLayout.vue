@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import Logo from '../components/ui/Logo.vue'
 import AppSidebar from '../components/app/AppSidebar.vue'
@@ -9,14 +9,10 @@ import AccountMenu from '../components/app/AccountMenu.vue'
 import StartVideoFlow from '../components/app/StartVideoFlow.vue'
 import PaywallModal from '../components/PaywallModal.vue'
 import { MEDIA_EXTENSIONS } from '../utils/media'
-import type { Crumb } from '../types/app'
-
-defineProps<{
-  crumbs: Crumb[]
-}>()
 
 const { t } = useI18n()
 const route = useRoute()
+const router = useRouter()
 const drawerOpen = ref(false)
 const showPaywall = ref(false)
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -24,7 +20,12 @@ const flow = ref<InstanceType<typeof StartVideoFlow> | null>(null)
 
 const accept = MEDIA_EXTENSIONS.join(',')
 
-/** "New video" anywhere in the app opens the file picker directly. */
+/** "New video" opens the upload screen, which explains what a credit gets you. */
+function newVideo() {
+  drawerOpen.value = false
+  void router.push('/new')
+}
+
 function openPicker() {
   drawerOpen.value = false
   fileInput.value?.click()
@@ -56,7 +57,7 @@ defineExpose({ openPicker, pickFile: (file: File) => flow.value?.pick(file) })
 <template>
   <div class="app">
     <a href="#app-main" class="skip-link">{{ t('app.common.skip') }}</a>
-    <AppSidebar class="sidebar-desktop" @new-video="openPicker" @buy-credits="buyCredits" />
+    <AppSidebar class="sidebar-desktop" @new-video="newVideo" @buy-credits="buyCredits" />
 
     <Transition name="fade">
       <div v-if="drawerOpen" class="drawer-backdrop" @click="drawerOpen = false" />
@@ -64,7 +65,7 @@ defineExpose({ openPicker, pickFile: (file: File) => flow.value?.pick(file) })
     <AppSidebar
       v-if="drawerOpen"
       class="sidebar-drawer"
-      @new-video="openPicker"
+      @new-video="newVideo"
       @buy-credits="buyCredits"
     />
 
@@ -80,17 +81,10 @@ defineExpose({ openPicker, pickFile: (file: File) => flow.value?.pick(file) })
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
           </button>
-          <RouterLink to="/library" class="mobile-logo" :aria-label="t('app.nav.library')"><Logo :size="28" /></RouterLink>
-          <nav class="crumbs" :aria-label="t('app.nav.breadcrumb')">
-            <template v-for="(crumb, i) in crumbs" :key="i">
-              <span v-if="i > 0" class="crumb-sep" aria-hidden="true">/</span>
-              <RouterLink v-if="crumb.to && i < crumbs.length - 1" :to="crumb.to" class="crumb-link">{{ crumb.label }}</RouterLink>
-              <span v-else class="crumb-current" aria-current="page">{{ crumb.label }}</span>
-            </template>
-          </nav>
+          <RouterLink to="/library" class="mobile-logo" :aria-label="t('app.nav.library')"><Logo :size="28" :show-text="false" /></RouterLink>
+          <CreditsPill @buy="buyCredits" />
         </div>
         <div class="topbar-right">
-          <CreditsPill @buy="buyCredits" />
           <AccountMenu />
         </div>
       </header>
@@ -152,34 +146,6 @@ defineExpose({ openPicker, pickFile: (file: File) => flow.value?.pick(file) })
   display: flex;
   align-items: center;
   gap: 0.75rem;
-}
-
-.crumbs {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-}
-
-.crumb-link {
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-
-.crumb-link:hover {
-  color: var(--text);
-}
-
-.crumb-sep {
-  color: #c9cad2;
-}
-
-.crumb-current {
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .menu-btn,
@@ -251,10 +217,6 @@ defineExpose({ openPicker, pickFile: (file: File) => flow.value?.pick(file) })
 }
 
 @media (max-width: 640px) {
-  .crumbs {
-    display: none;
-  }
-
   .mobile-logo {
     display: flex;
   }

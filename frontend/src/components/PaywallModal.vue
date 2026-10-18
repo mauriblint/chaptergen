@@ -95,9 +95,11 @@ async function buy() {
           <h2>{{ t('paywall.title') }}</h2>
           <p class="lead">{{ t(`paywall.reason.${props.reason}`) }}</p>
           <ul class="bullets">
+            <li>{{ t('paywall.bulletChapters') }}</li>
+            <li>{{ t('paywall.bulletTranscript') }}</li>
+            <li>{{ t('paywall.bulletSubtitles') }}</li>
             <li>{{ t('paywall.bulletExpire') }}</li>
             <li>{{ t('paywall.bulletSize') }}</li>
-            <li>{{ t('paywall.bulletPrivate') }}</li>
           </ul>
           <p class="one-time">{{ t('paywall.oneTime') }}</p>
         </aside>

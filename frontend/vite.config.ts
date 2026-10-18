@@ -37,6 +37,7 @@ export default defineConfig({
       '/404',
       '/login',
       '/library',
+      '/new',
       '/settings',
       '/billing',
     ],
