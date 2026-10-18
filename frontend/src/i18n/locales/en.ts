@@ -895,7 +895,6 @@ export default {
       logout: 'Log out',
     },
     credits: {
-      freeLeft: '{left} of {total} free videos left',
       count: '{n} credits | {n} credit | {n} credits',
     },
     dates: {
@@ -974,8 +973,6 @@ export default {
       metaTitle: 'New video — ChapterGen',
       firstTitle: 'Let’s do your first video',
       title: 'Upload a new video',
-      freeLeft: 'You have no free videos left | You have 1 free video left | You have {n} free videos left',
-      creditsLeft: 'You have no credits left | You have 1 credit left | You have {n} credits left',
       explainer: 'One credit gives you chapters, a transcript and subtitles',
       oneCredit: '1 credit = 1 video',
       chapter1: 'Intro',

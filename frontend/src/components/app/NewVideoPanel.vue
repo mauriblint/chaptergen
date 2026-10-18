@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useAuth } from '../../composables/useAuth'
 import VideoUploader from '../VideoUploader.vue'
 
 defineProps<{
@@ -11,14 +9,6 @@ defineProps<{
 
 const emit = defineEmits<{ pick: [file: File] }>()
 const { t } = useI18n()
-const { user } = useAuth()
-
-const balance = computed(() => {
-  const u = user.value
-  if (!u || u.totalCredits < 1) return ''
-  if (!u.hasPaid) return t('app.newVideo.freeLeft', { n: u.freeCredits }, u.freeCredits)
-  return t('app.newVideo.creditsLeft', { n: u.totalCredits }, u.totalCredits)
-})
 
 const outputs = ['chapters', 'transcript', 'subtitles'] as const
 </script>
@@ -27,7 +17,6 @@ const outputs = ['chapters', 'transcript', 'subtitles'] as const
   <section class="panel">
     <header class="head">
       <h1 class="title">{{ first ? t('app.newVideo.firstTitle') : t('app.newVideo.title') }}</h1>
-      <p v-if="balance" class="lead">{{ balance }}</p>
     </header>
 
     <VideoUploader :title="t('app.upload.dropTitle')" :button-label="t('app.upload.choose')" @select="emit('pick', $event)" />
@@ -97,10 +86,6 @@ const outputs = ['chapters', 'transcript', 'subtitles'] as const
   font-weight: 800;
   letter-spacing: -0.03em;
   text-wrap: balance;
-}
-
-.lead {
-  color: var(--text-muted);
 }
 
 .explainer {

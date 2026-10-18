@@ -895,7 +895,6 @@ export default {
       logout: 'Cerrar sesión',
     },
     credits: {
-      freeLeft: 'Te quedan {left} de {total} videos gratis',
       count: '{n} créditos | {n} crédito | {n} créditos',
     },
     dates: {
@@ -974,8 +973,6 @@ export default {
       metaTitle: 'Nuevo video — ChapterGen',
       firstTitle: 'Hagamos tu primer video',
       title: 'Sube un video nuevo',
-      freeLeft: 'No te quedan videos gratis | Te queda 1 video gratis | Te quedan {n} videos gratis',
-      creditsLeft: 'No te quedan créditos | Te queda 1 crédito | Te quedan {n} créditos',
       explainer: 'Un crédito te da capítulos, transcripción y subtítulos',
       oneCredit: '1 crédito = 1 video',
       chapter1: 'Intro',
