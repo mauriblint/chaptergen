@@ -186,9 +186,11 @@ export function useAuth() {
   }
 
   async function sendSupport(subject: string, message: string): Promise<void> {
+    // The page they wrote from helps answer ("this video", "this screen").
+    const page = typeof window !== 'undefined' ? window.location.pathname + window.location.search : null
     await apiFetch('/support', {
       method: 'POST',
-      body: JSON.stringify({ subject, message }),
+      body: JSON.stringify({ subject, message, page }),
     })
   }
 

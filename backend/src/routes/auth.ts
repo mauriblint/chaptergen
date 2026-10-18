@@ -13,12 +13,11 @@ import {
 import { countRecentCodes, createEmailCode, generateCode, verifyEmailCode } from '../db/emailCodes.js'
 import { isDisposableEmail, isValidEmail } from '../utils/disposableEmail.js'
 import { listPaymentsByUserId } from '../db/payments.js'
-import { listJobsByUserId } from '../db/jobs.js'
-import { signMagicToken, verifyToken } from '../auth/jwt.js'
+import { countJobsByUserId, listJobsByUserId } from '../db/jobs.js'
+import { verifyToken } from '../auth/jwt.js'
 import { clearSessionCookie } from '../auth/cookies.js'
 import { establishSession, requireUser } from '../auth/session.js'
 import {
-  sendMagicLinkEmail,
   sendSupportEmail,
   sendVerificationCodeEmail,
 } from '../services/email.js'
@@ -162,29 +161,6 @@ authRouter.post('/auth/logout', (req: Request, res: Response) => {
   res.json({ ok: true })
 })
 
-authRouter.post('/auth/magic-link', async (req: Request, res: Response) => {
-  const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : ''
-  const generic = { ok: true }
-  if (!email || !email.includes('@') || email.length > 254) {
-    res.json(generic)
-    return
-  }
-
-  const user = getUserByEmail(email)
-  if (!user) {
-    res.json(generic)
-    return
-  }
-
-  try {
-    const token = await signMagicToken(user.id, user.email)
-    await sendMagicLinkEmail({ email: user.email, locale: user.locale, token })
-  } catch (err) {
-    console.error('magic-link error:', err)
-  }
-  res.json(generic)
-})
-
 authRouter.post('/auth/magic-login', async (req: Request, res: Response) => {
   const token = typeof req.body?.token === 'string' ? req.body.token : ''
   const payload = await verifyToken(token, 'magic')
@@ -244,11 +220,18 @@ authRouter.post('/support', requireUser, async (req: Request, res: Response) => 
   }
 
   try {
+    const user = getUserById(req.user!.id)!
+    const page = typeof req.body?.page === 'string' ? req.body.page.slice(0, 200) : null
     await sendSupportEmail({
-      fromEmail: req.user!.email,
-      userId: req.user!.id,
+      fromEmail: user.email,
+      userId: user.id,
       subject,
       message,
+      credits: user.creditsRemaining + user.freeCredits,
+      videos: countJobsByUserId(user.id),
+      locale: user.locale,
+      memberSince: user.createdAt.slice(0, 10),
+      page,
     })
     res.json({ ok: true })
   } catch (err) {

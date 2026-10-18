@@ -40,6 +40,11 @@ async function notifyIfUnwatched(jobId: string): Promise<void> {
     jobId: job.id,
     fileName: job.fileName,
     ok: job.status === 'completed',
+    durationSeconds: job.durationSeconds,
+    chapters: job.chapters,
+    wordCount: (job.segments ?? []).reduce((n, s) => n + s.text.trim().split(/\s+/).filter(Boolean).length, 0),
+    failureReason: job.failureReason,
+    refunded: job.creditsRefunded,
   })
 }
 

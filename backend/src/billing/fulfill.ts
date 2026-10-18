@@ -123,8 +123,11 @@ export async function notifyPurchaseIfNew(
   await sendPurchaseEmail({
     email: result.user.email,
     locale: result.user.locale,
+    packName: result.payment.pack.charAt(0).toUpperCase() + result.payment.pack.slice(1),
     creditsGranted: result.payment.creditsGranted,
-    creditsRemaining: result.user.creditsRemaining,
+    amountCents: result.payment.amountCents,
+    creditsBalance: result.user.creditsRemaining + result.user.freeCredits,
+    paidAt: new Date(result.payment.createdAt),
   })
 }
 
