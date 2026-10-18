@@ -20,6 +20,6 @@ onMounted(async () => {
 
 <template>
   <AppLayout ref="layout">
-    <NewVideoPanel :first="first" @choose="layout?.openPicker()" @pick="layout?.pickFile($event)" />
+    <NewVideoPanel :first="first" @pick="layout?.pickFile($event)" />
   </AppLayout>
 </template>

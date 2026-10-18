@@ -1,14 +1,19 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import AudioLanguageSelect from './app/AudioLanguageSelect.vue'
 
+/**
+ * The one upload box, in the app and on the landings: a drop area with the
+ * audio language and accepted formats in a footer of the same card.
+ */
 const props = withDefaults(
   defineProps<{
     variant?: 'video' | 'audio'
-    compact?: boolean
+    title?: string
     buttonLabel?: string
   }>(),
-  { variant: 'video', compact: false }
+  { variant: 'video' }
 )
 
 const emit = defineEmits<{
@@ -22,14 +27,9 @@ const inputRef = ref<HTMLInputElement | null>(null)
 
 const ACCEPTED = '.mp4,.mov,.webm,.mkv,.avi,.m4v,.mp3,.wav,.m4a,.aac,.ogg,.flac,.opus'
 
-const title = computed(() => {
-  if (props.compact) {
-    return props.variant === 'audio'
-      ? t('tool.uploader.titleAudioCompact')
-      : t('tool.uploader.titleVideoCompact')
-  }
-  return props.variant === 'audio' ? t('tool.uploader.titleAudio') : t('tool.uploader.titleVideo')
-})
+const heading = computed(
+  () => props.title ?? (props.variant === 'audio' ? t('tool.uploader.titleAudio') : t('tool.uploader.titleVideo'))
+)
 
 const hint = computed(() =>
   props.variant === 'audio' ? t('tool.uploader.hintAudio') : t('tool.uploader.hintVideo')
@@ -42,8 +42,11 @@ function onDrop(e: DragEvent) {
 }
 
 function onFileChange(e: Event) {
-  const file = (e.target as HTMLInputElement).files?.[0]
+  const input = e.target as HTMLInputElement
+  const file = input.files?.[0]
   if (file) emit('select', file)
+  // Picking the same file again should still fire.
+  input.value = ''
 }
 
 function openPicker() {
@@ -54,162 +57,142 @@ function openPicker() {
 <template>
   <div
     class="uploader"
-    :class="{ dragging: isDragging, compact: props.compact }"
+    :class="{ dragging: isDragging }"
     @dragover.prevent="isDragging = true"
-    @dragleave.prevent="isDragging = false"
+    @dragleave.self.prevent="isDragging = false"
     @drop.prevent="onDrop"
-    @click="openPicker"
   >
-    <input
-      ref="inputRef"
-      type="file"
-      :accept="ACCEPTED"
-      hidden
-      @change="onFileChange"
-    />
-    <div class="uploader-icon">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M12 16V4M7 9l5-5 5 5" />
-        <path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" />
-      </svg>
+    <input ref="inputRef" type="file" :accept="ACCEPTED" hidden @change="onFileChange" />
+
+    <div
+      class="drop"
+      role="button"
+      tabindex="0"
+      :aria-label="buttonLabel ?? t('tool.uploader.button')"
+      @click="openPicker"
+      @keydown.enter.prevent="openPicker"
+      @keydown.space.prevent="openPicker"
+    >
+      <span class="drop-icon" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 16V4M7 9l5-5 5 5" />
+          <path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" />
+        </svg>
+      </span>
+      <p class="drop-title">{{ heading }}</p>
+      <span class="drop-btn">{{ buttonLabel ?? t('tool.uploader.button') }}</span>
     </div>
-    <div class="uploader-copy">
-      <p class="uploader-title">{{ title }}</p>
-      <p class="uploader-hint">{{ hint }}</p>
+
+    <div class="foot">
+      <AudioLanguageSelect />
+      <span class="formats">{{ hint }}</span>
     </div>
-    <button type="button" class="uploader-btn" @click.stop="openPicker">
-      {{ buttonLabel ?? t('tool.uploader.button') }}
-    </button>
   </div>
 </template>
 
 <style scoped>
 .uploader {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 26px;
+  background: var(--page);
+  box-shadow: 0 18px 50px rgba(17, 19, 24, 0.06);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.uploader.dragging {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft), 0 18px 50px rgba(17, 19, 24, 0.06);
+}
+
+.drop {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 0.4rem;
+  padding: 2.75rem 2rem 2.5rem;
   border: 1.5px dashed #c9cad2;
-  border-radius: 22px;
-  padding: 3rem 2rem 2.75rem;
+  border-radius: 19px;
+  background: var(--bg);
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
-  background: var(--surface);
-  box-shadow: 0 18px 50px rgba(17, 19, 24, 0.06);
+  transition: border-color 0.15s, background 0.15s;
 }
 
-.uploader:hover,
-.uploader.dragging {
+.drop:hover,
+.dragging .drop,
+.drop:focus-visible {
   border-color: var(--accent);
-  background: #fbfbff;
+  background: #f7f6ff;
+  outline: none;
 }
 
-.uploader-icon {
-  width: 60px;
-  height: 60px;
-  margin-bottom: 0.75rem;
+.drop-icon {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 0.6rem;
   border-radius: 16px;
-  background: var(--accent-soft);
+  background: var(--page);
   color: var(--accent);
+  box-shadow: 0 1px 2px rgba(17, 19, 24, 0.06), 0 0 0 1px var(--border-soft);
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
 }
 
-.uploader-copy {
-  min-width: 0;
-}
-
-.uploader-title {
-  font-size: 1.25rem;
+.drop-title {
+  font-size: 1.2rem;
   font-weight: 600;
-  margin-bottom: 0.3rem;
   color: var(--text);
 }
 
-.uploader-hint {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.uploader-btn {
-  min-height: 56px;
-  margin-top: 1.25rem;
+.drop-btn {
+  min-height: 52px;
+  margin-top: 1rem;
+  padding: 0 2rem;
+  border-radius: 14px;
   background: var(--ink);
   color: #fff;
-  border: none;
-  padding: 0 2.25rem;
-  border-radius: 14px;
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
+  display: inline-flex;
+  align-items: center;
   white-space: nowrap;
+  transition: background 0.15s;
 }
 
-.uploader-btn:hover {
+.drop:hover .drop-btn {
   background: #2a2e36;
 }
 
-.uploader.compact {
-  flex-direction: row;
-  text-align: left;
-  box-shadow: none;
-  gap: 0.85rem;
-  padding: 0.7rem 0.75rem 0.7rem 0.85rem;
-  border-radius: 12px;
+.foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px 16px;
+  flex-wrap: wrap;
+  padding: 10px 10px 4px 12px;
 }
 
-.uploader.compact .uploader-icon {
-  width: 40px;
-  height: 40px;
-  margin-bottom: 0;
-  border-radius: 10px;
-}
-
-.uploader.compact .uploader-copy {
-  flex: 1;
-}
-
-.uploader.compact .uploader-icon svg {
-  width: 20px;
-  height: 20px;
-}
-
-.uploader.compact .uploader-title {
-  font-size: 0.92rem;
-  margin-bottom: 0.1rem;
-}
-
-.uploader.compact .uploader-hint {
-  font-size: 0.78rem;
-}
-
-.uploader.compact .uploader-btn {
-  margin-top: 0;
-  min-height: 42px;
-  padding: 0 1.15rem;
-  font-size: 0.85rem;
-  border-radius: 10px;
+.formats {
+  font-size: 0.8rem;
+  color: var(--text-muted);
 }
 
 @media (max-width: 640px) {
-  .uploader:not(.compact) {
+  .drop {
     padding: 2rem 1.25rem 1.5rem;
   }
 
-  .uploader:not(.compact) .uploader-btn {
+  .drop-btn {
     width: 100%;
+    justify-content: center;
   }
 
-  .uploader.compact {
-    flex-wrap: wrap;
-  }
-
-  .uploader.compact .uploader-copy {
-    flex: 1 1 180px;
+  .foot {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 </style>

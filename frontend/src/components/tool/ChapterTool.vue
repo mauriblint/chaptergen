@@ -4,7 +4,6 @@ import { useI18n } from 'vue-i18n'
 import Card from '../ui/Card.vue'
 import VideoUploader from '../VideoUploader.vue'
 import StartVideoFlow from '../app/StartVideoFlow.vue'
-import AudioLanguageSelect from '../app/AudioLanguageSelect.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -32,8 +31,7 @@ function onFileSelect(file: File) {
 <template>
   <Card class="chapter-tool" :class="{ compact }" :shadow="compact ? 'lg' : 'none'">
     <div class="controls">
-      <VideoUploader :variant="variant" :compact="compact" :button-label="buttonLabel" @select="onFileSelect" />
-      <AudioLanguageSelect v-if="!props.compact" align="center" />
+      <VideoUploader :variant="variant" :button-label="buttonLabel" @select="onFileSelect" />
 
       <ul v-if="!props.compact" class="trust-strip">
         <li v-for="item in trustItems" :key="item" class="trust-item">

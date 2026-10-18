@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuth } from '../../composables/useAuth'
-import AudioLanguageSelect from './AudioLanguageSelect.vue'
+import VideoUploader from '../VideoUploader.vue'
 
 defineProps<{
   /** First video of the account: friendlier title. */
   first: boolean
 }>()
 
-const emit = defineEmits<{ choose: []; pick: [file: File] }>()
+const emit = defineEmits<{ pick: [file: File] }>()
 const { t } = useI18n()
 const { user } = useAuth()
-const dragging = ref(false)
 
 const balance = computed(() => {
   const u = user.value
@@ -20,12 +19,6 @@ const balance = computed(() => {
   if (!u.hasPaid) return t('app.newVideo.freeLeft', { n: u.freeCredits }, u.freeCredits)
   return t('app.newVideo.creditsLeft', { n: u.totalCredits }, u.totalCredits)
 })
-
-function onDrop(event: DragEvent) {
-  dragging.value = false
-  const file = event.dataTransfer?.files[0]
-  if (file) emit('pick', file)
-}
 
 const outputs = ['chapters', 'transcript', 'subtitles'] as const
 </script>
@@ -37,27 +30,7 @@ const outputs = ['chapters', 'transcript', 'subtitles'] as const
       <p v-if="balance" class="lead">{{ balance }}</p>
     </header>
 
-    <div
-      class="drop"
-      :class="{ dragging }"
-      role="button"
-      tabindex="0"
-      :aria-label="t('app.upload.choose')"
-      @click="emit('choose')"
-      @keydown.enter.prevent="emit('choose')"
-      @keydown.space.prevent="emit('choose')"
-      @dragover.prevent="dragging = true"
-      @dragleave.prevent="dragging = false"
-      @drop.prevent="onDrop"
-    >
-      <span class="drop-icon" aria-hidden="true">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" /></svg>
-      </span>
-      <span class="drop-title">{{ t('app.upload.dropTitle') }}</span>
-      <span class="drop-hint">{{ t('app.upload.formats') }}</span>
-      <span class="btn btn-ink btn-lg">{{ t('app.upload.choose') }}</span>
-    </div>
-    <AudioLanguageSelect align="center" />
+    <VideoUploader :title="t('app.upload.dropTitle')" :button-label="t('app.upload.choose')" @select="emit('pick', $event)" />
 
     <!-- One credit fans out into the three results. -->
     <div class="explainer" :aria-label="t('app.newVideo.explainer')">
@@ -127,52 +100,6 @@ const outputs = ['chapters', 'transcript', 'subtitles'] as const
 }
 
 .lead {
-  color: var(--text-muted);
-}
-
-.drop {
-  width: 100%;
-  padding: 2.75rem 2rem;
-  border: 1.5px dashed #c9cad2;
-  border-radius: 22px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  box-shadow: 0 18px 50px rgba(17, 19, 24, 0.06);
-  transition: border-color 0.15s, background 0.15s;
-}
-
-.drop:hover,
-.drop.dragging,
-.drop:focus-visible {
-  border-color: var(--accent);
-  background: #fbfbff;
-}
-
-.drop .btn {
-  margin-top: 10px;
-}
-
-.drop-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 16px;
-  background: var(--accent-soft);
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.drop-title {
-  font-size: 1.15rem;
-  font-weight: 600;
-}
-
-.drop-hint {
-  font-size: 0.8rem;
   color: var(--text-muted);
 }
 
