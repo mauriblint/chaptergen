@@ -39,7 +39,8 @@ function clientFor(provider: TranscribeProvider): OpenAI {
   if (!apiKey) {
     throw new Error(`${keyEnv} no está configurada`)
   }
-  return new OpenAI({ apiKey, baseURL })
+  // Groq: one retry, then the OpenAI fallback takes over instead of waiting out a rate limit.
+  return new OpenAI({ apiKey, baseURL, maxRetries: provider === 'groq' ? 1 : 2 })
 }
 
 /** Token usage the gpt-4o transcribe models report; whisper-1 reports seconds or nothing. */
@@ -196,11 +197,11 @@ async function transcribeInChunks(
   }
 }
 
-export async function transcribe(
+async function transcribeWith(
   audioPath: string,
-  language?: string | null,
-  usage?: UsageContext,
-  provider: TranscribeProvider = defaultTranscribeProvider()
+  language: string | null | undefined,
+  usage: UsageContext | undefined,
+  provider: TranscribeProvider
 ): Promise<TranscriptionResult> {
   const fileSizeBytes = fs.statSync(audioPath).size
   if (fileSizeBytes <= AUDIO_MAX_UPLOAD_BYTES) {
@@ -213,4 +214,36 @@ export async function transcribe(
   }
 
   return transcribeInChunks(audioPath, fileSizeBytes, durationSeconds, language, usage, provider)
+}
+
+// Groq allows 2 hours of audio per hour on our plan, so a longer file would
+// hit the limit halfway; it goes straight to OpenAI.
+const GROQ_MAX_SECONDS = 2 * 60 * 60
+
+/**
+ * Transcribes with the configured provider. When that is Groq, anything it
+ * cannot take (a rate limit, an outage, a very long file) falls back to
+ * OpenAI, so the user never sees the difference. Passing `provider` forces
+ * one provider with no fallback, for comparisons.
+ */
+export async function transcribe(
+  audioPath: string,
+  language?: string | null,
+  usage?: UsageContext,
+  provider?: TranscribeProvider
+): Promise<TranscriptionResult> {
+  if (provider) return transcribeWith(audioPath, language, usage, provider)
+
+  if (defaultTranscribeProvider() === 'groq') {
+    const seconds = await getMediaDurationSeconds(audioPath)
+    if (seconds == null || seconds <= GROQ_MAX_SECONDS) {
+      try {
+        return await transcribeWith(audioPath, language, usage, 'groq')
+      } catch (err) {
+        if (err instanceof AudioTooLargeError) throw err
+        console.warn('Groq transcription failed, falling back to OpenAI:', err instanceof Error ? err.message : err)
+      }
+    }
+  }
+  return transcribeWith(audioPath, language, usage, 'openai')
 }

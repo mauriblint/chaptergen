@@ -32,11 +32,8 @@ import { getUserById } from '../db/users.js'
 import { sendJobReadyEmail } from './email.js'
 import { forgetJob, wasJobSeenSince } from './jobWatchers.js'
 import { discardJobAudio, keepAudioForRetranscribe } from './audioRetention.js'
+import { looksLikeNoSpeech } from './speechCheck.js'
 import { AUDIO_LANGUAGES } from '../utils/languages.js'
-
-function countWords(segments: TranscriptSegment[]): number {
-  return segments.reduce((n, seg) => n + seg.text.trim().split(/\s+/).filter(Boolean).length, 0)
-}
 
 function chapterCountFor(job: { autoMode: boolean; chapterCount: number | null }): number | null {
   return job.autoMode ? null : Math.min(20, Math.max(3, job.chapterCount ?? 10))
@@ -129,8 +126,8 @@ export async function processJob(jobId: string): Promise<void> {
     }
 
     const { segments, language } = await transcribe(audioPath, job.audioLanguage, { jobId, reason: 'initial' })
-    // Silence or music comes back as nothing or a single garbled token.
-    if (countWords(segments) < 3) {
+    // Silence or music comes back as nothing, or as one invented line on repeat.
+    if (looksLikeNoSpeech(segments)) {
       failJob(jobId, 'No speech was detected in this file.', 'no_speech')
       return
     }
@@ -214,7 +211,7 @@ async function retranscribeJob(jobId: string, language: string): Promise<void> {
 
   try {
     const { segments, language: reported } = await transcribe(job.audioPath, language, { jobId, reason: 'retranscribe' })
-    if (countWords(segments) < 3) {
+    if (looksLikeNoSpeech(segments)) {
       throw new Error('No speech was detected in this language.')
     }
     updateJobStatus(jobId, 'generating')
