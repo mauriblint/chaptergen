@@ -97,6 +97,7 @@ const copy = {
     codeSubject: (code: string) => `${code} is your ChapterGen code`,
     codePreheader: 'Enter it to confirm your email. It expires in 10 minutes.',
     codeHeading: 'Your verification code',
+    codeIntro: 'Your ChapterGen verification code is:',
     codeBody: 'Enter this code in ChapterGen to confirm your email. It expires in 10 minutes.',
     codeIgnore: "If you didn't try to sign in to ChapterGen, you can ignore this email. Nobody can get in without this code.",
     codeFooter: 'You received this because someone entered this address on chaptergen.com.',
@@ -148,6 +149,7 @@ const copy = {
     codeSubject: (code: string) => `${code} es tu código de ChapterGen`,
     codePreheader: 'Ingrésalo para confirmar tu email. Vence en 10 minutos.',
     codeHeading: 'Tu código de verificación',
+    codeIntro: 'Tu código de verificación de ChapterGen es:',
     codeBody: 'Ingresa este código en ChapterGen para confirmar tu email. Vence en 10 minutos.',
     codeIgnore: 'Si no intentaste entrar a ChapterGen, puedes ignorar este correo. Nadie puede entrar sin este código.',
     codeFooter: 'Recibiste este correo porque alguien ingresó esta dirección en chaptergen.com.',
@@ -199,6 +201,8 @@ async function send(input: {
   to: string
   subject: string
   html: string
+  /** Plain-text alternative; mail apps look for one-time codes in it. */
+  text?: string
   replyTo?: string
 }): Promise<void> {
   const resend = getResend()
@@ -210,6 +214,7 @@ async function send(input: {
     to: input.to,
     subject: input.subject,
     html: input.html,
+    text: input.text,
     replyTo: input.replyTo,
   })
   if (error) {
@@ -234,10 +239,13 @@ export async function sendVerificationCodeEmail(input: {
   const body = `${h1(t.codeHeading)}${p(t.codeBody)}
 <div style="margin:0 0 20px;"><span style="display:inline-block;padding:16px 22px;border:1px solid ${C.line};border-radius:12px;background:${C.soft};font-family:${MONO};font-size:34px;font-weight:700;letter-spacing:0.32em;color:${C.ink};">${input.code}</span></div>
 ${note(t.codeIgnore)}`
+  // The code alone on its line, right after the sentence naming it.
+  const text = [t.codeIntro, '', input.code, '', t.codeBody, '', t.codeIgnore].join('\n')
   await send({
     to: input.email,
     subject: t.codeSubject(input.code),
     html: layout({ preheader: t.codePreheader, body, footer: t.codeFooter, locale: input.locale }),
+    text,
   })
 }
 
