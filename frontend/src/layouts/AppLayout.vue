@@ -2,6 +2,7 @@
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useHead } from '@unhead/vue'
 import Logo from '../components/ui/Logo.vue'
 import AppSidebar from '../components/app/AppSidebar.vue'
 import CreditsPill from '../components/app/CreditsPill.vue'
@@ -9,6 +10,9 @@ import AccountMenu from '../components/app/AccountMenu.vue'
 import StartVideoFlow from '../components/app/StartVideoFlow.vue'
 import PaywallModal from '../components/PaywallModal.vue'
 import { MEDIA_EXTENSIONS } from '../utils/media'
+
+// The app is behind a sign-in; keep its pages out of search results.
+useHead({ meta: [{ name: 'robots', content: 'noindex' }] })
 
 const { t } = useI18n()
 const route = useRoute()
