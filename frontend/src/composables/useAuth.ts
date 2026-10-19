@@ -185,12 +185,13 @@ export function useAuth() {
     return data.packs
   }
 
-  async function sendSupport(subject: string, message: string): Promise<void> {
+  /** `jobId` attaches one of the user's videos so support can look it up. */
+  async function sendSupport(subject: string, message: string, jobId: string | null = null): Promise<void> {
     // The page they wrote from helps answer ("this video", "this screen").
     const page = typeof window !== 'undefined' ? window.location.pathname + window.location.search : null
     await apiFetch('/support', {
       method: 'POST',
-      body: JSON.stringify({ subject, message, page }),
+      body: JSON.stringify({ subject, message, page, jobId }),
     })
   }
 

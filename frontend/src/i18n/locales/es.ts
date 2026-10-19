@@ -702,17 +702,135 @@ export default {
   },
   support: {
     title: 'Soporte',
-    subtitle: 'Escribinos y te respondemos al email de la cuenta.',
-    email: 'Email',
+    lead: 'Respuestas a las preguntas más comunes. Si la tuya no está, escríbenos abajo.',
+    metaTitle: 'Soporte — ChapterGen',
+    search: 'Busca en las preguntas',
+    noResults: 'Ninguna pregunta coincide. Escríbenos abajo y te ayudamos.',
+    writeToUs: 'Escríbenos',
+    groups: [
+      {
+        title: 'Cómo funciona',
+        items: [
+          {
+            question: '¿Qué obtengo con cada video?',
+            answer:
+              'Capítulos listos para pegar en YouTube, la transcripción completa con marcas de tiempo y subtítulos en SRT y VTT. Puedes descargar todo en .docx o en un solo .zip.',
+          },
+          {
+            question: '¿Qué archivos puedo subir?',
+            answer:
+              'Video o audio: MP4, MOV, WebM, MKV, MP3, WAV, M4A, AAC, OGG y FLAC, de hasta 500 MB por archivo. Si un video pesa más, sube solo su audio en MP3 o M4A: pesa mucho menos y el resultado es el mismo.',
+          },
+          {
+            question: '¿Cuánto tarda?',
+            answer:
+              'Normalmente uno o dos minutos para un video de 10 a 20 minutos, algunos más para los largos. Puedes cerrar la página: te avisamos por email cuando esté listo.',
+          },
+          {
+            question: '¿Qué idiomas soporta?',
+            answer:
+              'Más de 90. Por defecto el idioma se detecta del audio. Si lo sabes, elígelo en "Idioma del audio" al subir: ayuda con clips cortos y videos con música.',
+          },
+        ],
+      },
+      {
+        title: 'Créditos y pagos',
+        items: [
+          {
+            question: '¿Qué es un crédito?',
+            answer:
+              'Un crédito procesa un video, sin importar su duración. Incluye capítulos, transcripción y subtítulos. Los créditos vienen en packs, con un pago único y sin suscripción.',
+          },
+          {
+            question: '¿Cómo funciona la prueba gratis?',
+            answer: 'Una cuenta nueva recibe 2 videos gratis de hasta 20 minutos cada uno, sin tarjeta.',
+          },
+          {
+            question: '¿Los créditos vencen?',
+            answer: 'No. Úsalos cuando quieras.',
+          },
+          {
+            question: '¿Qué pasa si un video falla?',
+            answer:
+              'El crédito vuelve a tu cuenta automáticamente. La página del video te dice qué salió mal y cómo solucionarlo.',
+          },
+        ],
+      },
+      {
+        title: 'Resultados',
+        items: [
+          {
+            question: '¿Puedo editar los capítulos?',
+            answer:
+              'Sí. Cambia los títulos o los tiempos en la pestaña Capítulos y se guardan mientras escribes. También puedes pedirle a la IA que los mejore: solo los títulos, los cortes o ambos. Los videos gratis incluyen 2 mejoras y los pagos no tienen límite.',
+          },
+          {
+            question: '¿Cómo agrego los capítulos a YouTube?',
+            answer:
+              'Cópialos desde la pestaña Capítulos y pégalos en la descripción del video en YouTube Studio. YouTube pide que el primero empiece en 0:00, que haya al menos 3 y que cada uno dure al menos 10 segundos; nosotros lo revisamos por ti.',
+          },
+          {
+            question: '¿Cómo obtengo los subtítulos?',
+            answer:
+              'En la pestaña Subtítulos elige SRT o VTT, ajusta los caracteres por línea si quieres y descárgalos. Los dos formatos se pueden subir a YouTube y a la mayoría de los editores.',
+          },
+          {
+            question: 'La transcripción salió en otro idioma',
+            answer:
+              'En la página del video haz clic en "¿Idioma incorrecto?", junto a la duración, y elige el correcto. Es gratis, una vez por video, dentro de las 24 horas. Para evitarlo, elige el idioma del audio al subir.',
+          },
+        ],
+      },
+      {
+        title: 'Problemas comunes',
+        items: [
+          {
+            question: 'Dice que mi archivo no tiene audio',
+            answer:
+              'El archivo tiene solo imagen. Pasa mucho con videos descargados de YouTube: muchos descargadores guardan la imagen y el sonido por separado. Descarga el audio (MP3 o M4A) y súbelo. No se usa ningún crédito.',
+          },
+          {
+            question: 'Dice que no se detectó voz',
+            answer:
+              'No escuchamos a nadie hablando, por ejemplo en música o grabaciones en silencio. Revisa que el archivo tenga pista de voz. El crédito se devuelve.',
+          },
+          {
+            question: 'No me llegó el código o el email',
+            answer:
+              'Revisa spam y promociones. Los códigos vencen a los 10 minutos, así que pide uno nuevo si tardó. Fíjate que la dirección esté bien escrita.',
+          },
+        ],
+      },
+      {
+        title: 'Privacidad',
+        items: [
+          {
+            question: '¿Qué pasa con mis archivos?',
+            answer:
+              'El archivo subido se elimina apenas termina el proceso. El audio extraído se guarda 24 horas para que puedas transcribirlo de nuevo en otro idioma y luego se elimina. Guardamos la transcripción y los capítulos para que puedas volver a verlos.',
+          },
+          {
+            question: '¿Cómo elimino mi cuenta?',
+            answer: 'En Ajustes, usa "Borrar cuenta y datos". Eliminamos tu cuenta, transcripciones y capítulos en un plazo de 30 días.',
+          },
+        ],
+      },
+    ],
+    contact: {
+      title: '¿Necesitas más ayuda?',
+      lead: 'Escríbenos y te respondemos lo antes posible, normalmente durante el día. La respuesta llega a {email}.',
+      video: '¿Sobre qué video es?',
+      noVideo: 'No es sobre un video',
+    },
     subject: 'Asunto',
-    subjectPlaceholder: '¿En qué te podemos ayudar?',
+    subjectPlaceholder: '¿En qué te ayudamos?',
     message: 'Mensaje',
     messagePlaceholder: 'Cuéntanos qué necesitas…',
-    submit: 'Enviar',
+    submit: 'Enviar mensaje',
     sending: 'Enviando…',
-    sent: 'Listo — recibimos tu mensaje y te respondemos por email.',
-    sendError: 'No se pudo enviar el mensaje. Intenta de nuevo.',
-    close: 'Cerrar',
+    sent: 'Gracias, recibimos tu mensaje. Te responderemos por email, normalmente durante el día.',
+    sendAnother: 'Enviar otro mensaje',
+    sendError: 'No pudimos enviar el mensaje. Intenta de nuevo.',
   },
   pages: {
     updated: 'Última actualización: {date}',

@@ -1,14 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import Logo from '../ui/Logo.vue'
 import LanguageMenu from '../layout/LanguageMenu.vue'
-import SupportModal from '../SupportModal.vue'
 
 const emit = defineEmits<{ newVideo: []; buyCredits: [] }>()
 const { t } = useI18n()
-const showSupport = ref(false)
 
 const nav = [
   { to: '/library', key: 'library', icon: 'M4 5h16v14H4zM4 9h16M9 9v10' },
@@ -40,10 +37,10 @@ const nav = [
     </nav>
 
     <div class="bottom">
-      <button type="button" class="nav-item" @click="showSupport = true">
+      <RouterLink to="/support" class="nav-item">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.5 9.5a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2.2-2.4 3.7M12 17h.01" /></svg>
         {{ t('app.nav.support') }}
-      </button>
+      </RouterLink>
       <LanguageMenu class="language" placement="top" />
       <button type="button" class="buy" @click="emit('buyCredits')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18v12H3zM3 10h18" /></svg>
@@ -51,7 +48,6 @@ const nav = [
       </button>
     </div>
 
-    <Teleport to="body"><SupportModal v-if="showSupport" @close="showSupport = false" /></Teleport>
   </aside>
 </template>
 

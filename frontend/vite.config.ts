@@ -40,6 +40,7 @@ export default defineConfig({
       '/new',
       '/settings',
       '/billing',
+      '/support',
     ],
   },
 })

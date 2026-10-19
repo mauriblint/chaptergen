@@ -363,8 +363,15 @@ export async function sendSupportEmail(input: {
   locale: AppLocale
   memberSince: string
   page: string | null
+  /** The video the message is about, when the user picked one. */
+  job?: { id: string; fileName: string; status: string; failureReason: string | null } | null
 }): Promise<void> {
   const to = supportAddress()
+  const adminUrl = (process.env.ADMIN_URL ?? 'https://admin.chaptergen.com').replace(/\/+$/, '')
+  const job = input.job
+  const jobRow = job
+    ? `<a href="${adminUrl}/jobs/${encodeURIComponent(job.id)}" style="color:${C.accent};">${escapeHtml(job.fileName)}</a> · ${escapeHtml(job.status)}${job.failureReason ? ` (${escapeHtml(job.failureReason)})` : ''}`
+    : null
   if (!to) {
     throw new Error('Support email is not configured')
   }
@@ -379,6 +386,7 @@ ${h1(escapeHtml(subject))}
 ${row('From', escapeHtml(input.fromEmail))}
 ${row('Account', `${input.credits} credits · ${input.videos} videos · since ${escapeHtml(input.memberSince)}`)}
 ${row('Language', input.locale === 'es' ? 'Spanish' : 'English')}
+${jobRow ? row('Video', jobRow) : ''}
 ${input.page ? row('Sent from', escapeHtml(input.page)) : ''}
 ${row('User ID', escapeHtml(input.userId))}
 </table>

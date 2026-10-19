@@ -3,13 +3,11 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuth } from '../../composables/useAuth'
-import SupportModal from '../SupportModal.vue'
 
 const { t } = useI18n()
 const router = useRouter()
 const { user, logout } = useAuth()
 const open = ref(false)
-const showSupport = ref(false)
 const root = ref<HTMLElement | null>(null)
 
 const initial = computed(() => user.value?.email.charAt(0).toUpperCase() ?? '?')
@@ -38,7 +36,7 @@ onUnmounted(() => {
 
 function onSupport() {
   close()
-  showSupport.value = true
+  void router.push('/support')
 }
 
 async function onLogout() {
@@ -86,7 +84,6 @@ async function onLogout() {
       </button>
     </div>
 
-    <Teleport to="body"><SupportModal v-if="showSupport" @close="showSupport = false" /></Teleport>
   </div>
 </template>
 

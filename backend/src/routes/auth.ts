@@ -13,7 +13,7 @@ import {
 import { countRecentCodes, createEmailCode, generateCode, verifyEmailCode } from '../db/emailCodes.js'
 import { isDisposableEmail, isValidEmail } from '../utils/disposableEmail.js'
 import { listPaymentsByUserId } from '../db/payments.js'
-import { countJobsByUserId, listJobsByUserId } from '../db/jobs.js'
+import { countJobsByUserId, getJob, listJobsByUserId } from '../db/jobs.js'
 import { verifyToken } from '../auth/jwt.js'
 import { clearSessionCookie } from '../auth/cookies.js'
 import { establishSession, requireUser } from '../auth/session.js'
@@ -222,6 +222,9 @@ authRouter.post('/support', requireUser, async (req: Request, res: Response) => 
   try {
     const user = getUserById(req.user!.id)!
     const page = typeof req.body?.page === 'string' ? req.body.page.slice(0, 200) : null
+    // Only the user's own videos can be attached.
+    const picked = typeof req.body?.jobId === 'string' ? getJob(req.body.jobId) : null
+    const job = picked && picked.userId === user.id ? picked : null
     await sendSupportEmail({
       fromEmail: user.email,
       userId: user.id,
@@ -232,6 +235,7 @@ authRouter.post('/support', requireUser, async (req: Request, res: Response) => 
       locale: user.locale,
       memberSince: user.createdAt.slice(0, 10),
       page,
+      job: job ? { id: job.id, fileName: job.fileName, status: job.status, failureReason: job.failureReason } : null,
     })
     res.json({ ok: true })
   } catch (err) {

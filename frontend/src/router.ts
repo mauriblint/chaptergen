@@ -132,6 +132,12 @@ export const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true },
   },
   // Old URLs still found in emails and bookmarks.
+  {
+    path: '/support',
+    name: 'support',
+    component: () => import('./pages/SupportPage.vue'),
+    meta: { requiresAuth: true },
+  },
   { path: '/dashboard', redirect: (to) => ({ path: '/library', query: to.query }) },
   { path: '/jobs/:id', redirect: (to) => ({ path: `/videos/${to.params.id}`, query: to.query }) },
   {

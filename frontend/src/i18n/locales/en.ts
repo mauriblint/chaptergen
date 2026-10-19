@@ -702,17 +702,135 @@ export default {
   },
   support: {
     title: 'Support',
-    subtitle: 'Send us a message and we will reply to your account email.',
-    email: 'Email',
+    lead: 'Answers to the usual questions. If yours is not here, write to us below.',
+    metaTitle: 'Support — ChapterGen',
+    search: 'Search the questions',
+    noResults: 'No questions match that. Write to us below and we will help.',
+    writeToUs: 'Write to us',
+    groups: [
+      {
+        title: 'How it works',
+        items: [
+          {
+            question: 'What do I get for each video?',
+            answer:
+              'Chapters ready to paste into YouTube, the full transcript with timestamps and subtitles as SRT and VTT. You can download everything as .docx or as one .zip.',
+          },
+          {
+            question: 'Which files can I upload?',
+            answer:
+              'Video or audio: MP4, MOV, WebM, MKV, MP3, WAV, M4A, AAC, OGG and FLAC, up to 500 MB per file. If a video is bigger, upload only its audio as MP3 or M4A: it weighs much less and the result is the same.',
+          },
+          {
+            question: 'How long does it take?',
+            answer:
+              'Usually a minute or two for a 10 to 20 minute video, a few more for long ones. You can close the page: we email you when it is ready.',
+          },
+          {
+            question: 'Which languages does it support?',
+            answer:
+              'More than 90. By default the language is detected from the audio. If you know it, pick it under "Audio language" when you upload: it helps with short clips and videos with music.',
+          },
+        ],
+      },
+      {
+        title: 'Credits and payments',
+        items: [
+          {
+            question: 'What is a credit?',
+            answer:
+              'One credit processes one video, whatever its length. It includes chapters, transcript and subtitles. Credits come in packs, with a one-time payment and no subscription.',
+          },
+          {
+            question: 'How does the free trial work?',
+            answer: 'A new account gets 2 free videos of up to 20 minutes each, with no card needed.',
+          },
+          {
+            question: 'Do credits expire?',
+            answer: 'No. Use them whenever you want.',
+          },
+          {
+            question: 'What happens if a video fails?',
+            answer:
+              'The credit goes back to your account automatically. The page of the video tells you what went wrong and how to fix it.',
+          },
+        ],
+      },
+      {
+        title: 'Results',
+        items: [
+          {
+            question: 'Can I edit the chapters?',
+            answer:
+              'Yes. Change the titles or times in the Chapters tab and they save as you type. You can also ask the AI to improve them: titles only, the cuts, or both. Free videos include 2 improvements and paid videos have no limit.',
+          },
+          {
+            question: 'How do I add the chapters to YouTube?',
+            answer:
+              'Copy them from the Chapters tab and paste them into the video description in YouTube Studio. YouTube needs the first chapter at 0:00, at least 3 chapters and each one at least 10 seconds long; we check this for you.',
+          },
+          {
+            question: 'How do I get the subtitles?',
+            answer:
+              'In the Subtitles tab, choose SRT or VTT, adjust characters per line if you want, and download. Both formats upload to YouTube and to most editors.',
+          },
+          {
+            question: 'The transcript came out in the wrong language',
+            answer:
+              'On the page of the video, click "Wrong language?" next to the duration and pick the right one. It is free, once per video, within 24 hours of processing. To avoid it, set the audio language when you upload.',
+          },
+        ],
+      },
+      {
+        title: 'Common problems',
+        items: [
+          {
+            question: 'It says my file has no audio',
+            answer:
+              'The file has only images. This happens a lot with videos downloaded from YouTube: many downloaders save the picture and the sound separately. Download the audio (MP3 or M4A) and upload that. No credit is used.',
+          },
+          {
+            question: 'It says no speech was detected',
+            answer:
+              'We could not hear anyone talking, for example in music or silent recordings. Check that the file has a voice track. The credit is returned.',
+          },
+          {
+            question: 'I did not get the code or the email',
+            answer:
+              'Check spam and promotions. Codes expire after 10 minutes, so request a new one if it took long. Make sure the address is spelled right.',
+          },
+        ],
+      },
+      {
+        title: 'Privacy',
+        items: [
+          {
+            question: 'What happens to my files?',
+            answer:
+              'The uploaded file is deleted right after processing. The extracted audio is kept for 24 hours so you can transcribe it again in another language, then deleted. We keep the transcript and chapters so you can come back to them.',
+          },
+          {
+            question: 'How do I delete my account?',
+            answer: 'In Settings, use "Delete account and data". We delete your account, transcripts and chapters within 30 days.',
+          },
+        ],
+      },
+    ],
+    contact: {
+      title: 'Still need help?',
+      lead: 'Write to us and we reply as soon as possible, usually the same day. The answer goes to {email}.',
+      video: 'Which video is it about?',
+      noVideo: 'Not about a video',
+    },
     subject: 'Subject',
     subjectPlaceholder: 'How can we help?',
     message: 'Message',
     messagePlaceholder: 'Tell us what you need…',
-    submit: 'Send',
+    submit: 'Send message',
     sending: 'Sending…',
-    sent: 'Thanks — we got your message and will reply by email.',
+    sent: 'Thanks, we got your message. We will reply by email, usually the same day.',
+    sendAnother: 'Send another message',
     sendError: 'Could not send the message. Try again.',
-    close: 'Close',
   },
   pages: {
     updated: 'Last updated: {date}',
