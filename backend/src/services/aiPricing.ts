@@ -16,6 +16,9 @@ const PRICES: Record<string, ModelPrice> = {
   'whisper-1': { perMinute: 0.006 },
   'gpt-4o-transcribe': { perMinute: 0.006, input: 2.5, audioInput: 6, output: 10 },
   'gpt-4o-mini-transcribe': { perMinute: 0.003, input: 1.25, audioInput: 3, output: 5 },
+  // Groq bills Whisper per hour of audio ($0.04 turbo, $0.111 large-v3), at least 10 s per request.
+  'whisper-large-v3-turbo': { perMinute: 0.04 / 60 },
+  'whisper-large-v3': { perMinute: 0.111 / 60 },
   'gpt-4o-mini': { input: 0.15, cachedInput: 0.075, output: 0.6 },
   'gpt-4o': { input: 2.5, cachedInput: 1.25, output: 10 },
   'gpt-4.1': { input: 2, cachedInput: 0.5, output: 8 },

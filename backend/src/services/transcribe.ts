@@ -17,7 +17,30 @@ import {
 } from './whisperChunks.js'
 import { recordUsage, type UsageContext } from '../db/aiUsage.js'
 
-const TRANSCRIBE_MODEL = 'whisper-1'
+/**
+ * Where transcription runs. Groq serves Whisper large-v3-turbo through an
+ * OpenAI-compatible API, with the same segment timestamps, for much less.
+ * TRANSCRIBE_PROVIDER picks it; OpenAI stays the default.
+ */
+export type TranscribeProvider = 'openai' | 'groq'
+
+const PROVIDERS: Record<TranscribeProvider, { model: string; keyEnv: string; baseURL?: string }> = {
+  openai: { model: 'whisper-1', keyEnv: 'OPENAI_API_KEY' },
+  groq: { model: 'whisper-large-v3-turbo', keyEnv: 'GROQ_API_KEY', baseURL: 'https://api.groq.com/openai/v1' },
+}
+
+export function defaultTranscribeProvider(): TranscribeProvider {
+  return process.env.TRANSCRIBE_PROVIDER?.trim().toLowerCase() === 'groq' ? 'groq' : 'openai'
+}
+
+function clientFor(provider: TranscribeProvider): OpenAI {
+  const { keyEnv, baseURL } = PROVIDERS[provider]
+  const apiKey = process.env[keyEnv]
+  if (!apiKey) {
+    throw new Error(`${keyEnv} no está configurada`)
+  }
+  return new OpenAI({ apiKey, baseURL })
+}
 
 /** Token usage the gpt-4o transcribe models report; whisper-1 reports seconds or nothing. */
 interface TranscriptionUsage {
@@ -30,12 +53,13 @@ interface TranscriptionUsage {
 
 function recordTranscription(
   usageContext: UsageContext | undefined,
+  model: string,
   response: { duration?: number; usage?: TranscriptionUsage },
   fallbackSeconds: number | null
 ): void {
   const usage = response.usage
   const details = usage?.input_token_details
-  recordUsage(usageContext, 'transcription', TRANSCRIBE_MODEL, {
+  recordUsage(usageContext, 'transcription', model, {
     inputTokens: details ? (details.text_tokens ?? 0) : 0,
     audioInputTokens: details ? (details.audio_tokens ?? 0) : (usage?.input_tokens ?? 0),
     outputTokens: usage?.output_tokens ?? 0,
@@ -59,19 +83,12 @@ export class AudioTooLargeError extends Error {
   }
 }
 
-function getOpenAI(): OpenAI {
-  const apiKey = process.env.OPENAI_API_KEY
-  if (!apiKey) {
-    throw new Error('OPENAI_API_KEY no está configurada')
-  }
-  return new OpenAI({ apiKey })
-}
-
 function normalizeLanguage(language: unknown): string | null {
   if (typeof language !== 'string') return null
   const trimmed = language.trim()
   if (!trimmed || trimmed.length > 64) return null
-  return trimmed
+  // Providers differ in case ("Spanish" vs "spanish").
+  return trimmed.toLowerCase()
 }
 
 function sizeMb(bytes: number): string {
@@ -81,21 +98,23 @@ function sizeMb(bytes: number): string {
 /** `language` is an ISO-639-1 code; without it Whisper guesses from the first ~30 seconds. */
 async function transcribeFile(
   audioPath: string,
-  language?: string | null,
-  usage?: UsageContext,
+  language: string | null | undefined,
+  usage: UsageContext | undefined,
+  provider: TranscribeProvider,
   durationSeconds: number | null = null
 ): Promise<TranscriptionResult> {
-  const openai = getOpenAI()
+  const client = clientFor(provider)
+  const model = PROVIDERS[provider].model
 
-  const transcription = await openai.audio.transcriptions.create({
+  const transcription = await client.audio.transcriptions.create({
     file: fs.createReadStream(audioPath),
-    model: TRANSCRIBE_MODEL,
+    model,
     response_format: 'verbose_json',
     timestamp_granularities: ['segment'],
     ...(language ? { language } : {}),
   })
 
-  recordTranscription(usage, transcription as { duration?: number; usage?: TranscriptionUsage }, durationSeconds)
+  recordTranscription(usage, model, transcription as { duration?: number; usage?: TranscriptionUsage }, durationSeconds)
   const segments = (transcription as { segments?: TranscriptSegment[] }).segments ?? []
 
   return {
@@ -132,8 +151,9 @@ async function transcribeInChunks(
   audioPath: string,
   fileSizeBytes: number,
   durationSeconds: number,
-  language?: string | null,
-  usage?: UsageContext
+  language: string | null | undefined,
+  usage: UsageContext | undefined,
+  provider: TranscribeProvider
 ): Promise<TranscriptionResult> {
   const slices = planWhisperChunks({ fileSizeBytes, durationSeconds })
   if (slices.length <= 1) {
@@ -158,7 +178,7 @@ async function transcribeInChunks(
     }
 
     const transcripts = await mapPool(prepared, 2, async ({ slice, chunkPath }) => {
-      const result = await transcribeFile(chunkPath, language, usage, slice.duration)
+      const result = await transcribeFile(chunkPath, language, usage, provider, slice.duration)
       const chunk: ChunkTranscript = {
         offset: slice.start,
         segments: result.segments,
@@ -179,11 +199,12 @@ async function transcribeInChunks(
 export async function transcribe(
   audioPath: string,
   language?: string | null,
-  usage?: UsageContext
+  usage?: UsageContext,
+  provider: TranscribeProvider = defaultTranscribeProvider()
 ): Promise<TranscriptionResult> {
   const fileSizeBytes = fs.statSync(audioPath).size
   if (fileSizeBytes <= AUDIO_MAX_UPLOAD_BYTES) {
-    return transcribeFile(audioPath, language, usage)
+    return transcribeFile(audioPath, language, usage, provider)
   }
 
   const durationSeconds = await getMediaDurationSeconds(audioPath)
@@ -191,5 +212,5 @@ export async function transcribe(
     throw new AudioTooLargeError(sizeMb(fileSizeBytes))
   }
 
-  return transcribeInChunks(audioPath, fileSizeBytes, durationSeconds, language, usage)
+  return transcribeInChunks(audioPath, fileSizeBytes, durationSeconds, language, usage, provider)
 }
