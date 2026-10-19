@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import StatusBadge from './StatusBadge.vue'
 import type { JobSummary } from '../types/job'
-import { formatDate, formatDuration, formatUsd } from '../utils/format'
+import { formatDate, formatDuration, formatElapsed, formatUsd, processingSeconds } from '../utils/format'
 
 const props = withDefaults(defineProps<{ jobs: JobSummary[]; loading: boolean; showUser?: boolean }>(), {
   showUser: true,
@@ -11,7 +11,7 @@ const props = withDefaults(defineProps<{ jobs: JobSummary[]; loading: boolean; s
 
 const router = useRouter()
 const hasJobs = computed(() => props.jobs.length > 0)
-const columns = computed(() => (props.showUser ? 8 : 7))
+const columns = computed(() => (props.showUser ? 9 : 8))
 
 function language(job: JobSummary): string {
   const value = job.transcriptLanguage
@@ -21,7 +21,7 @@ function language(job: JobSummary): string {
 
 <template>
   <div class="card overflow-x-auto">
-    <table class="table min-w-[920px]">
+    <table class="table min-w-[1000px]">
       <thead>
         <tr>
           <th>File</th>
@@ -30,6 +30,7 @@ function language(job: JobSummary): string {
           <th class="text-right">Duration</th>
           <th>Language</th>
           <th>Credit</th>
+          <th class="text-right">Took</th>
           <th class="text-right">AI cost</th>
           <th>Created</th>
         </tr>
@@ -72,6 +73,7 @@ function language(job: JobSummary): string {
             </span>
             <span v-else class="text-muted">—</span>
           </td>
+          <td class="num text-right text-muted">{{ formatElapsed(processingSeconds(job)) }}</td>
           <td class="num text-right font-medium">{{ formatUsd(job.aiCostUsd) }}</td>
           <td class="whitespace-nowrap text-muted">{{ formatDate(job.createdAt) }}</td>
         </tr>

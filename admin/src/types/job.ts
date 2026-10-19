@@ -35,6 +35,8 @@ export interface JobSummary {
   retranscribed: boolean
   /** Sum of the recorded OpenAI calls; null for jobs from before tracking. */
   aiCostUsd: number | null
+  processingStartedAt: string | null
+  processingFinishedAt: string | null
   errorMessage: string | null
   failureReason: string | null
   createdAt: string
@@ -61,6 +63,7 @@ export interface UsageRecord {
   outputTokens: number
   audioSeconds: number | null
   costUsd: number | null
+  durationMs: number | null
   createdAt: string
 }
 

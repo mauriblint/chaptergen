@@ -40,7 +40,7 @@ onMounted(() => {
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 class="page-title">Jobs</h1>
-        <p class="mt-1 text-sm text-muted">{{ total.toLocaleString('en-US') }} videos processed. Click one for its OpenAI calls.</p>
+        <p class="mt-1 text-sm text-muted">{{ total.toLocaleString('en-US') }} videos processed. Click one for its AI calls and timing.</p>
       </div>
       <div class="flex flex-wrap items-center gap-2">
         <div class="flex rounded-xl border border-border bg-surface p-1">

@@ -142,6 +142,8 @@ const columnMigrations = [
   'ALTER TABLE jobs ADD COLUMN audio_path TEXT',
   'ALTER TABLE jobs ADD COLUMN audio_expires_at TEXT',
   'ALTER TABLE jobs ADD COLUMN retranscribed INTEGER NOT NULL DEFAULT 0',
+  'ALTER TABLE jobs ADD COLUMN processing_started_at TEXT',
+  'ALTER TABLE jobs ADD COLUMN processing_finished_at TEXT',
 ]
 
 for (const sql of columnMigrations) {
@@ -288,6 +290,9 @@ export interface JobSummary {
   retranscribed: boolean
   /** Sum of the recorded OpenAI calls; null for jobs from before tracking. */
   aiCostUsd: number | null
+  /** First processing run only, from picking up the file to the result (or failure). */
+  processingStartedAt: string | null
+  processingFinishedAt: string | null
   errorMessage: string | null
   failureReason: string | null
   createdAt: string
@@ -321,6 +326,8 @@ interface JobSummaryRow {
   refine_count: number | null
   retranscribed: number | null
   ai_cost_usd: number | null
+  processing_started_at: string | null
+  processing_finished_at: string | null
   error_message: string | null
   failure_reason: string | null
   created_at: string
@@ -356,6 +363,8 @@ function rowToJobSummary(row: JobSummaryRow): JobSummary {
     refineCount: row.refine_count ?? 0,
     retranscribed: row.retranscribed === 1,
     aiCostUsd: row.ai_cost_usd,
+    processingStartedAt: row.processing_started_at,
+    processingFinishedAt: row.processing_finished_at,
     errorMessage: row.error_message,
     failureReason: row.failure_reason,
     createdAt: row.created_at,
@@ -373,6 +382,7 @@ const jobSummarySelect = `
     jobs.transcript_language, jobs.audio_language, jobs.credit_source, jobs.credits_refunded,
     jobs.refine_count, jobs.retranscribed,
     (SELECT SUM(cost_usd) FROM ai_usage WHERE ai_usage.job_id = jobs.id) AS ai_cost_usd,
+    jobs.processing_started_at, jobs.processing_finished_at,
     jobs.error_message, jobs.failure_reason, jobs.created_at, jobs.updated_at
   FROM jobs
   LEFT JOIN users ON users.id = jobs.user_id
@@ -611,6 +621,17 @@ export function claimRetranscribe(id: string): boolean {
 
 export function releaseRetranscribe(id: string): void {
   db.prepare('UPDATE jobs SET retranscribed = 0 WHERE id = ?').run(id)
+}
+
+export function markProcessingStarted(id: string): void {
+  db.prepare('UPDATE jobs SET processing_started_at = ? WHERE id = ?').run(new Date().toISOString(), id)
+}
+
+export function markProcessingFinished(id: string): void {
+  db.prepare('UPDATE jobs SET processing_finished_at = ? WHERE id = ? AND processing_finished_at IS NULL').run(
+    new Date().toISOString(),
+    id
+  )
 }
 
 export function clearJobFilePath(id: string): void {

@@ -9,6 +9,8 @@ export interface UsageByModel {
   outputTokens: number
   audioSeconds: number
   costUsd: number
+  avgDurationMs: number | null
+  speed: number | null
 }
 
 export interface CostOverview {
@@ -19,6 +21,7 @@ export interface CostOverview {
   trackedJobs: number
   revenueCents: number
   payments: number
+  processing: { jobs: number; avgSeconds: number | null; medianSeconds: number | null; maxSeconds: number | null }
   byModel: UsageByModel[]
   byDay: { day: string; costUsd: number; jobs: number; revenueCents: number }[]
 }

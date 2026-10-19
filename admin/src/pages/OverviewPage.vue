@@ -2,7 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import type { CostOverview, UsageByModel } from '../types/overview'
 import { adminGet } from '../utils/api'
-import { formatCompact, formatMinutes, formatMoney, formatPercent, formatUsd } from '../utils/format'
+import { formatCompact, formatElapsed, formatMinutes, formatMoney, formatPercent, formatUsd } from '../utils/format'
 
 type Metric = 'jobs' | 'revenue' | 'cost'
 
@@ -47,6 +47,13 @@ const kpis = computed(() => {
       value: audioMinutes.value > 0 ? formatUsd(cost.value / audioMinutes.value) : '—',
       hint: d.trackedJobs > 0 ? `${formatUsd(cost.value / d.trackedJobs)} per job` : 'No tracked jobs yet',
     },
+    {
+      label: 'Processing time',
+      value: formatElapsed(d.processing.medianSeconds),
+      hint: d.processing.jobs
+        ? `median · avg ${formatElapsed(d.processing.avgSeconds)} · max ${formatElapsed(d.processing.maxSeconds)}`
+        : 'No timed jobs yet',
+    },
   ]
 })
 
@@ -81,7 +88,7 @@ function unitCost(row: UsageByModel): string {
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 class="page-title">Overview</h1>
-        <p class="mt-1 text-sm text-muted">Jobs, revenue and OpenAI cost for the period.</p>
+        <p class="mt-1 text-sm text-muted">Jobs, revenue, AI cost and processing time for the period.</p>
       </div>
       <div class="flex rounded-xl border border-border bg-surface p-1">
         <button
@@ -99,14 +106,14 @@ function unitCost(row: UsageByModel): string {
 
     <p v-if="error" class="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{{ error }}</p>
 
-    <div class="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
+    <div class="grid grid-cols-2 gap-3 lg:grid-cols-4 xl:grid-cols-7">
       <div v-for="kpi in kpis" :key="kpi.label" class="card flex flex-col gap-1 p-4">
         <span class="label">{{ kpi.label }}</span>
         <span class="font-display text-[1.6rem] font-extrabold tracking-tight">{{ kpi.value }}</span>
         <span class="text-xs text-muted">{{ kpi.hint }}</span>
       </div>
       <template v-if="!data && loading">
-        <div v-for="i in 6" :key="i" class="card h-[104px] animate-pulse bg-bg" />
+        <div v-for="i in 7" :key="i" class="card h-[104px] animate-pulse bg-bg" />
       </template>
     </div>
 
@@ -149,11 +156,11 @@ function unitCost(row: UsageByModel): string {
 
     <section class="card overflow-hidden">
       <div class="flex flex-wrap items-baseline justify-between gap-2 px-5 pt-5 pb-3">
-        <h2 class="font-display text-lg font-extrabold tracking-tight">OpenAI cost by model</h2>
+        <h2 class="font-display text-lg font-extrabold tracking-tight">AI cost by model</h2>
         <span class="text-xs text-muted">Transcription compares per audio minute, chapters per job.</span>
       </div>
       <div class="overflow-x-auto">
-        <table class="table min-w-[860px]">
+        <table class="table min-w-[940px]">
           <thead>
             <tr>
               <th>Step</th>
@@ -163,13 +170,14 @@ function unitCost(row: UsageByModel): string {
               <th class="text-right">Input tokens</th>
               <th class="text-right">Output tokens</th>
               <th class="text-right">Audio</th>
+              <th class="text-right">Avg time</th>
               <th class="text-right">Cost</th>
               <th class="text-right">Unit cost</th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="data && !data.byModel.length">
-              <td colspan="9" class="py-8 text-center text-muted">No OpenAI calls recorded in this period.</td>
+              <td colspan="10" class="py-8 text-center text-muted">No AI calls recorded in this period.</td>
             </tr>
             <tr v-for="row in data?.byModel ?? []" :key="`${row.step}-${row.model}`">
               <td class="capitalize">{{ row.step }}</td>
@@ -179,6 +187,10 @@ function unitCost(row: UsageByModel): string {
               <td class="num text-right text-muted">{{ row.inputTokens ? formatCompact(row.inputTokens) : '—' }}</td>
               <td class="num text-right text-muted">{{ row.outputTokens ? formatCompact(row.outputTokens) : '—' }}</td>
               <td class="num text-right text-muted">{{ row.audioSeconds ? formatMinutes(row.audioSeconds) : '—' }}</td>
+              <td class="num text-right text-muted">
+                {{ row.avgDurationMs != null ? formatElapsed(row.avgDurationMs / 1000) : '—' }}
+                <span v-if="row.speed" class="block text-xs">{{ Math.round(row.speed) }}x real time</span>
+              </td>
               <td class="num text-right font-medium">{{ formatUsd(row.costUsd) }}</td>
               <td class="num text-right">{{ unitCost(row) }}</td>
             </tr>

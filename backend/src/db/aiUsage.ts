@@ -25,6 +25,8 @@ export interface UsageRecord {
   outputTokens: number
   audioSeconds: number | null
   costUsd: number | null
+  /** How long the API call took. */
+  durationMs: number | null
   createdAt: string
 }
 
@@ -40,6 +42,7 @@ interface UsageRow {
   output_tokens: number
   audio_seconds: number | null
   cost_usd: number | null
+  duration_ms: number | null
   created_at: string
 }
 
@@ -62,6 +65,12 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_ai_usage_created_at ON ai_usage(created_at);
 `)
 
+try {
+  db.exec('ALTER TABLE ai_usage ADD COLUMN duration_ms INTEGER')
+} catch {
+  // column already exists
+}
+
 function rowToUsage(row: UsageRow): UsageRecord {
   return {
     id: row.id,
@@ -75,6 +84,7 @@ function rowToUsage(row: UsageRow): UsageRecord {
     outputTokens: row.output_tokens,
     audioSeconds: row.audio_seconds,
     costUsd: row.cost_usd,
+    durationMs: row.duration_ms,
     createdAt: row.created_at,
   }
 }
@@ -84,15 +94,16 @@ export function recordUsage(
   context: UsageContext | undefined,
   step: UsageStep,
   model: string,
-  usage: UsageAmounts
+  usage: UsageAmounts,
+  durationMs: number | null = null
 ): void {
   if (!context) return
   try {
     db.prepare(`
       INSERT INTO ai_usage (
         id, job_id, step, reason, model, input_tokens, cached_input_tokens,
-        audio_input_tokens, output_tokens, audio_seconds, cost_usd, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        audio_input_tokens, output_tokens, audio_seconds, cost_usd, duration_ms, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       crypto.randomUUID(),
       context.jobId,
@@ -105,6 +116,7 @@ export function recordUsage(
       usage.outputTokens ?? 0,
       usage.audioSeconds ?? null,
       costFor(model, usage),
+      durationMs != null ? Math.round(durationMs) : null,
       new Date().toISOString()
     )
   } catch (err) {
@@ -128,6 +140,10 @@ export interface UsageByModel {
   outputTokens: number
   audioSeconds: number
   costUsd: number
+  /** Average API time per call, over the calls that recorded it. */
+  avgDurationMs: number | null
+  /** Audio seconds per second of API time (transcription only). */
+  speed: number | null
 }
 
 export interface CostOverview {
@@ -141,6 +157,8 @@ export interface CostOverview {
   trackedJobs: number
   revenueCents: number
   payments: number
+  /** First processing run of completed jobs, upload finished to result. */
+  processing: { jobs: number; avgSeconds: number | null; medianSeconds: number | null; maxSeconds: number | null }
   byModel: UsageByModel[]
   byDay: { day: string; costUsd: number; jobs: number; revenueCents: number }[]
 }
@@ -179,7 +197,10 @@ export function getCostOverview(since: string): CostOverview {
     .prepare(`
       SELECT step, model, COUNT(*) AS calls, COUNT(DISTINCT job_id) AS jobs,
         SUM(input_tokens + audio_input_tokens) AS input_tokens, SUM(output_tokens) AS output_tokens,
-        COALESCE(SUM(audio_seconds), 0) AS audio_seconds, COALESCE(SUM(cost_usd), 0) AS cost
+        COALESCE(SUM(audio_seconds), 0) AS audio_seconds, COALESCE(SUM(cost_usd), 0) AS cost,
+        AVG(duration_ms) AS avg_ms,
+        SUM(CASE WHEN duration_ms > 0 THEN audio_seconds END) AS timed_audio,
+        SUM(CASE WHEN duration_ms > 0 AND audio_seconds IS NOT NULL THEN duration_ms END) AS timed_ms
       FROM ai_usage WHERE created_at >= ?
       GROUP BY step, model ORDER BY cost DESC
     `)
@@ -192,7 +213,22 @@ export function getCostOverview(since: string): CostOverview {
     output_tokens: number
     audio_seconds: number
     cost: number
+    avg_ms: number | null
+    timed_audio: number | null
+    timed_ms: number | null
   }[]
+
+  const durations = (
+    db
+      .prepare(`
+        SELECT (julianday(processing_finished_at) - julianday(processing_started_at)) * 86400 AS secs
+        FROM jobs
+        WHERE created_at >= ? AND status = 'completed'
+          AND processing_started_at IS NOT NULL AND processing_finished_at IS NOT NULL
+        ORDER BY secs
+      `)
+      .all(since) as { secs: number }[]
+  ).map((row) => row.secs)
 
   const costByDay = db
     .prepare(`
@@ -246,6 +282,12 @@ export function getCostOverview(since: string): CostOverview {
     trackedJobs: totals.tracked,
     revenueCents: revenue.cents,
     payments: revenue.count,
+    processing: {
+      jobs: durations.length,
+      avgSeconds: durations.length ? durations.reduce((a, b) => a + b, 0) / durations.length : null,
+      medianSeconds: durations.length ? durations[Math.floor(durations.length / 2)]! : null,
+      maxSeconds: durations.length ? durations[durations.length - 1]! : null,
+    },
     byModel: byModel.map((row) => ({
       step: row.step,
       model: row.model,
@@ -255,6 +297,8 @@ export function getCostOverview(since: string): CostOverview {
       outputTokens: row.output_tokens,
       audioSeconds: row.audio_seconds,
       costUsd: row.cost,
+      avgDurationMs: row.avg_ms,
+      speed: row.step === 'transcription' && row.timed_ms ? (row.timed_audio ?? 0) / (row.timed_ms / 1000) : null,
     })),
     byDay: [...days.values()],
   }

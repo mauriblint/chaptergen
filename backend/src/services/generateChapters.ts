@@ -144,6 +144,7 @@ export async function generateChapters(
     : ''
   const temperature = options.refine?.mode === 'titles' ? 0.5 : 0.3
 
+  const began = Date.now()
   const response = await openai.chat.completions.create({
     model: CHAPTERS_MODEL,
     response_format: { type: 'json_object' },
@@ -172,7 +173,7 @@ The "time" field must be HH:MM:SS.`,
     inputTokens: response.usage?.prompt_tokens ?? 0,
     cachedInputTokens: response.usage?.prompt_tokens_details?.cached_tokens ?? 0,
     outputTokens: response.usage?.completion_tokens ?? 0,
-  })
+  }, Date.now() - began)
 
   const content = response.choices[0]?.message?.content
   if (!content) {

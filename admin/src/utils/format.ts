@@ -60,3 +60,18 @@ export function formatMinutes(seconds: number | null | undefined): string {
 export function formatPercent(value: number | null): string {
   return value == null || !Number.isFinite(value) ? '—' : `${Math.round(value * 100)}%`
 }
+
+/** "4.2 s", "1 min 12 s". */
+export function formatElapsed(seconds: number | null | undefined): string {
+  if (seconds == null || !Number.isFinite(seconds)) return '—'
+  if (seconds < 60) return `${seconds < 10 ? seconds.toFixed(1) : Math.round(seconds)} s`
+  const m = Math.floor(seconds / 60)
+  const s = Math.round(seconds % 60)
+  return s ? `${m} min ${s} s` : `${m} min`
+}
+
+/** Seconds from the start to the end of the first processing run. */
+export function processingSeconds(job: { processingStartedAt: string | null; processingFinishedAt: string | null }): number | null {
+  if (!job.processingStartedAt || !job.processingFinishedAt) return null
+  return (new Date(job.processingFinishedAt).getTime() - new Date(job.processingStartedAt).getTime()) / 1000
+}

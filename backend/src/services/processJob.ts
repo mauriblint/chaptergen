@@ -12,6 +12,8 @@ import type { RefineOptions } from '../types/refine.js'
 import type { Chapter, TranscriptSegment } from '../types.js'
 import { AudioTooLargeError, transcribe } from './transcribe.js'
 import {
+  markProcessingFinished,
+  markProcessingStarted,
   claimRetranscribe,
   clearJobFilePath,
   getJob,
@@ -88,6 +90,7 @@ export async function processJob(jobId: string): Promise<void> {
   const isAudio = isAudioFile(job.fileName)
   let audioPath: string | null = null
 
+  markProcessingStarted(jobId)
   try {
     updateJobStatus(jobId, isAudio ? 'transcribing' : 'extracting')
     if ((await hasAudioStream(filePath)) === false) {
@@ -151,6 +154,7 @@ export async function processJob(jobId: string): Promise<void> {
       failJob(jobId, message)
     }
   } finally {
+    markProcessingFinished(jobId)
     await cleanupFiles(filePath, ...(audioPath ? [audioPath] : []))
     clearJobFilePath(jobId)
     void notifyIfUnwatched(jobId).catch((err) => console.error('ready email error:', err))

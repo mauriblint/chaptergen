@@ -56,7 +56,8 @@ function recordTranscription(
   usageContext: UsageContext | undefined,
   model: string,
   response: { duration?: number; usage?: TranscriptionUsage },
-  fallbackSeconds: number | null
+  fallbackSeconds: number | null,
+  durationMs: number
 ): void {
   const usage = response.usage
   const details = usage?.input_token_details
@@ -65,7 +66,7 @@ function recordTranscription(
     audioInputTokens: details ? (details.audio_tokens ?? 0) : (usage?.input_tokens ?? 0),
     outputTokens: usage?.output_tokens ?? 0,
     audioSeconds: usage?.seconds ?? response.duration ?? fallbackSeconds ?? undefined,
-  })
+  }, durationMs)
 }
 
 export interface TranscriptionResult {
@@ -107,6 +108,7 @@ async function transcribeFile(
   const client = clientFor(provider)
   const model = PROVIDERS[provider].model
 
+  const began = Date.now()
   const transcription = await client.audio.transcriptions.create({
     file: fs.createReadStream(audioPath),
     model,
@@ -115,7 +117,13 @@ async function transcribeFile(
     ...(language ? { language } : {}),
   })
 
-  recordTranscription(usage, model, transcription as { duration?: number; usage?: TranscriptionUsage }, durationSeconds)
+  recordTranscription(
+    usage,
+    model,
+    transcription as { duration?: number; usage?: TranscriptionUsage },
+    durationSeconds,
+    Date.now() - began
+  )
   const segments = (transcription as { segments?: TranscriptSegment[] }).segments ?? []
 
   return {
