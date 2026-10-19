@@ -227,13 +227,15 @@ onBeforeUnmount(() => {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(255, 255, 255, 0.92);
+  /* See-through at the top so the hero glow shows behind it; solid once scrolled. */
+  background: rgba(255, 255, 255, 0);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid transparent;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
 
 .site-header.scrolled {
+  background: rgba(255, 255, 255, 0.92);
   border-bottom-color: var(--border);
   box-shadow: 0 1px 12px rgba(17, 19, 24, 0.04);
 }

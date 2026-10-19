@@ -29,7 +29,34 @@ const ChapterTool = defineAsyncComponent(
 
 <style scoped>
 .hero {
+  position: relative;
+  isolation: isolate;
   padding: 4.5rem 1.5rem 5rem;
+}
+
+/* Brand glow behind the hero; it starts under the header, which is see-through at the top. */
+.hero::before,
+.hero::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -72px 0 0;
+  pointer-events: none;
+}
+
+.hero::before {
+  background:
+    radial-gradient(55% 45% at 50% 0%, rgba(99, 102, 241, 0.16), transparent 72%),
+    radial-gradient(32% 34% at 14% 18%, rgba(169, 156, 249, 0.2), transparent 70%),
+    radial-gradient(30% 32% at 88% 10%, rgba(76, 63, 240, 0.1), transparent 70%);
+}
+
+/* A faint dot grid that fades out before the upload box. */
+.hero::after {
+  background-image: radial-gradient(rgba(76, 63, 240, 0.12) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(70% 55% at 50% 0%, #000 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(70% 55% at 50% 0%, #000 30%, transparent 75%);
 }
 
 .hero-inner {
@@ -46,8 +73,10 @@ const ChapterTool = defineAsyncComponent(
   display: inline-flex;
   align-items: center;
   padding: 0.35rem 0.85rem;
+  border: 1px solid rgba(76, 63, 240, 0.16);
   border-radius: 999px;
-  background: var(--accent-soft);
+  /* Light on the glow, so it reads as a pill rather than loose text. */
+  background: rgba(255, 255, 255, 0.75);
   color: var(--accent);
   font-size: 0.85rem;
   font-weight: 600;
