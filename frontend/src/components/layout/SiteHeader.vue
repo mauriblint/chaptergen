@@ -159,7 +159,7 @@ onBeforeUnmount(() => {
       </nav>
 
       <div class="header-right">
-        <LanguageMenu class="desktop-only" />
+        <LanguageMenu class="desktop-only header-lang" />
         <span class="divider desktop-only" aria-hidden="true" />
         <RouterLink to="/login" class="nav-item login-link desktop-only">{{ t('common.nav.login') }}</RouterLink>
         <a :href="navHref('#start')" class="btn btn-ink header-cta">
@@ -261,6 +261,20 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 0.25rem;
+}
+
+/* The language switch reads like the other nav items: no box, a light fill on hover. */
+.header-lang :deep(.lang-trigger) {
+  border-color: transparent;
+  background: transparent;
+  font-size: 0.95rem;
+  transition: background 0.15s;
+}
+
+.header-lang :deep(.lang-trigger:hover),
+.header-lang :deep(.lang-trigger[aria-expanded='true']) {
+  border-color: transparent;
+  background: rgba(17, 19, 24, 0.05);
 }
 
 .nav-item {
