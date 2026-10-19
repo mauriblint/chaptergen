@@ -50,6 +50,9 @@ export default {
       podcastChapters: 'Podcast Chapters',
       videoToText: 'Video to Text',
       subtitleGenerator: 'Subtitle Generator',
+      guidesHeading: 'Guides',
+      guideAddChapters: 'Add chapters to YouTube',
+      guideChatgpt: 'ChatGPT and YouTube chapters',
       companyHeading: 'Company',
       about: 'About',
       privacy: 'Privacy',
@@ -832,6 +835,201 @@ export default {
     sendAnother: 'Send another message',
     sendError: 'Could not send the message. Try again.',
   },
+  guides: {
+    updated: 'Updated {date}',
+    shortAnswer: 'Short answer',
+    faqTitle: 'Questions',
+    related: 'Related guide',
+    chatgpt: {
+      meta: {
+        title: "Can ChatGPT make YouTube chapters from a video? {'|'} ChapterGen",
+        description:
+          'ChatGPT and Claude struggle with long video files and often return timestamps that do not match the video. Why it happens, what works, and how to get accurate chapters.',
+      },
+      eyebrow: 'Guide',
+      title: 'Can ChatGPT make YouTube chapters from your video?',
+      updatedDate: 'October 19, 2026',
+      intro:
+        'It is the first thing most creators try: upload the video to ChatGPT or Claude and ask for timestamps. I tried it too, with a long video I wanted to publish, and it is why ChapterGen exists. Here is what happens, why the timestamps come out wrong, and what works instead.',
+      answer:
+        'Not reliably, especially for long videos. Chat assistants write good titles from text, but they need a transcript with real timestamps first. Without one, the timestamps they return are often estimates that do not match the video. The fix is to transcribe the audio first and build the chapters from that transcript.',
+      sections: [
+        {
+          heading: 'What happens when you upload a video to ChatGPT or Claude',
+          paragraphs: [
+            'Results depend on the assistant, the plan and the file, and they change over time. Short clips sometimes work. Long videos are where it breaks down, and long videos are exactly the ones that need chapters.',
+          ],
+          bullets: [
+            'The upload fails or is rejected because the file is too large.',
+            'The assistant cannot process the audio track, so it has nothing to base the chapters on.',
+            'It answers anyway, with a tidy list of chapters whose timestamps look right but do not match what is said at that point.',
+            'The list breaks YouTube rules: it does not start at 0:00, or has chapters shorter than 10 seconds, so YouTube ignores it.',
+          ],
+        },
+        {
+          heading: 'Why the timestamps come out wrong',
+          paragraphs: [
+            'A timestamp has to come from the audio: the exact second where a topic starts. A language model predicts text; it does not keep a clock of the recording. If it never received a transcript with timecodes, any timestamp it writes is an estimate.',
+            'On a 10 minute video an estimate can be close. On a one hour interview small errors add up, and a chapter that says 23:10 may start at 26:40. Viewers who click it land in the wrong place, which is worse than having no chapters.',
+          ],
+        },
+        {
+          heading: 'What works: transcript first, chapters second',
+          paragraphs: ['Accurate chapters always follow the same order, whether you do it by hand, with a chat assistant or with a tool:'],
+          steps: [
+            'Transcribe the audio with a speech recognition model that returns timestamps for every segment, such as Whisper.',
+            'Group the transcript into sections where the topic changes.',
+            'Write a short, descriptive title for each section.',
+            'Check YouTube rules: first chapter at 0:00, at least three chapters, each one at least 10 seconds long.',
+            'Paste the list into the video description in YouTube Studio.',
+          ],
+          after: [
+            'This works with ChatGPT or Claude too, if you paste a transcript that already has timestamps and ask them to group it. The limits are how much text you can paste at once and checking every timestamp in the answer.',
+          ],
+        },
+        {
+          heading: 'How ChapterGen does it',
+          paragraphs: [
+            'ChapterGen runs those five steps from the file itself. It extracts the audio, transcribes it with Whisper so every timestamp comes from the real recording, finds where the topic changes and writes a title for each chapter. The list starts at 0:00 and follows YouTube rules, and you can edit every title before copying it.',
+            'It works on drafts, private and unlisted videos and audio-only podcasts, because it never needs a YouTube link. Each video also gets the full transcript and SRT and VTT subtitles. You can try it on 2 videos for free.',
+          ],
+        },
+        {
+          heading: 'When a chat assistant is still the right tool',
+          paragraphs: [
+            'Chat assistants are great at the writing part. Once you have chapters with correct timestamps, ask ChatGPT or Claude to make the titles shorter, more searchable or match your tone. Keep the timestamps as they are and change only the words.',
+          ],
+        },
+      ],
+      cta: {
+        title: 'Get chapters from the real audio',
+        body: 'Upload a video or audio file and get YouTube chapters with accurate timestamps, plus the transcript and subtitles.',
+        button: 'Try it free',
+      },
+      faq: [
+        {
+          question: 'Can Claude make YouTube chapters from a video?',
+          answer:
+            'Claude has the same limitation as ChatGPT: it builds good chapters from a transcript with timestamps, but it cannot reliably take a long video file and return timestamps that match it. Give it a timestamped transcript, or use a tool that transcribes the audio first.',
+        },
+        {
+          question: 'What about Gemini or other assistants?',
+          answer:
+            'Some assistants can process certain video files, and they keep improving. The same check applies: open the video at a few of the timestamps before publishing. Errors show up most on long videos.',
+        },
+        {
+          question: 'Can I use ChatGPT with a ChapterGen transcript?',
+          answer:
+            'Yes. Download the transcript with timestamps from ChapterGen and paste it into ChatGPT to rewrite titles, write a description or turn it into a blog post.',
+        },
+        {
+          question: 'Does the video need to be on YouTube first?',
+          answer:
+            'No. ChapterGen works from the file, so you can have the chapters ready before you publish, or for private and unlisted videos.',
+        },
+      ],
+    },
+    addChapters: {
+      meta: {
+        title: "How to add chapters to a YouTube video {'|'} ChapterGen",
+        description:
+          "Add chapters to a YouTube video in YouTube Studio: the exact timestamp format, YouTube's rules, why chapters don't show, and how to generate them from your file.",
+      },
+      eyebrow: 'Guide',
+      title: 'How to add chapters to a YouTube video',
+      updatedDate: 'October 19, 2026',
+      intro:
+        'Chapters split a video into named sections on the progress bar, so viewers can jump to the part they care about. Adding them takes a list of timestamps in the description. Here is the exact format, the rules YouTube checks and what to do when they do not show up.',
+      answer:
+        'In YouTube Studio, open the video, paste a list of timestamps with titles into the description and save. The list has to start at 0:00, have at least three chapters in order, and each chapter has to be at least 10 seconds long. YouTube turns it into chapters on the progress bar.',
+      sections: [
+        {
+          heading: 'Step by step in YouTube Studio',
+          steps: [
+            'Sign in to YouTube Studio and open Content in the left menu.',
+            'Click the video you want to add chapters to.',
+            'In the description, add your list of timestamps, one chapter per line.',
+            'Click Save. Chapters can take a few minutes to appear on the video.',
+          ],
+          after: [
+            'You can add or change chapters at any time, before or after publishing. Editing the description is enough.',
+          ],
+        },
+        {
+          heading: 'The format YouTube needs',
+          paragraphs: ['Each line starts with a timestamp followed by the title of the chapter:'],
+          example: '0:00 Intro\n1:24 Why chapters matter\n4:10 Setting up the project\n9:45 Common mistakes\n14:30 Wrap-up',
+          bullets: [
+            'The first timestamp must be 0:00.',
+            'At least three timestamps, in ascending order.',
+            'Each chapter must be at least 10 seconds long.',
+            'For videos longer than an hour, use hours too: 1:02:15.',
+            'The list can go anywhere in the description, but one timestamp per line.',
+          ],
+        },
+        {
+          heading: 'Why your chapters are not showing',
+          paragraphs: ['If you saved the description and there are no chapters, check these in order:'],
+          bullets: [
+            'The first timestamp is not 0:00, or there is a typo such as 0.00 or a missing colon.',
+            'There are fewer than three timestamps, or one chapter is shorter than 10 seconds.',
+            'The timestamps are not in ascending order.',
+            'The channel has an active strike: YouTube turns chapters off while it lasts.',
+            'YouTube considers the content not suitable for all viewers.',
+            'The change is recent. Give it a few minutes and reload the video.',
+          ],
+        },
+        {
+          heading: 'Automatic chapters vs your own',
+          paragraphs: [
+            'YouTube can create chapters by itself. The option is called "Allow automatic chapters", it is on by default for new uploads, and you can turn it off per video under Show more, or for every upload in Settings, Upload defaults.',
+            'Not every video gets automatic chapters, and the titles are often generic. Chapters you add to the description replace the automatic ones, so you decide where each section starts and what it is called.',
+          ],
+        },
+        {
+          heading: 'How to write chapter titles that help',
+          bullets: [
+            'Say what happens in the section: "Setting up the microphone" beats "Part 2".',
+            'Use the words people search for. Chapter titles are text YouTube and Google can read.',
+            'Keep them short, around 40 characters, so they fit on the progress bar.',
+            'Aim for one chapter per real topic change, usually every few minutes.',
+          ],
+        },
+        {
+          heading: 'Generate the list from your video file',
+          paragraphs: [
+            'Writing chapters by hand means watching the whole video and noting every topic change. ChapterGen does it from the file: it transcribes the audio, finds where the topic changes and writes the list in the exact format above, ready to paste. It works before publishing and on private videos, and each video also gets the transcript and subtitles.',
+          ],
+        },
+      ],
+      cta: {
+        title: 'Get your chapters ready to paste',
+        body: 'Upload a video or audio file and get the timestamp list in YouTube format, starting at 0:00.',
+        button: 'Try it free',
+      },
+      faq: [
+        {
+          question: 'Do chapters help a video rank?',
+          answer:
+            'Chapter titles are text in your description that YouTube and Google can read, and Google can show chapters as key moments in search results. Descriptive titles give the video more ways to be found.',
+        },
+        {
+          question: 'Can I add chapters to a video that is already published?',
+          answer: 'Yes. Edit the description in YouTube Studio, add the list and save. It works on any video, old or new.',
+        },
+        {
+          question: 'Can I add chapters before publishing?',
+          answer:
+            'Yes. Add the list to the description of a draft, private or scheduled video. With ChapterGen you can generate it from the file before uploading to YouTube.',
+        },
+        {
+          question: 'How many chapters should a video have?',
+          answer:
+            'YouTube asks for at least three and sets no maximum. One chapter per topic works best, which usually means one every few minutes. Too many short chapters are hard to use.',
+        },
+      ],
+    },
+  },
   pages: {
     updated: 'Last updated: {date}',
     contactLead: 'Questions? Write to',
@@ -857,7 +1055,7 @@ export default {
         {
           heading: 'How it works',
           paragraphs: [
-            "ChapterGen extracts the audio from your file and transcribes it with OpenAI's Whisper speech-recognition model, so every timestamp comes from the real audio. A language model then finds where the topic changes and writes a descriptive title for each section.",
+            "ChapterGen extracts the audio from your file and transcribes it with the Whisper speech-recognition model, so every timestamp comes from the real audio. A language model then finds where the topic changes and writes a descriptive title for each section.",
             "The output follows YouTube's chapter rules: it starts at 0:00, has at least three chapters, and no chapter is shorter than 10 seconds. You can edit every title before you copy it.",
           ],
         },

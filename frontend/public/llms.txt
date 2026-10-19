@@ -38,6 +38,8 @@ The uploaded file is deleted from the server right after processing. The extract
 - [Video to text](https://chaptergen.com/video-to-text): transcribe video or audio files, with timestamps and .docx export.
 - [Subtitle generator](https://chaptergen.com/subtitle-generator): SRT and VTT subtitles from a video or audio file.
 - [Pricing](https://chaptergen.com/pricing): free trial and one-time credit packs.
+- [How to add chapters to a YouTube video](https://chaptergen.com/guides/add-chapters-to-youtube): the timestamp format, YouTube's rules and why chapters don't show.
+- [Can ChatGPT make YouTube chapters from a video?](https://chaptergen.com/guides/chatgpt-youtube-chapters): why chat assistants return timestamps that don't match long videos, and what works.
 - [About](https://chaptergen.com/about): why ChapterGen was built.
 - [Spanish version](https://chaptergen.com/es): Generador de capítulos de YouTube con IA.
 

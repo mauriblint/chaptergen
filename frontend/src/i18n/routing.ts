@@ -14,6 +14,8 @@ const PATH_PAIRS: PathPair[] = [
   { en: '/pricing', es: '/es/precios' },
   { en: '/video-to-text', es: '/es/video-a-texto' },
   { en: '/subtitle-generator', es: '/es/generador-de-subtitulos' },
+  { en: '/guides/chatgpt-youtube-chapters', es: '/es/guias/capitulos-youtube-chatgpt' },
+  { en: '/guides/add-chapters-to-youtube', es: '/es/guias/agregar-capitulos-youtube' },
   { en: '/about', es: '/es/acerca-de' },
   { en: '/privacy', es: '/es/privacidad' },
   { en: '/terms', es: '/es/terminos' },

@@ -82,6 +82,38 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://chaptergen.com/guides/add-chapters-to-youtube</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://chaptergen.com/guides/add-chapters-to-youtube" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://chaptergen.com/es/guias/agregar-capitulos-youtube" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://chaptergen.com/guides/add-chapters-to-youtube" />
+    <lastmod>2026-10-19</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://chaptergen.com/es/guias/agregar-capitulos-youtube</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://chaptergen.com/guides/add-chapters-to-youtube" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://chaptergen.com/es/guias/agregar-capitulos-youtube" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://chaptergen.com/guides/add-chapters-to-youtube" />
+    <lastmod>2026-10-19</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://chaptergen.com/guides/chatgpt-youtube-chapters</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://chaptergen.com/guides/chatgpt-youtube-chapters" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://chaptergen.com/es/guias/capitulos-youtube-chatgpt" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://chaptergen.com/guides/chatgpt-youtube-chapters" />
+    <lastmod>2026-10-19</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://chaptergen.com/es/guias/capitulos-youtube-chatgpt</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://chaptergen.com/guides/chatgpt-youtube-chapters" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://chaptergen.com/es/guias/capitulos-youtube-chatgpt" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://chaptergen.com/guides/chatgpt-youtube-chapters" />
+    <lastmod>2026-10-19</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://chaptergen.com/about</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://chaptergen.com/about" />
     <xhtml:link rel="alternate" hreflang="es" href="https://chaptergen.com/es/acerca-de" />

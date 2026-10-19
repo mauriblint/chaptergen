@@ -50,6 +50,9 @@ export default {
       podcastChapters: 'Capítulos de Podcast',
       videoToText: 'Video a Texto',
       subtitleGenerator: 'Generador de Subtítulos',
+      guidesHeading: 'Guías',
+      guideAddChapters: 'Agregar capítulos a YouTube',
+      guideChatgpt: 'ChatGPT y capítulos de YouTube',
       companyHeading: 'Empresa',
       about: 'Acerca de',
       privacy: 'Privacidad',
@@ -831,6 +834,201 @@ export default {
     sent: 'Gracias, recibimos tu mensaje. Te responderemos por email, normalmente durante el día.',
     sendAnother: 'Enviar otro mensaje',
     sendError: 'No pudimos enviar el mensaje. Intenta de nuevo.',
+  },
+  guides: {
+    updated: 'Actualizado el {date}',
+    shortAnswer: 'Respuesta corta',
+    faqTitle: 'Preguntas',
+    related: 'Guía relacionada',
+    chatgpt: {
+      meta: {
+        title: "¿ChatGPT puede hacer capítulos de YouTube? {'|'} ChapterGen",
+        description:
+          'ChatGPT y Claude tienen problemas con videos largos y suelen devolver marcas de tiempo que no coinciden con el video. Por qué pasa, qué funciona y cómo obtener capítulos exactos.',
+      },
+      eyebrow: 'Guía',
+      title: '¿ChatGPT puede hacer los capítulos de YouTube de tu video?',
+      updatedDate: '19 de octubre de 2026',
+      intro:
+        'Es lo primero que prueba casi todo creador: subir el video a ChatGPT o Claude y pedirle las marcas de tiempo. Yo también lo intenté con un video largo que quería publicar, y por eso existe ChapterGen. Esto es lo que pasa, por qué las marcas de tiempo salen mal y qué funciona.',
+      answer:
+        'No de forma confiable, sobre todo con videos largos. Los asistentes escriben buenos títulos a partir de texto, pero primero necesitan una transcripción con marcas de tiempo reales. Sin ella, los tiempos que devuelven suelen ser estimaciones que no coinciden con el video. La solución es transcribir el audio primero y armar los capítulos a partir de esa transcripción.',
+      sections: [
+        {
+          heading: 'Qué pasa cuando subes un video a ChatGPT o Claude',
+          paragraphs: [
+            'El resultado depende del asistente, del plan y del archivo, y cambia con el tiempo. Con clips cortos a veces funciona. Con videos largos falla, y justamente los videos largos son los que necesitan capítulos.',
+          ],
+          bullets: [
+            'La subida falla o se rechaza porque el archivo es demasiado grande.',
+            'El asistente no puede procesar la pista de audio, así que no tiene de dónde sacar los capítulos.',
+            'Responde igual, con una lista prolija de capítulos cuyos tiempos parecen correctos pero no coinciden con lo que se dice en ese momento.',
+            'La lista no cumple las reglas de YouTube: no empieza en 0:00 o tiene capítulos de menos de 10 segundos, y YouTube la ignora.',
+          ],
+        },
+        {
+          heading: 'Por qué las marcas de tiempo salen mal',
+          paragraphs: [
+            'Una marca de tiempo tiene que salir del audio: el segundo exacto en el que empieza un tema. Un modelo de lenguaje predice texto; no lleva el reloj de la grabación. Si nunca recibió una transcripción con tiempos, cualquier marca que escriba es una estimación.',
+            'En un video de 10 minutos la estimación puede acercarse. En una entrevista de una hora los errores chicos se acumulan, y un capítulo que dice 23:10 puede empezar en el 26:40. Quien hace clic llega a otro lugar, y eso es peor que no tener capítulos.',
+          ],
+        },
+        {
+          heading: 'Lo que funciona: primero la transcripción, después los capítulos',
+          paragraphs: ['Los capítulos exactos siempre siguen el mismo orden, ya sea a mano, con un asistente o con una herramienta:'],
+          steps: [
+            'Transcribir el audio con un modelo de reconocimiento de voz que devuelva tiempos para cada fragmento, como Whisper.',
+            'Agrupar la transcripción en secciones donde cambia el tema.',
+            'Escribir un título corto y descriptivo para cada sección.',
+            'Revisar las reglas de YouTube: el primer capítulo en 0:00, al menos tres capítulos y cada uno de 10 segundos o más.',
+            'Pegar la lista en la descripción del video en YouTube Studio.',
+          ],
+          after: [
+            'También funciona con ChatGPT o Claude si pegas una transcripción que ya tiene marcas de tiempo y les pides que la agrupen. El límite es cuánto texto puedes pegar de una vez y revisar cada tiempo de la respuesta.',
+          ],
+        },
+        {
+          heading: 'Cómo lo hace ChapterGen',
+          paragraphs: [
+            'ChapterGen hace esos cinco pasos a partir del archivo. Extrae el audio, lo transcribe con Whisper para que cada marca de tiempo salga de la grabación real, detecta dónde cambia el tema y escribe un título para cada capítulo. La lista empieza en 0:00 y cumple las reglas de YouTube, y puedes editar cada título antes de copiarla.',
+            'Funciona con borradores, videos privados y no listados, y podcasts de solo audio, porque nunca necesita un link de YouTube. Cada video también trae la transcripción completa y subtítulos en SRT y VTT. Puedes probarlo gratis con 2 videos.',
+          ],
+        },
+        {
+          heading: 'Cuándo un asistente sigue siendo la herramienta indicada',
+          paragraphs: [
+            'Los asistentes son muy buenos para la parte de redacción. Cuando ya tienes capítulos con los tiempos correctos, pídele a ChatGPT o Claude que acorte los títulos, los haga más buscables o los adapte a tu tono. Deja los tiempos como están y cambia solo las palabras.',
+          ],
+        },
+      ],
+      cta: {
+        title: 'Capítulos a partir del audio real',
+        body: 'Sube un video o audio y obtén capítulos de YouTube con marcas de tiempo exactas, además de la transcripción y los subtítulos.',
+        button: 'Probar gratis',
+      },
+      faq: [
+        {
+          question: '¿Claude puede hacer capítulos de YouTube a partir de un video?',
+          answer:
+            'Claude tiene la misma limitación que ChatGPT: arma buenos capítulos a partir de una transcripción con tiempos, pero no puede tomar un video largo de forma confiable y devolver marcas que coincidan. Dale una transcripción con marcas de tiempo o usa una herramienta que transcriba el audio primero.',
+        },
+        {
+          question: '¿Y Gemini u otros asistentes?',
+          answer:
+            'Algunos asistentes pueden procesar ciertos videos, y siguen mejorando. Aplica el mismo control: abre el video en algunas de las marcas de tiempo antes de publicar. Los errores aparecen sobre todo en videos largos.',
+        },
+        {
+          question: '¿Puedo usar ChatGPT con una transcripción de ChapterGen?',
+          answer:
+            'Sí. Descarga la transcripción con marcas de tiempo desde ChapterGen y pégala en ChatGPT para reescribir títulos, escribir la descripción o convertirla en un artículo.',
+        },
+        {
+          question: '¿El video tiene que estar en YouTube?',
+          answer:
+            'No. ChapterGen trabaja con el archivo, así que puedes tener los capítulos listos antes de publicar, o para videos privados y no listados.',
+        },
+      ],
+    },
+    addChapters: {
+      meta: {
+        title: "Cómo agregar capítulos a un video de YouTube {'|'} ChapterGen",
+        description:
+          'Agrega capítulos a un video de YouTube desde YouTube Studio: el formato exacto de las marcas de tiempo, las reglas de YouTube, por qué no aparecen y cómo generarlos desde el archivo.',
+      },
+      eyebrow: 'Guía',
+      title: 'Cómo agregar capítulos a un video de YouTube',
+      updatedDate: '19 de octubre de 2026',
+      intro:
+        'Los capítulos dividen el video en secciones con nombre sobre la barra de progreso, para que cada persona salte a la parte que le interesa. Para agregarlos alcanza con una lista de marcas de tiempo en la descripción. Este es el formato exacto, las reglas que revisa YouTube y qué hacer si no aparecen.',
+      answer:
+        'En YouTube Studio, abre el video, pega en la descripción una lista de marcas de tiempo con títulos y guarda. La lista tiene que empezar en 0:00, tener al menos tres capítulos en orden y cada capítulo debe durar al menos 10 segundos. YouTube la convierte en capítulos sobre la barra de progreso.',
+      sections: [
+        {
+          heading: 'Paso a paso en YouTube Studio',
+          steps: [
+            'Entra a YouTube Studio y abre Contenido en el menú de la izquierda.',
+            'Haz clic en el video al que quieres agregarle capítulos.',
+            'En la descripción, agrega tu lista de marcas de tiempo, un capítulo por línea.',
+            'Haz clic en Guardar. Los capítulos pueden tardar unos minutos en aparecer.',
+          ],
+          after: [
+            'Puedes agregar o cambiar los capítulos cuando quieras, antes o después de publicar. Alcanza con editar la descripción.',
+          ],
+        },
+        {
+          heading: 'El formato que necesita YouTube',
+          paragraphs: ['Cada línea empieza con una marca de tiempo seguida del título del capítulo:'],
+          example: '0:00 Introducción\n1:24 Por qué importan los capítulos\n4:10 Cómo preparar el proyecto\n9:45 Errores comunes\n14:30 Cierre',
+          bullets: [
+            'La primera marca de tiempo tiene que ser 0:00.',
+            'Al menos tres marcas de tiempo, en orden ascendente.',
+            'Cada capítulo tiene que durar al menos 10 segundos.',
+            'En videos de más de una hora, incluye las horas: 1:02:15.',
+            'La lista puede ir en cualquier parte de la descripción, pero con una marca por línea.',
+          ],
+        },
+        {
+          heading: 'Por qué no aparecen tus capítulos',
+          paragraphs: ['Si guardaste la descripción y no hay capítulos, revisa esto en orden:'],
+          bullets: [
+            'La primera marca no es 0:00, o hay un error de tipeo como 0.00 o faltan los dos puntos.',
+            'Hay menos de tres marcas, o algún capítulo dura menos de 10 segundos.',
+            'Las marcas no están en orden ascendente.',
+            'El canal tiene un strike activo: YouTube desactiva los capítulos mientras dure.',
+            'YouTube considera que el contenido no es apto para todo público.',
+            'El cambio es reciente. Espera unos minutos y vuelve a cargar el video.',
+          ],
+        },
+        {
+          heading: 'Capítulos automáticos o propios',
+          paragraphs: [
+            'YouTube puede crear capítulos por su cuenta. La opción se llama "Permitir capítulos automáticos", viene activada por defecto en los videos nuevos y puedes desactivarla en cada video, en Mostrar más, o para todos en Configuración, Valores predeterminados de subida.',
+            'No todos los videos reciben capítulos automáticos, y los títulos suelen ser genéricos. Los capítulos que agregas en la descripción reemplazan a los automáticos, así que tú decides dónde empieza cada sección y cómo se llama.',
+          ],
+        },
+        {
+          heading: 'Cómo escribir títulos de capítulos que sirvan',
+          bullets: [
+            'Di qué pasa en la sección: "Cómo configurar el micrófono" es mejor que "Parte 2".',
+            'Usa las palabras que la gente busca. Los títulos de los capítulos son texto que YouTube y Google pueden leer.',
+            'Hazlos cortos, de unos 40 caracteres, para que entren en la barra de progreso.',
+            'Apunta a un capítulo por cada cambio real de tema, normalmente cada pocos minutos.',
+          ],
+        },
+        {
+          heading: 'Genera la lista a partir de tu archivo',
+          paragraphs: [
+            'Escribir los capítulos a mano implica ver el video entero y anotar cada cambio de tema. ChapterGen lo hace desde el archivo: transcribe el audio, detecta dónde cambia el tema y escribe la lista en el formato de arriba, lista para pegar. Funciona antes de publicar y con videos privados, y cada video también trae la transcripción y los subtítulos.',
+          ],
+        },
+      ],
+      cta: {
+        title: 'Tus capítulos listos para pegar',
+        body: 'Sube un video o audio y obtén la lista de marcas de tiempo en el formato de YouTube, empezando en 0:00.',
+        button: 'Probar gratis',
+      },
+      faq: [
+        {
+          question: '¿Los capítulos ayudan al posicionamiento?',
+          answer:
+            'Los títulos de los capítulos son texto en tu descripción que YouTube y Google pueden leer, y Google puede mostrarlos como momentos clave en los resultados de búsqueda. Los títulos descriptivos le dan al video más formas de ser encontrado.',
+        },
+        {
+          question: '¿Puedo agregar capítulos a un video ya publicado?',
+          answer: 'Sí. Edita la descripción en YouTube Studio, agrega la lista y guarda. Funciona con cualquier video, nuevo o viejo.',
+        },
+        {
+          question: '¿Puedo agregar capítulos antes de publicar?',
+          answer:
+            'Sí. Agrega la lista en la descripción de un borrador, un video privado o uno programado. Con ChapterGen puedes generarla desde el archivo antes de subirlo a YouTube.',
+        },
+        {
+          question: '¿Cuántos capítulos debería tener un video?',
+          answer:
+            'YouTube pide al menos tres y no fija un máximo. Lo que mejor funciona es un capítulo por tema, que suele ser uno cada pocos minutos. Demasiados capítulos cortos se vuelven difíciles de usar.',
+        },
+      ],
+    },
   },
   pages: {
     updated: 'Última actualización: {date}',

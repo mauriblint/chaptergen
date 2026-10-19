@@ -62,6 +62,30 @@ export const routes: RouteRecordRaw[] = [
     meta: { locale: 'es', landing: 'subtitles' },
   },
   {
+    path: '/guides/chatgpt-youtube-chapters',
+    name: 'guide-chatgpt',
+    component: () => import('./pages/GuidePage.vue'),
+    meta: { locale: 'en', guide: 'chatgpt' },
+  },
+  {
+    path: '/es/guias/capitulos-youtube-chatgpt',
+    name: 'guide-chatgpt-es',
+    component: () => import('./pages/GuidePage.vue'),
+    meta: { locale: 'es', guide: 'chatgpt' },
+  },
+  {
+    path: '/guides/add-chapters-to-youtube',
+    name: 'guide-addChapters',
+    component: () => import('./pages/GuidePage.vue'),
+    meta: { locale: 'en', guide: 'addChapters' },
+  },
+  {
+    path: '/es/guias/agregar-capitulos-youtube',
+    name: 'guide-addChapters-es',
+    component: () => import('./pages/GuidePage.vue'),
+    meta: { locale: 'es', guide: 'addChapters' },
+  },
+  {
     path: '/about',
     name: 'about',
     component: () => import('./pages/ProsePage.vue'),

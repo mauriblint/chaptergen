@@ -19,6 +19,8 @@ const transcriptPath = computed(() => path('/video-to-text'))
 const subtitlesPath = computed(() => path('/subtitle-generator'))
 const pricingPath = computed(() => path('/pricing'))
 const aboutPath = computed(() => path('/about'))
+const guideChatgptPath = computed(() => path('/guides/chatgpt-youtube-chapters'))
+const guideAddChaptersPath = computed(() => path('/guides/add-chapters-to-youtube'))
 const privacyPath = computed(() => path('/privacy'))
 const termsPath = computed(() => path('/terms'))
 
@@ -55,6 +57,12 @@ function localeLinkPath(target: Locale) {
           <RouterLink :to="pricingPath" class="footer-link">
             {{ t('common.nav.pricing') }}
           </RouterLink>
+        </div>
+
+        <div class="footer-col">
+          <h2 class="footer-heading">{{ t('common.footer.guidesHeading') }}</h2>
+          <RouterLink :to="guideAddChaptersPath" class="footer-link">{{ t('common.footer.guideAddChapters') }}</RouterLink>
+          <RouterLink :to="guideChatgptPath" class="footer-link">{{ t('common.footer.guideChatgpt') }}</RouterLink>
         </div>
 
         <div class="footer-col">
